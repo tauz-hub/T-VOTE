@@ -9,6 +9,13 @@ import { chaveQuadro } from "./quadro";
 
 export type TabelaDespejo = { nome: string; colunas: string[]; linhas: Record<string, unknown>[]; total: number };
 
+/** Caminho para exibir na tela: relativo ao projeto, nunca absoluto (não revela usuário nem pastas do computador). */
+function caminhoExibido(arquivo: string): string {
+  const relativo = path.relative(process.cwd(), arquivo);
+  if (!relativo || relativo.startsWith("..") || path.isAbsolute(relativo)) return `<pasta de dados>/${path.relative(DIRETORIO_DADOS, arquivo).split(path.sep).join("/")}`;
+  return relativo.split(path.sep).join("/");
+}
+
 export function despejarBancos() {
   const bancos: NomeBanco[] = ["registro", "autoridade", "urnas", "boletim"];
   return {
@@ -27,7 +34,7 @@ export function despejarBancos() {
       });
       return {
         nome,
-        arquivo: path.relative(process.cwd(), caminhoBanco(nome)),
+        arquivo: caminhoExibido(caminhoBanco(nome)),
         descricao: DESCRICAO_BANCOS[nome],
         tabelas,
       };
@@ -35,7 +42,7 @@ export function despejarBancos() {
     chave_quadro: (() => {
       try {
         const k = chaveQuadro();
-        return { arquivo: "data/chaves/quadro.json (fora do banco)", publica: k.publica };
+        return { arquivo: `${caminhoExibido(path.join(DIRETORIO_DADOS, "chaves", "quadro.json"))} (fora do banco)`, publica: k.publica };
       } catch {
         return null;
       }
