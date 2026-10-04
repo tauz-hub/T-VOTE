@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>White Paper T-VOTE</title>
 <meta name="description" content="T-VOTE: uma urna eletrônica que o eleitor confere em casa. Validação pelo eleitor, o sistema tela por tela, protocolo criptográfico, testes de invasão e fontes.">
-<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
-<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
-<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
-<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
-<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
-<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
-<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/T-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/T-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/T-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/T-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/T-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/T-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/T-VOTE/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
@@ -83,22 +83,24 @@
         <h2 id="projeto-titulo">Código aberto: baixe, rode e confira</h2>
         <p>Todo o sistema descrito aqui está publicado. Qualquer pessoa pode ler o código, rodar a eleição de demonstração no próprio computador e refazer as conferências.</p>
         <div class="botoes">
-          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">Repositório no GitHub</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Baixar o projeto (.zip)</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Validador offline (no GitHub)</a>
-          <a href="https://tauz-hub.github.io/TAI-VOTE/" target="_blank" rel="noopener">Este documento online</a>
+          <a class="principal" href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">Repositório no GitHub</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Baixar o projeto (.zip)</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Validador offline (no GitHub)</a>
+          <a href="https://tauz-hub.github.io/T-VOTE/" target="_blank" rel="noopener">Este documento online</a>
         </div>
-        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+        <p><strong>Jeito fácil:</strong> baixe o projeto (.zip), extraia e dê dois cliques em <code>INICIAR.bat</code> (Windows) ou rode <code>sh iniciar.sh</code> (Linux e macOS). Ele baixa o Node.js se o computador não tiver, instala tudo e abre o sistema no navegador. Se o Windows avisar sobre o arquivo, clique em <em>Mais informações → Executar assim mesmo</em>.</p>
+        <p><strong>Pelo terminal:</strong> instale o <a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> 22 ou mais novo e rode:</p>
+        <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev        # abre em http://127.0.0.1:3000</pre>
         <ul class="lista-docs">
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README: guia de uso e roteiro da demonstração</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Especificação do protocolo (v4)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Relatório dos testes de invasão</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Código da criptografia (<code>lib/crypto</code>)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Auditor e validador do eleitor (<code>lib/auditoria.ts</code>)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">Relatar um problema ou uma falha</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE#readme" target="_blank" rel="noopener">README: guia de uso e roteiro da demonstração</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Especificação do protocolo (v4)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Relatório dos testes de invasão</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Código da criptografia (<code>lib/crypto</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Auditor e validador do eleitor (<code>lib/auditoria.ts</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/issues" target="_blank" rel="noopener">Relatar um problema ou uma falha</a></li>
         </ul>
       </section>
 
@@ -837,9 +839,10 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
       </div>
 
       <h2 id="reproduzir">16. Como reproduzir</h2>
-      <p>O protótipo roda num único computador, sem acesso à internet durante a execução. Código: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
-      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+      <p>O protótipo roda num único computador, sem acesso à internet durante a execução. Código: <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</p>
+      <p>Pré-requisito: Node.js 22 ou mais novo. Os executores <code>INICIAR.bat</code> e <code>iniciar.sh</code> baixam o Node.js sozinhos se ele faltar (veja <a href="#projeto">Código e download</a>).</p>
+      <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev               # http://127.0.0.1:3000
 npm run teste             # protocolo em memória: auditor, teste refeito em casa e 14 ataques
@@ -920,7 +923,7 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
         <ol start="34">
           <li>Miller, P. <em>noble-curves</em> e <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas e hashes em JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Portal de Dados Abertos: fotos de divulgação de candidatos (licença CC BY). dadosabertos.tse.jus.br.</li>
-          <li>Projeto T-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+          <li>Projeto T-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>
         </ol>
       </div>
     </div>

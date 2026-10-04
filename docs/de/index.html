@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>T-VOTE Whitepaper</title>
 <meta name="description" content="T-VOTE: ein Wahlgerät, das Wähler zu Hause überprüfen können. Prüfung durch die Wähler, das System Bildschirm für Bildschirm, kryptografisches Protokoll, Penetrationstests und Quellen.">
-<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
-<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
-<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
-<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
-<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
-<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
-<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/T-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/T-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/T-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/T-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/T-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/T-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/T-VOTE/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
@@ -83,22 +83,24 @@
         <h2 id="projeto-titulo">Offener Quellcode: herunterladen, ausführen, prüfen</h2>
         <p>Das gesamte hier beschriebene System ist veröffentlicht. Jeder kann den Code lesen, die Demowahl auf dem eigenen Computer ausführen und die Prüfungen wiederholen.</p>
         <div class="botoes">
-          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">Repository auf GitHub</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Projekt herunterladen (.zip)</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Offline-Validator (auf GitHub)</a>
-          <a href="https://tauz-hub.github.io/TAI-VOTE/de/" target="_blank" rel="noopener">Dieses Dokument online</a>
+          <a class="principal" href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">Repository auf GitHub</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Projekt herunterladen (.zip)</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Offline-Validator (auf GitHub)</a>
+          <a href="https://tauz-hub.github.io/T-VOTE/de/" target="_blank" rel="noopener">Dieses Dokument online</a>
         </div>
-        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+        <p><strong>Der einfache Weg:</strong> Laden Sie das Projekt (.zip) herunter, entpacken Sie es und doppelklicken Sie auf <code>INICIAR.bat</code> (Windows) oder führen Sie <code>sh iniciar.sh</code> aus (Linux und macOS). Das Skript lädt Node.js herunter, falls es fehlt, installiert alles und öffnet das System im Browser. Warnt Windows vor der Datei, klicken Sie auf <em>Weitere Informationen → Trotzdem ausführen</em>.</p>
+        <p><strong>Im Terminal:</strong> Installieren Sie <a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> 22 oder neuer und führen Sie aus:</p>
+        <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev        # öffnet unter http://127.0.0.1:3000</pre>
         <ul class="lista-docs">
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README: Anleitung und Ablauf der Demo</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Protokollspezifikation (v4)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Bericht der Penetrationstests</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Kryptografie-Code (<code>lib/crypto</code>)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Prüfer und Wählervalidator (<code>lib/auditoria.ts</code>)</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">Ein Problem oder eine Schwachstelle melden</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE#readme" target="_blank" rel="noopener">README: Anleitung und Ablauf der Demo</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Protokollspezifikation (v4)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Bericht der Penetrationstests</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Kryptografie-Code (<code>lib/crypto</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Prüfer und Wählervalidator (<code>lib/auditoria.ts</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/issues" target="_blank" rel="noopener">Ein Problem oder eine Schwachstelle melden</a></li>
         </ul>
         <p class="aviso-idioma" style="margin:.8rem 0 0">Oberfläche, Code und Spezifikation des Prototyps sind auf Portugiesisch; die Bildschirmfotos in Teil II werden unverändert gezeigt.</p>
       </section>
@@ -845,9 +847,10 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj durch Suche in [0, Z
       </div>
 
       <h2 id="reproduzir">16. Nachvollziehen</h2>
-      <p>Der Prototyp läuft auf einem einzigen Computer, ohne Internetzugang während der Ausführung. Code: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
-      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+      <p>Der Prototyp läuft auf einem einzigen Computer, ohne Internetzugang während der Ausführung. Code: <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</p>
+      <p>Voraussetzung: Node.js 22 oder neuer. Die Startskripte <code>INICIAR.bat</code> und <code>iniciar.sh</code> laden Node.js bei Bedarf automatisch herunter (siehe <a href="#projeto">Code und Download</a>).</p>
+      <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev               # http://127.0.0.1:3000
 npm run teste             # Protokoll im Speicher: Prüfer, zu Hause wiederholter Test und 14 Angriffe
@@ -928,7 +931,7 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
         <ol start="34">
           <li>Miller, P. <em>noble-curves</em> und <em>noble-hashes</em>: geprüfte Bibliotheken für elliptische Kurven und Hashes in JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Open-Data-Portal: Wahlkampffotos der Kandidaten (Lizenz CC BY). dadosabertos.tse.jus.br.</li>
-          <li>Projekt T-VOTE. Quellcode, Protokollspezifikation (<code>docs/PROTOCOLO.md</code>) und Bericht der Penetrationstests (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+          <li>Projekt T-VOTE. Quellcode, Protokollspezifikation (<code>docs/PROTOCOLO.md</code>) und Bericht der Penetrationstests (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>
         </ol>
       </div>
     </div>

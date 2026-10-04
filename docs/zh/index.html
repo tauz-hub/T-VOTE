@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>T-VOTE 白皮书</title>
 <meta name="description" content="T-VOTE：选民可以在家核验的电子投票机。选民核验、逐屏介绍系统、密码协议、渗透测试与参考文献。">
-<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
-<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
-<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
-<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
-<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
-<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
-<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/T-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/T-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/T-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/T-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/T-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/T-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/T-VOTE/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
@@ -82,22 +82,24 @@
         <h2 id="projeto-titulo">开放源代码：下载、运行、核验</h2>
         <p>本文描述的整个系统均已公开。任何人都可以阅读代码，在自己的电脑上运行演示选举，并重复各项核验。</p>
         <div class="botoes">
-          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">GitHub 代码仓库</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">下载项目（.zip）</a>
-          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">离线验证器（GitHub）</a>
-          <a href="https://tauz-hub.github.io/TAI-VOTE/zh/" target="_blank" rel="noopener">本文在线版</a>
+          <a class="principal" href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">GitHub 代码仓库</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">下载项目（.zip）</a>
+          <a href="https://github.com/tauz-hub/T-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">离线验证器（GitHub）</a>
+          <a href="https://tauz-hub.github.io/T-VOTE/zh/" target="_blank" rel="noopener">本文在线版</a>
         </div>
-        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+        <p><strong>最简单的方式：</strong>下载项目（.zip）并解压，然后双击 <code>INICIAR.bat</code>（Windows），或运行 <code>sh iniciar.sh</code>（Linux 和 macOS）。如果电脑上没有 Node.js，它会自动下载，安装所有依赖，并在浏览器中打开系统。如果 Windows 对该文件发出警告，请点击<em>更多信息 → 仍要运行</em>。</p>
+        <p><strong>使用终端：</strong>安装 <a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> 22 或更高版本，然后运行：</p>
+        <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev        # 在 http://127.0.0.1:3000 打开</pre>
         <ul class="lista-docs">
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README：使用指南与演示流程</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">协议规范（v4）</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">渗透测试报告</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">密码学代码（<code>lib/crypto</code>）</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">审计器与选民验证器（<code>lib/auditoria.ts</code>）</a></li>
-          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">报告问题或漏洞</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE#readme" target="_blank" rel="noopener">README：使用指南与演示流程</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">协议规范（v4）</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">渗透测试报告</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">密码学代码（<code>lib/crypto</code>）</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">审计器与选民验证器（<code>lib/auditoria.ts</code>）</a></li>
+          <li><a href="https://github.com/tauz-hub/T-VOTE/issues" target="_blank" rel="noopener">报告问题或漏洞</a></li>
         </ul>
         <p class="aviso-idioma" style="margin:.8rem 0 0">原型的界面、代码和规范均为葡萄牙语；第二部分的截图按原样展示。</p>
       </section>
@@ -766,9 +768,10 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   在 [0, 选票数] 中搜
       </div>
 
       <h2 id="reproduzir">16. 如何复现</h2>
-      <p>原型在单台电脑上运行，运行期间不访问互联网。代码：<a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>。</p>
-      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
-cd TAI-VOTE
+      <p>原型在单台电脑上运行，运行期间不访问互联网。代码：<a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>。</p>
+      <p>前提条件：Node.js 22 或更高版本。如果缺少 Node.js，启动脚本 <code>INICIAR.bat</code> 和 <code>iniciar.sh</code> 会自动下载（见<a href="#projeto">代码与下载</a>）。</p>
+      <pre>git clone https://github.com/tauz-hub/T-VOTE.git
+cd T-VOTE
 npm install
 npm run dev               # http://127.0.0.1:3000
 npm run teste             # 内存中的协议：审计器、在家复算的测试以及 14 种攻击
@@ -847,7 +850,7 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
         <ol start="34">
           <li>Miller, P. <em>noble-curves</em> 和 <em>noble-hashes</em>：经过审计的 JavaScript 椭圆曲线与哈希库。github.com/paulmillr。</li>
           <li>Tribunal Superior Eleitoral。开放数据门户：候选人竞选照片（CC BY 许可）。dadosabertos.tse.jus.br。</li>
-          <li>T-VOTE 项目。源代码、协议规范（<code>docs/PROTOCOLO.md</code>）和渗透测试报告（<code>docs/RELATORIO-INVASAO.md</code>）。<a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>。</li>
+          <li>T-VOTE 项目。源代码、协议规范（<code>docs/PROTOCOLO.md</code>）和渗透测试报告（<code>docs/RELATORIO-INVASAO.md</code>）。<a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>。</li>
         </ol>
       </div>
     </div>

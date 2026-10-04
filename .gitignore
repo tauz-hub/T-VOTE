@@ -42,3 +42,6 @@ next-env.d.ts
 
 # dados da eleição (bancos SQLite e chaves)
 /data/
+
+# Node.js portátil baixado pelo INICIAR.bat / iniciar.sh
+/.ferramentas/

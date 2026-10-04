@@ -143,6 +143,29 @@ Cada urna também abre numa janela própria ("Abrir a urna") para votar à mão 
 
 ## Como rodar
 
+### Jeito fácil (computador novo)
+
+1. Baixe o projeto: **Code → Download ZIP** no GitHub (ou `git clone https://github.com/tauz-hub/T-VOTE.git`).
+2. Extraia o zip.
+3. **Windows:** dê dois cliques em `INICIAR.bat`. Se o Windows avisar sobre o arquivo, clique em
+   *Mais informações → Executar assim mesmo*.
+   **Linux e macOS:** abra um terminal na pasta e rode `sh iniciar.sh`.
+
+O executor faz tudo sozinho:
+
+* usa o Node.js do computador, se for 22 ou mais novo;
+* se não houver Node.js, baixa a versão oficial portátil de nodejs.org para `.ferramentas/`, confere o SHA-256 e usa
+  só naquela janela (nada é instalado no sistema);
+* instala as dependências, compila e abre o sistema no navegador.
+
+A primeira vez leva alguns minutos; depois, poucos segundos. Para parar, feche a janela (ou Ctrl+C). Opções:
+`INICIAR.bat -Reinstalar`, `-Porta 3001`, `-SemNavegador`, `-NodePortatil` (no `iniciar.sh`: `--reinstalar`,
+`--porta 3001`, `--sem-navegador`, `--node-portatil`).
+
+### Pelo terminal
+
+Requer [Node.js](https://nodejs.org) 22 ou mais novo.
+
 ```bash
 npm install
 npm run dev              # http://127.0.0.1:3000 (só na interface local)
@@ -155,7 +178,8 @@ npm run verificar -- pacote.json <código> ["chave"]  # validador do eleitor
 npm run verificar -- pacote.json --bu 010-0123       # BU publicado de uma seção
 ```
 
-Requer Node 20+. Dados em `data/` (`T_VOTE_DADOS=<pasta>` usa outra pasta). Fotos padrão dos candidatos: divulgação
+O `.npmrc` desliga os scripts de instalação das dependências: o `better-sqlite3` já traz o binário pronto, e sem isso
+o npm 11 tentaria compilá-lo (exigindo Visual Studio com C++ no Windows). Dados em `data/` (`T_VOTE_DADOS=<pasta>` usa outra pasta). Fotos padrão dos candidatos: divulgação
 do TSE (CC BY, `public/candidatos/CREDITOS.md`); em execução nada é buscado na internet.
 
 ### Roteiro de teste
