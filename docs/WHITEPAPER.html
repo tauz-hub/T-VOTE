@@ -1,0 +1,809 @@
+<title>White Paper TAI-VOTE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Layout: documento longo em uma coluna de leitura (~68ch), com sumário fixo à esquerda em telas largas.
+   Parte I usa "cartões de urna" para o caminho do eleitor; Parte II é densa, com tabelas e blocos de fórmula. */
+:root {
+  --fundo: #f6f7f9;
+  --papel: #ffffff;
+  --tinta: #1b2330;
+  --suave: #5b6576;
+  --linha: #dde1e8;
+  --acento: #1f4e8c;      /* azul-tinta de cédula */
+  --acento-fundo: #e8eef8;
+  --ok: #1f7a4d;
+  --ok-fundo: #e5f4ec;
+  --alerta: #b45309;
+  --alerta-fundo: #fdf1e2;
+  --falha: #b42318;
+  --falha-fundo: #fbe9e7;
+  --urna: #c9c4b6;        /* gabinete da urna */
+  --tela: #f3f1e7;        /* tela da urna */
+  --codigo-fundo: #eef1f5;
+  --f-display: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-texto: "Literata", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
+    --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
+    --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
+    --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
+  --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
+  --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
+  --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--fundo); color: var(--tinta); font-family: var(--f-texto); font-size: 17px; line-height: 1.65; }
+.pagina { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 2.5rem 5rem; }
+@media (min-width: 1040px) { .pagina { grid-template-columns: 15rem minmax(0, 1fr); } }
+
+/* sumário */
+nav.sumario { font-family: var(--f-display); font-size: 0.86rem; }
+@media (min-width: 1040px) { nav.sumario { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; max-height: calc(100vh - 3rem); overflow-y: auto; } }
+nav.sumario h2 { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--suave); margin: 0 0 0.6rem; }
+nav.sumario ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.15rem; }
+nav.sumario a { color: var(--tinta); text-decoration: none; display: block; padding: 0.2rem 0.5rem; border-radius: 6px; }
+nav.sumario a:hover, nav.sumario a:focus-visible { background: var(--acento-fundo); color: var(--acento); outline: none; }
+nav.sumario .parte { margin-top: 0.8rem; color: var(--suave); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding-left: 0.5rem; }
+
+article { min-width: 0; }
+.coluna { max-width: 68ch; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; color: var(--tinta); }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin: 0.4rem 0 1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.65rem; font-weight: 700; margin: 3.2rem 0 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--linha); scroll-margin-top: 1rem; }
+h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.5rem; scroll-margin-top: 1rem; }
+h4 { font-size: 1rem; font-weight: 600; margin: 1.4rem 0 0.4rem; }
+p { margin: 0 0 1rem; }
+a { color: var(--acento); }
+.rotulo { font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--acento); }
+.lead { font-size: 1.2rem; line-height: 1.55; color: var(--tinta); }
+.meta { font-family: var(--f-display); font-size: 0.85rem; color: var(--suave); display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+.parte-titulo { margin-top: 4rem; padding: 1.4rem 1.6rem; background: var(--acento-fundo); border-radius: 12px; }
+.parte-titulo h2 { border: 0; margin: 0.2rem 0 0.4rem; padding: 0; }
+.parte-titulo p { margin: 0; color: var(--suave); font-family: var(--f-display); font-size: 0.95rem; }
+
+ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 600; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+code { background: var(--codigo-fundo); padding: 0.08em 0.35em; border-radius: 4px; }
+pre { font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; background: var(--codigo-fundo); padding: 1rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: 0 0 1.2rem; }
+
+.aviso { border-radius: 10px; padding: 0.9rem 1.1rem; margin: 1.2rem 0; font-family: var(--f-display); font-size: 0.93rem; line-height: 1.55; }
+.aviso p:last-child { margin: 0; }
+.aviso.info { background: var(--acento-fundo); }
+.aviso.ok { background: var(--ok-fundo); }
+.aviso.alerta { background: var(--alerta-fundo); }
+.aviso.falha { background: var(--falha-fundo); }
+.aviso strong { color: var(--tinta); }
+
+/* tabelas */
+.tabela { overflow-x: auto; margin: 0 0 1.4rem; }
+table { border-collapse: collapse; width: 100%; font-family: var(--f-display); font-size: 0.88rem; line-height: 1.45; }
+th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { font-weight: 600; color: var(--suave); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+.chip.ok { background: var(--ok-fundo); color: var(--ok); }
+.chip.falha { background: var(--falha-fundo); color: var(--falha); }
+.chip.alerta { background: var(--alerta-fundo); color: var(--alerta); }
+
+/* passos do eleitor */
+.passos { list-style: none; padding: 0; margin: 1.4rem 0; display: grid; gap: 1rem; counter-reset: passo; }
+.passos > li { counter-increment: passo; display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0.9rem; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; margin: 0; }
+.passos > li::before { content: counter(passo); font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--acento); color: var(--papel); }
+.passos h4 { margin: 0.2rem 0 0.3rem; }
+.passos p { margin: 0; font-size: 0.98rem; }
+
+/* tela da urna e comprovante de exemplo */
+.lado-a-lado { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; margin: 1.4rem 0; align-items: start; }
+@media (min-width: 760px) { .lado-a-lado { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+.urna { background: var(--urna); border-radius: 14px; padding: 0.9rem; }
+.urna .tela { background: var(--tela); border: 4px solid color-mix(in srgb, var(--urna) 70%, #000 30%); border-radius: 8px; padding: 1rem; font-family: var(--f-mono); font-size: 0.82rem; color: var(--tinta); }
+.urna .tela .t { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--suave); }
+.figuras { display: flex; gap: 0.7rem; justify-content: center; margin: 0.7rem 0; }
+.figura { display: grid; justify-items: center; background: var(--papel); border: 2px solid var(--linha); border-radius: 10px; padding: 0.35rem 0.8rem; font-family: var(--f-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.05em; }
+.figura span { font-size: 2.2rem; line-height: 1.2; }
+.codigo-urna { display: flex; justify-content: center; gap: 1rem; font-family: var(--f-mono); font-weight: 600; font-size: 1.25rem; text-align: center; }
+.codigo-urna small { display: block; font-size: 0.6rem; font-weight: 400; letter-spacing: 0.08em; color: var(--suave); }
+.teclas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; margin-top: 0.7rem; font-family: var(--f-display); font-size: 0.7rem; font-weight: 700; text-align: center; }
+.teclas span { border-radius: 5px; padding: 0.45rem 0.2rem; color: #1b2330; }
+.k-branco { background: #ffffff; } .k-corrige { background: #f28b2c; } .k-confirma { background: #3db37a; } .k-testar { background: #7cc3ef; }
+.papel { background: #ffffff; color: #111; font-family: var(--f-mono); font-size: 0.74rem; line-height: 1.45; padding: 1rem 1.1rem; border-radius: 2px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.18); max-width: 22rem; margin-inline: auto; }
+.papel .c { text-align: center; }
+.papel .b { font-weight: 600; }
+.papel hr { border: 0; border-top: 1px dashed #111; margin: 0.55rem 0; }
+.papel .grande { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.08em; }
+.papel .miudo { font-size: 0.56rem; word-break: break-all; color: #333; }
+.legenda { font-family: var(--f-display); font-size: 0.8rem; color: var(--suave); text-align: center; margin-top: 0.5rem; }
+
+/* três conferências */
+.tres { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 1.2rem 0 1.6rem; }
+@media (min-width: 760px) { .tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tres > div { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; font-family: var(--f-display); font-size: 0.9rem; line-height: 1.5; }
+.tres h4 { margin: 0 0 0.4rem; font-size: 1rem; }
+.tres p { margin: 0 0 0.5rem; }
+.tres .usa { color: var(--suave); font-size: 0.8rem; }
+
+.formula { font-family: var(--f-mono); font-size: 0.85rem; background: var(--codigo-fundo); border-radius: 8px; padding: 0.8rem 1rem; margin: 0 0 1.2rem; overflow-x: auto; white-space: pre; line-height: 1.6; }
+pre.mermaid { background: var(--papel); border: 1px solid var(--linha); text-align: center; }
+
+.faq details { border-bottom: 1px solid var(--linha); padding: 0.7rem 0; }
+.faq summary { font-family: var(--f-display); font-weight: 600; cursor: pointer; }
+.faq details p { margin: 0.6rem 0 0.2rem; }
+
+.refs ol { font-family: var(--f-display); font-size: 0.86rem; line-height: 1.5; padding-left: 1.6rem; }
+.refs li { margin: 0.45rem 0; }
+.refs .grupo { margin-top: 1.6rem; font-family: var(--f-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); }
+
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="pagina">
+  <nav class="sumario" aria-label="Sumário">
+    <h2>Sumário</h2>
+    <ol>
+      <li><a href="#resumo">Resumo</a></li>
+      <li class="parte">Parte I · Para qualquer pessoa</li>
+      <li><a href="#ideia">1. A ideia</a></li>
+      <li><a href="#dia">2. No dia da eleição</a></li>
+      <li><a href="#casa">3. Em casa: as três conferências</a></li>
+      <li><a href="#sigilo-simples">4. Por que ninguém descobre seu voto</a></li>
+      <li><a href="#fraude-simples">5. Se alguém trapacear</a></li>
+      <li><a href="#perguntas">6. Perguntas frequentes</a></li>
+      <li class="parte">Parte II · Por dentro</li>
+      <li><a href="#arquitetura">7. Arquitetura</a></li>
+      <li><a href="#cripto">8. Criptografia</a></li>
+      <li><a href="#verificador">9. O que o eleitor verifica</a></li>
+      <li><a href="#e2e">10. Verificabilidade de ponta a ponta</a></li>
+      <li><a href="#auditoria">11. Auditoria universal</a></li>
+      <li><a href="#ameacas">12. Ameaças e testes de invasão</a></li>
+      <li><a href="#sigilo">13. Sigilo e a lição do TPS 2012</a></li>
+      <li><a href="#limites">14. Limites e trabalho futuro</a></li>
+      <li><a href="#reproduzir">15. Como reproduzir</a></li>
+      <li><a href="#fontes">Fontes</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <div class="coluna">
+      <div class="rotulo">White paper · versão 1 · outubro de 2026</div>
+      <h1>TAI-VOTE: uma urna eletrônica que o eleitor confere em casa</h1>
+      <p class="lead">
+        Como votar numa urna que funciona como a de hoje — seção sem internet, mesário, zerésima, boletim de urna na porta da escola — e,
+        depois, conferir no próprio computador que o seu voto foi registrado e contado como você votou, sem precisar confiar na urna, no
+        servidor nem em quem organiza a eleição.
+      </p>
+      <div class="meta">
+        <span>Protótipo acadêmico de código aberto</span>
+        <span>Protocolo v4 · seção offline</span>
+        <span>Implementação de referência: TypeScript (Next.js + SQLite)</span>
+      </div>
+
+      <div class="aviso alerta">
+        <p>
+          <strong>Este é um protótipo de pesquisa, não um sistema certificado.</strong> Ele serve para estudar e demonstrar um desenho de
+          votação verificável. Não foi auditado por terceiros e não deve ser usado em eleições reais. Os candidatos dos exemplos deste
+          documento são fictícios; o protótipo pode carregar fotos públicas de divulgação apenas para tornar a demonstração realista, e nenhum
+          exemplo favorece candidato algum (nos testes de fraude, o candidato beneficiado é sorteado).
+        </p>
+      </div>
+
+      <h2 id="resumo">Resumo</h2>
+      <p>
+        O TAI-VOTE é um desenho de votação eletrônica <strong>verificável de ponta a ponta</strong> (em inglês, <em>end-to-end
+        verifiable</em>, ou E2E-V). Ele mantém o fluxo que o eleitor brasileiro já conhece e acrescenta três conferências que qualquer
+        pessoa pode fazer em casa, com um programa de código aberto e uma cópia pública da eleição:
+      </p>
+      <ul>
+        <li><strong>Meu voto:</strong> o código impresso no comprovante leva ao seu voto cifrado na lista pública da sua seção, com as mesmas
+          duas figuras que a urna mostrou. Isso prova que o voto foi <em>registrado</em> e entrou na <em>contagem</em> — sem revelar em quem você votou.</li>
+        <li><strong>Meu teste:</strong> se você apertou TESTAR na urna, o comprovante traz a chave daquela cédula de teste. Em casa, o
+          computador refaz a conta e mostra qual candidato estava dentro dela. Se a urna mentiu, o papel assinado por ela é prova.</li>
+        <li><strong>O boletim da minha seção:</strong> o boletim de urna colado na porta da escola tem um código; o boletim publicado tem de
+          ter o mesmo código e os mesmos números, e os números têm de bater com a apuração criptográfica.</li>
+      </ul>
+      <p>
+        Por baixo disso estão primitivas criptográficas consolidadas: cifra ElGamal homomórfica sobre o grupo ristretto255, provas de
+        conhecimento zero, assinaturas cegas para credenciais anônimas, assinaturas Ed25519 e uma cadeia de blocos assinada. A apuração é
+        feita por três guardiões de chave (trustees) que só conseguem decifrar a <em>soma</em> dos votos de cada seção, nunca um voto
+        individual. Este documento explica o sistema primeiro em linguagem comum e depois em detalhe técnico, e termina com os testes de
+        invasão feitos contra ele e com todas as fontes.
+      </p>
+
+      <!-- ================================================================== PARTE I -->
+      <div class="parte-titulo">
+        <div class="rotulo">Parte I</div>
+        <h2>Para qualquer pessoa</h2>
+        <p>Sem matemática: o que você faz na urna, o que leva para casa e o que consegue conferir.</p>
+      </div>
+
+      <h2 id="ideia">1. A ideia em poucas palavras</h2>
+      <p>
+        Hoje, quando você vota, precisa confiar que a urna gravou o número que você digitou e que a soma da sua seção foi feita
+        corretamente. A urna atual tem vários controles para merecer essa confiança, mas o eleitor, sozinho, não tem como conferir o
+        próprio voto.
+      </p>
+      <p>
+        No TAI-VOTE, a urna continua no canto da sala, sem internet, e você continua apertando os mesmos botões. A diferença é que ela
+        <strong>se compromete</strong> com o que gravou antes de saber o que você vai fazer, e depois deixa rastros que você confere em
+        casa. Se ela trapacear, a trapaça aparece. Se o órgão que soma os votos trapacear, também aparece. E, mesmo assim, ninguém —
+        nem você — consegue provar a outra pessoa em quem você votou. É isso que impede a compra de votos.
+      </p>
+
+      <h2 id="dia">2. No dia da eleição</h2>
+      <p>Tudo acontece na seção, como hoje. A urna e o terminal do mesário só falam entre si; nenhum dos dois está ligado à internet.</p>
+      <ol class="passos">
+        <li>
+          <div>
+            <h4>O mesário confere seu documento e libera a urna</h4>
+            <p>Como hoje. A urna recebe apenas um “pode votar” — ela nunca fica sabendo o seu nome.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Você digita o número e vê a foto</h4>
+            <p>A tela mostra o nome, o partido e a foto do candidato. A foto é conferida pela própria urna contra uma impressão digital publicada antes da eleição, para ninguém conseguir trocá-la.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Você aperta CONFIRMA e aparecem duas figuras e um código</h4>
+            <p>Por exemplo: 🍄 COGUMELO e 🦴 OSSO, e o código <span class="mono">010 0123 J7K6T</span>. As figuras têm desenho em cima da palavra para quem não lê. Guarde as figuras na memória; o código sai impresso.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Agora você escolhe uma tecla</h4>
+            <p><strong>CONFIRMA</strong> grava o voto. <strong>TESTAR</strong> abre aquela cédula para você ver o que a urna gravou (ela é anulada e você vota de novo, sem redigitar). <strong>CORRIGE</strong> volta para escolher outro.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Sai um papel só</h4>
+            <p>O comprovante tem o código do voto, uma “conferência” de 8 caracteres e o nome das duas figuras. Se você testou, o mesmo papel traz o teste: o candidato que a urna disse ter encontrado, o código do teste e a chave daquela cédula de teste.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="lado-a-lado">
+        <div>
+          <div class="urna" role="img" aria-label="Tela da urna depois de confirmar o voto, mostrando duas figuras, o código e as teclas CONFIRMA, TESTAR e CORRIGE">
+            <div class="tela">
+              <div class="t">Confira o seu voto</div>
+              <div style="margin-top:.3rem">Número: <b>70</b> · Nome: <b>Candidata Exemplo</b> · Partido: <b>PARTIDO X</b></div>
+              <div style="text-align:center;margin-top:.6rem;font-family:var(--f-display);font-weight:600;font-size:.8rem">Guarde estas 2 figuras:</div>
+              <div class="figuras">
+                <div class="figura"><span>🍄</span>COGUMELO</div>
+                <div class="figura"><span>🦴</span>OSSO</div>
+              </div>
+              <div class="codigo-urna">
+                <div>010<small>ZONA</small></div><div>0123<small>SEÇÃO</small></div><div>J7K6T<small>CÓDIGO</small></div>
+              </div>
+              <div style="text-align:center;font-size:.75rem;margin-top:.3rem">conferência <b>BNGJ 69AH</b></div>
+              <div style="border-top:1px solid var(--linha);margin-top:.6rem;padding-top:.4rem;font-size:.72rem">
+                Aperte a tecla:<br><b>CONFIRMA</b> para VOTAR<br><b>TESTAR</b> para testar a urna (esta cédula é anulada)<br><b>CORRIGE</b> para escolher outro
+              </div>
+            </div>
+            <div class="teclas"><span class="k-branco">BRANCO</span><span class="k-corrige">CORRIGE</span><span class="k-confirma">CONFIRMA</span><span class="k-testar">TESTAR</span></div>
+          </div>
+          <div class="legenda">A tela da urna não é de toque: tudo é feito pelo teclado. TESTAR é a única tecla nova.</div>
+        </div>
+        <div>
+          <div class="papel" role="img" aria-label="Exemplo de comprovante impresso com o código do voto e a parte do teste">
+            <div class="c b">COMPROVANTE DE VOTAÇÃO</div>
+            <div class="c">ZONA 010 · SEÇÃO 0123</div>
+            <hr>
+            <div class="c b">CÓDIGO DO SEU VOTO</div>
+            <div class="c grande">010 0123 HAAX2</div>
+            <div class="c">CONFERÊNCIA: <b>ZCJV DS7A</b></div>
+            <div class="c">FIGURAS: <b>GIRASSOL · COMETA</b></div>
+            <div class="c b" style="margin-top:.3rem">Este código NÃO mostra em quem você votou.</div>
+            <hr>
+            <div class="c b">TESTE DA URNA — ANULADO, NÃO É VOTO</div>
+            <div class="c">A urna declara que a cédula testada continha:</div>
+            <div class="c b">70 — Candidata Exemplo</div>
+            <div class="c">CÓDIGO DO TESTE: <b>010 0123 J7K6T</b></div>
+            <div class="c">CHAVE DO TESTE:</div>
+            <div class="c b">5PVV ZHZ0 7DNJ ZWN1 SKWE QYC3 MM</div>
+            <div class="miudo" style="margin-top:.3rem">Declaração assinada pela urna: 284a4769a4febd488f44ff9e150b7dda…</div>
+            <hr>
+            <div class="miudo">Hash completo: 66434bc097a1bc51ca669e01b0464bbc… · Assinatura da urna: 9ccf0c2b83ca8b10…</div>
+          </div>
+          <div class="legenda">Exemplo ilustrativo. Um papel só por eleitor: não tem nome, não tem horário e não diz em quem você votou.</div>
+        </div>
+      </div>
+
+      <div class="aviso info">
+        <p>
+          <strong>Por que testar?</strong> Quando você aperta TESTAR, a urna já mostrou o código e as figuras daquela cédula — ela se
+          comprometeu antes de saber se você ia votar ou testar. Se ela costuma gravar um candidato diferente do que mostra, cada eleitor
+          que testa é uma chance de ela ser pega. Você pode testar até digitando o número de quem você não vai votar.
+        </p>
+      </div>
+
+      <h3>No fim do dia</h3>
+      <p>
+        O mesário encerra a seção e a urna imprime o <strong>boletim de urna (BU)</strong>, como hoje, com os votos de cada candidato. Uma
+        via vai para a porta da escola. A novidade é o <strong>código do BU</strong> (por exemplo <span class="mono">0d94 dbf4 9855 15b1</span>),
+        que identifica exatamente aquele boletim. Depois, o arquivo da seção (a “mídia”) é levado ao órgão eleitoral, que confere tudo e
+        publica numa cadeia de blocos que qualquer pessoa pode baixar.
+      </p>
+
+      <h2 id="casa">3. Em casa: as três conferências</h2>
+      <p>
+        Depois que a seção é publicada, você pode conferir com o site da eleição, com um arquivo único que funciona sem internet, ou com um
+        programa de linha de comando. Os três usam o mesmo código-fonte aberto e fazem toda a conta no seu computador.
+      </p>
+      <div class="tres">
+        <div>
+          <h4>Meu voto</h4>
+          <p>Digite o código do comprovante. Devem aparecer as mesmas 2 figuras que você viu na urna e a mesma conferência do papel.</p>
+          <p class="usa">Prova: o seu voto está na lista pública da sua seção, é válido e foi somado.</p>
+        </div>
+        <div>
+          <h4>Meu teste</h4>
+          <p>Cole a parte “TESTE DA URNA” do comprovante. O computador recifra cada candidato com a chave do papel e encontra o que estava dentro.</p>
+          <p class="usa">Prova: a urna disse a verdade — ou mentiu, e a assinatura dela no papel mostra isso.</p>
+        </div>
+        <div>
+          <h4>O BU da seção</h4>
+          <p>Digite zona e seção. O código do BU e os números publicados têm de ser iguais aos do papel da porta da escola.</p>
+          <p class="usa">Prova: ninguém trocou a sua seção depois que ela saiu da escola.</p>
+        </div>
+      </div>
+      <p>
+        Exemplo real, da conferência de dois testes feitos num ensaio do sistema: o primeiro teste, em que a urna declarou o número 80, foi
+        refeito em casa e deu 80; o segundo, declarado 27, deu 27; as duas declarações tinham assinatura válida da urna. Resultado: “a urna
+        da seção 001-0001 passou nos seus 2 testes”.
+      </p>
+
+      <h2 id="sigilo-simples">4. Por que ninguém descobre o seu voto pelo papel</h2>
+      <ul>
+        <li><strong>O código e as figuras não vêm do voto.</strong> Eles saem de uma assinatura da urna sobre uma cifra que é diferente a cada
+          cédula. Dois eleitores que votam no mesmo candidato recebem códigos sem nenhuma relação entre si. Você pode dizer em público “minhas figuras foram 🌻 GIRASSOL e ☄️ COMETA” sem revelar nada.</li>
+        <li><strong>O voto depositado nunca é aberto.</strong> Cada cédula tem uma chave própria; a chave do voto depositado é destruída na
+          urna no mesmo instante. O que existe publicamente é só a cifra.</li>
+        <li><strong>Só a soma é aberta.</strong> Três guardiões de chave, cada um com um pedaço, decifram juntos apenas o total de cada seção.
+          Nenhum deles, sozinho, abre coisa alguma.</li>
+        <li><strong>O teste não é o voto.</strong> A cédula de teste é anulada. Mostrar o teste não prova o voto, porque você pode testar um
+          candidato e votar em outro.</li>
+        <li><strong>Sem horário e sem ordem.</strong> Nada guarda a ordem em que os votos chegaram nem a hora de cada um. Foi exatamente isso que
+          permitiu, num teste público de 2012, reconstruir a ordem dos votos da urna brasileira de então.</li>
+      </ul>
+
+      <h2 id="fraude-simples">5. O que acontece se alguém trapacear</h2>
+      <p>O sistema foi atacado de propósito, de vários jeitos. Esta é a tabela de quem percebe cada trapaça:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Trapaça</th><th>Quem percebe</th></tr></thead>
+          <tbody>
+            <tr><td>A urna grava um candidato diferente do que mostra e mente no teste</td><td>O eleitor que testou, em casa, com a chave do papel</td></tr>
+            <tr><td>A urna mostra o seu código, mas grava outra cédula</td><td>O eleitor, em “Meu voto”: o código dele não existe na seção</td></tr>
+            <tr><td>A urna imprime uma chave falsa ou some com a cédula de teste</td><td>O eleitor que testou: a chave não abre a cédula, ou o teste não está publicado</td></tr>
+            <tr><td>Alguém altera votos no banco de dados</td><td>Qualquer auditor: as assinaturas deixam de bater</td></tr>
+            <tr><td>O órgão eleitoral tira um voto ou muda o resultado</td><td>Qualquer auditor: a assinatura da urna ou as provas da apuração deixam de bater</td></tr>
+            <tr><td>Alguém de dentro, com as chaves tiradas da própria urna, refaz uma seção inteira</td><td>Os eleitores daquela seção (os códigos somem) e o BU colado na porta da escola</td></tr>
+            <tr><td>Alguém some com uma seção inteira</td><td>O BU em papel e os eleitores da seção</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso ok">
+        <p><strong>A lição:</strong> a matemática, o papel e o eleitor se completam. Nenhum dos três, sozinho, pega tudo — juntos, cobrem as fraudes testadas.</p>
+      </div>
+
+      <h2 id="perguntas">6. Perguntas frequentes</h2>
+      <div class="faq">
+        <details>
+          <summary>A urna não pode simplesmente mostrar “verificação OK” mentindo?</summary>
+          <p>Pode, e por isso a verificação que vale é a feita <em>fora</em> da urna. Uma urna adulterada consegue mentir na própria tela, mas não consegue fazer a conta do seu computador dar outro resultado: ela se comprometeu com a cédula antes de saber se você ia testar, e a chave que ela imprimiu só abre aquela cédula.</p>
+        </details>
+        <details>
+          <summary>Preciso entender criptografia para conferir?</summary>
+          <p>Não. Você digita o código, olha se as figuras são as mesmas e, se testou, cola o texto do teste. A resposta vem como “seu voto está lá”, “a urna foi honesta” ou “fraude”.</p>
+        </details>
+        <details>
+          <summary>Alguém pode me obrigar a mostrar o comprovante para provar o voto?</summary>
+          <p>Pode pedir, mas o comprovante não prova nada: o código não indica o candidato, e o teste é de uma cédula anulada. Quem tenta comprar votos não ganha garantia nenhuma.</p>
+        </details>
+        <details>
+          <summary>E se eu perder o comprovante?</summary>
+          <p>O seu voto continua contado normalmente. Você só perde a possibilidade de conferi-lo. A soma da seção continua auditável por qualquer pessoa.</p>
+        </details>
+        <details>
+          <summary>A cadeia de blocos é uma criptomoeda?</summary>
+          <p>Não. É um registro público em que cada página aponta para a anterior e é assinada pelo órgão eleitoral. Não há mineração nem moeda: é só um jeito de qualquer pessoa conferir que ninguém mudou o que foi publicado.</p>
+        </details>
+        <details>
+          <summary>Testar a urna atrasa a fila?</summary>
+          <p>Poucos segundos. A cédula de teste é aberta na hora, e para votar de verdade basta apertar CONFIRMA de novo — sem redigitar o número.</p>
+        </details>
+      </div>
+
+      <!-- ================================================================== PARTE II -->
+      <div class="parte-titulo">
+        <div class="rotulo">Parte II</div>
+        <h2>Por dentro</h2>
+        <p>Arquitetura, criptografia, garantias, testes de invasão e limitações. Para técnicos, auditores e pesquisadores.</p>
+      </div>
+
+      <h2 id="arquitetura">7. Arquitetura</h2>
+      <h3>7.1 Seção offline e quadro público</h3>
+      <p>
+        O sistema separa a <strong>seção eleitoral</strong>, que funciona sem rede durante todo o dia, do <strong>quadro público
+        nacional</strong>, mantido pelo órgão eleitoral. Eles se encontram em apenas dois momentos:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Momento</th><th>O que acontece</th><th>Registro público</th></tr></thead>
+          <tbody>
+            <tr><td>Antes da eleição: <strong>carga</strong></td><td>A urna gera dentro dela o próprio par de chaves Ed25519; o terminal da mesa gera a chave RSA das credenciais. Só as chaves públicas saem.</td><td>Bloco <code>CARGA</code></td></tr>
+            <tr><td>Depois do encerramento: <strong>mídia</strong></td><td>A zerésima e o boletim de urna, assinados pela urna, com todas as cédulas cifradas da seção. O quadro confere tudo contra a carga antes de publicar.</td><td>Bloco <code>SECAO</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="mermaid">
+flowchart LR
+  subgraph S["Seção eleitoral (sem rede)"]
+    M["Terminal do mesário<br/>caderno · chave da mesa"] -- libera --> U["Urna<br/>chave própria · memória"]
+    U -- "zerésima / BU" --> P["Papéis impressos<br/>BU na porta da escola"]
+  end
+  Q["Quadro público<br/>cadeia de blocos assinada"]
+  Q -- "carga (antes)" --> U
+  U -- "mídia (depois)" --> Q
+  Q --> T["3 trustees<br/>decifram somas por seção"]
+  Q --> E["Eleitor e auditores<br/>conferem em casa, offline"]
+      </pre>
+
+      <h3>7.2 Separação de dados</h3>
+      <p>Quatro bases de dados fisicamente separadas. Não existe chave estrangeira ligando eleitor a cédula.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Base</th><th>Papel</th><th>Sabe</th><th>Não sabe</th></tr></thead>
+          <tbody>
+            <tr><td><code>registro.db</code></td><td>Caderno da seção</td><td>Quem é eleitor e quem compareceu</td><td>Nada sobre o voto; nem a ordem de comparecimento</td></tr>
+            <tr><td><code>autoridade.db</code></td><td>Terminal da mesa</td><td>A chave RSA da seção e quantas credenciais assinou</td><td>Qual credencial pertence a quem</td></tr>
+            <tr><td><code>urnas.db</code></td><td>Memória da urna</td><td>Chave da urna, cédulas cifradas, contador por opção</td><td>Identidade, horário, ordem de chegada, chave das cédulas depositadas</td></tr>
+            <tr><td><code>boletim.db</code></td><td>Quadro público</td><td>Cargas e mídias das seções</td><td>Identidade; nada da votação antes de a mídia chegar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Fases</h3>
+      <div class="formula">GENESE → CHAVE_TRUSTEE ×3 → ABERTURA → (CARGA | SECAO)* → ENCERRAMENTO → DECRIPTACAO_PARCIAL ×3 → RESULTADO</div>
+      <p>
+        Cada bloco contém o hash do anterior e é assinado com a chave Ed25519 do quadro, publicada na gênese. A gênese também publica as
+        opções (com o SHA-256 de cada foto) e o hash do software que roda na seção.
+      </p>
+
+      <h2 id="cripto">8. Criptografia</h2>
+      <h3>8.1 Primitivas</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Função</th><th>Escolha</th></tr></thead>
+          <tbody>
+            <tr><td>Grupo</td><td>ristretto255 (RFC 9496), ordem prima ≈ 2<sup>252</sup>, cerca de 128 bits de segurança</td></tr>
+            <tr><td>Cifra do voto</td><td>ElGamal exponencial, aditivamente homomórfico</td></tr>
+            <tr><td>Provas</td><td>Disjunção 0-ou-1 (Cramer-Damgård-Schoenmakers), Chaum-Pedersen, Schnorr; Fiat-Shamir forte com SHA-512</td></tr>
+            <tr><td>Credencial anônima</td><td>Assinatura cega RSA-2048 com hash de domínio completo (Chaum)</td></tr>
+            <tr><td>Assinaturas</td><td>Ed25519 (RFC 8032) para cédula, urna e quadro</td></tr>
+            <tr><td>Hashes</td><td>SHA-256 (identificadores) e SHA-512 (desafios)</td></tr>
+            <tr><td>Aleatoriedade</td><td>CSPRNG do sistema operacional; o uso de geradores não criptográficos é proibido por regra de análise estática</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 A cédula</h3>
+      <p>Com <em>k</em> opções (candidatos, branco e nulo), a cédula cifra um vetor com 1 na opção escolhida e 0 nas demais. Para cada opção <em>i</em>:</p>
+      <div class="formula">a_i = g^(r_i)        b_i = g^(m_i) · h^(r_i)        m_i ∈ {0, 1},   Σ m_i = 1</div>
+      <p>
+        <em>h</em> é a chave pública conjunta dos três trustees. Cada par (a<sub>i</sub>, b<sub>i</sub>) leva uma prova de que cifra 0 ou 1, e a
+        cédula leva uma prova de que a soma cifra exatamente 1 — sem revelar qual opção é. O <strong>rastreador</strong> da cédula é o
+        SHA-256 de todas as cifras.
+      </p>
+      <h4>A chave da cédula</h4>
+      <p>Cada cédula tem uma semente de 128 bits do CSPRNG da urna, e toda a aleatoriedade sai dela:</p>
+      <div class="formula">r_i = H("TAI-VOTE/aleatoriedade/v1", [semente, hash_eleição, i])  mod L</div>
+      <p>
+        Na cédula depositada, a semente é destruída no momento do depósito. Na cédula de teste, ela é revelada, publicada no BU e impressa
+        no comprovante: com ela, qualquer computador refaz as cifras de cada opção possível e descobre qual delas foi cifrada.
+      </p>
+
+      <h3>8.3 Credencial anônima</h3>
+      <p>
+        Liberada pelo mesário, a urna gera um par Ed25519 efêmero e pede ao terminal da mesa uma assinatura <em>cega</em> sobre a chave
+        pública. A mesa assina sem ver o que assina e só soma 1 no seu contador, que vai impresso no BU como comparecimento. A cédula é
+        assinada com essa credencial, e o <strong>nullificador</strong> (SHA-256 da chave da credencial) impede que a mesma credencial vote
+        duas vezes. Nem a mesa, nem o caderno conseguem ligar uma credencial a um eleitor.
+      </p>
+
+      <h3>8.4 Selo, código, figuras e conferência</h3>
+      <p>Assim que a cédula é lacrada, a urna a sela com a própria chave. O selo é determinístico (Ed25519):</p>
+      <div class="formula">selo = Ed25519(chave_urna, SHA-256("TAI-VOTE/selo/v1|" ‖ {eleição, rastreador, seção}))
+v    = SHA-256("TAI-VOTE/verificacao/v1|" ‖ selo)
+
+figuras     = FIGURAS[v[0]], FIGURAS[v[1]]                     16 bits (256 figuras)
+código      = zona ‖ seção ‖ base32(25 bits de v[2..6])          25 bits aleatórios
+conferência = base32(40 bits de v[6..11])                        40 bits</div>
+      <p>
+        O código usa base32 de Crockford (sem I, L, O e U); ao ler, O vira 0 e I/L viram 1. Ele é único na seção, e a seção no prefixo o
+        torna único na eleição. As 256 figuras foram escolhidas para serem desenháveis, sem pares que difiram por uma letra e sem conteúdo
+        político, religioso ou de armas.
+      </p>
+      <div class="aviso alerta">
+        <p>
+          <strong>Por que a conferência existe.</strong> As 2 figuras sozinhas têm 16 bits: num ensaio, uma urna adulterada encontrou, em menos de
+          mil cifrações, duas cédulas (uma para cada candidato) com as mesmas figuras — e poderia abrir uma no teste e depositar a outra. Com
+          código e figuras (41 bits), o mesmo par exigiria cerca de 2<sup>20</sup> cifrações, ainda ao alcance de uma urna preparada. A conferência, impressa antes da decisão, eleva o compromisso para 81
+          bits: o mesmo ataque passa a exigir cerca de 2<sup>40</sup> cifrações na hora, o que é inviável.
+        </p>
+      </div>
+
+      <h3>8.5 Teste da urna (desafio de Benaloh)</h3>
+      <p>
+        Depois de ver o compromisso, o eleitor pode apertar TESTAR. A urna revela a semente, guarda a cédula aberta para o BU e
+        <strong>assina uma declaração</strong> com o candidato que ela diz ter encontrado e a chave impressa:
+      </p>
+      <div class="formula">declaração = Ed25519(chave_urna, SHA-256("TAI-VOTE/declaracao-teste/v2|" ‖ {eleição, seção, rastreador, opção, semente}))</div>
+      <p>
+        Em casa, o validador recifra cada opção com a semente do papel e procura a única que reproduz exatamente as cifras seladas sob
+        aquele código. Se ela não for a declarada, a urna mentiu, e a assinatura transforma isso em prova transferível. Se alguém alterar o
+        papel, a assinatura deixa de bater — um papel forjado não incrimina uma urna honesta.
+      </p>
+
+      <h3>8.6 Zerésima e boletim de urna</h3>
+      <p>Ambos são documentos JSON canônicos assinados pela urna:</p>
+      <ul>
+        <li><strong>Zerésima:</strong> eleição, seção, chave da urna, chave da mesa, hash do software, número de cédulas na memória (zero) e hora de abertura.</li>
+        <li><strong>BU:</strong> aponta para o hash da zerésima e traz o comparecimento (contador da mesa), todas as cédulas e cédulas de teste em ordem de rastreador, a contagem em claro por opção (o que sai impresso) e o agregado homomórfico das cifras.</li>
+      </ul>
+      <p>O <strong>código do BU</strong> impresso no papel são os 16 primeiros caracteres hexadecimais do hash do documento.</p>
+
+      <h3>8.7 Apuração por seção</h3>
+      <p>A chave da eleição é o produto das chaves dos três trustees. Para cada seção <em>s</em> e opção <em>j</em>, com agregado (A<sub>sj</sub>, B<sub>sj</sub>):</p>
+      <div class="formula">D_sj,t = A_sj^(x_t)                          (com prova Chaum-Pedersen, contexto inclui a seção)
+g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no intervalo [0, nº de cédulas]</div>
+      <p>
+        Antes de decifrar, cada trustee audita o pacote e recalcula o agregado; ele recusa decifrar qualquer coisa que não seja a soma
+        recalculada por ele mesmo. Decifrar seção por seção permite comparar cada BU impresso com a apuração criptográfica.
+      </p>
+
+      <h2 id="verificador">9. O que o validador do eleitor verifica</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Entrada</th><th>Verificações</th></tr></thead>
+          <tbody>
+            <tr><td>Código do voto</td><td>Cédula presente na mídia da seção · cadeia íntegra e assinada · mídia assinada pela urna da carga · selo, código e figuras derivados do selo · credencial cega válida da mesa · assinatura da cédula · provas de conhecimento zero · nullificador único · incluída no agregado · decifração da seção com provas</td></tr>
+            <tr><td>Código + chave do teste (+ declaração)</td><td>Seção transmitida · cédula de teste no BU · a semente reproduz exatamente uma opção · essa opção é a declarada · assinatura da urna sobre a declaração · rastreador e selo conferem</td></tr>
+            <tr><td>Zona e seção</td><td>BU publicado assinado pela urna · soma das cédulas = agregado · contagem impressa = decifração · código do BU para comparar com o papel</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Vereditos do teste: <span class="chip ok">urna honesta</span> <span class="chip falha">fraude</span> <span class="chip alerta">inconclusivo</span> (por exemplo, quando a seção ainda não transmitiu ou quando a assinatura digitada não confere com o candidato informado).</p>
+
+      <h2 id="e2e">10. Verificabilidade de ponta a ponta</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Propriedade</th><th>Mecanismo</th><th>Quem confere</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Cifrado como pretendido</strong> (o voto cifrado é o que o eleitor escolheu)</td><td>Compromisso de 81 bits antes da decisão + teste com chave impressa e declaração assinada</td><td>O eleitor que testa, fora da urna</td></tr>
+            <tr><td><strong>Registrado como depositado</strong> (a cédula está no registro público)</td><td>Código, figuras e conferência gravados no BU e derivados do selo da urna; BU assinado pela urna e ancorado no papel da porta da escola</td><td>Qualquer eleitor com o comprovante</td></tr>
+            <tr><td><strong>Contado como registrado</strong> (o resultado é a soma correta)</td><td>Agregado homomórfico recalculável, decifração com provas Chaum-Pedersen, BU impresso = decifração</td><td>Qualquer pessoa, com o pacote público</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Força do teste</h3>
+      <p>
+        Como a urna não sabe quem vai testar, uma urna que troca <em>k</em> votos é pega se ao menos um eleitor testar uma das cédulas
+        trocadas. Com cada eleitor testando com probabilidade <em>p</em>, a chance de pegar é 1 − (1 − p)<sup>k</sup>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th class="num">Votos trocados</th><th class="num">5% testam</th><th class="num">10% testam</th><th class="num">20% testam</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">5,0%</td><td class="num">10,0%</td><td class="num">20,0%</td></tr>
+            <tr><td class="num">10</td><td class="num">40,1%</td><td class="num">65,1%</td><td class="num">89,3%</td></tr>
+            <tr><td class="num">50</td><td class="num">92,3%</td><td class="num">99,5%</td><td class="num">99,9986%</td></tr>
+            <tr><td class="num">100</td><td class="num">99,4%</td><td class="num">99,9973%</td><td class="num">&gt; 99,9999%</td></tr>
+            <tr><td class="num">300</td><td class="num">&gt; 99,9999%</td><td class="num">&gt; 99,9999%</td><td class="num">&gt; 99,9999%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="auditoria">11. Auditoria universal</h2>
+      <p>O auditor recebe somente o pacote público (a cadeia de blocos) e refaz 22 verificações:</p>
+      <ol>
+        <li>Integridade da cadeia (hash e encadeamento de cada bloco)</li>
+        <li>Assinatura do quadro em cada bloco</li>
+        <li>Manifesto da eleição (gênese) e versão do protocolo</li>
+        <li>Ordem das fases</li>
+        <li>Chaves dos trustees com prova de Schnorr</li>
+        <li>Zerésima nacional e chave conjunta</li>
+        <li>Carga das urnas: chave própria, nenhuma repetida, software igual ao da gênese, nenhuma carga após a mídia</li>
+        <li>Mídias assinadas pela urna da carga, zerésima zerada, uma mídia por seção</li>
+        <li>Cédulas sem ordem de chegada e sem horário (campos exatos, ordem do rastreador)</li>
+        <li>Credenciais anônimas válidas da mesa da seção</li>
+        <li>Assinatura de cada cédula</li>
+        <li>Provas de conhecimento zero</li>
+        <li>Rastreadores e nullificadores recalculados</li>
+        <li>Código, figuras e conferência derivados do selo; códigos únicos</li>
+        <li>Uma credencial, um voto</li>
+        <li>Cédulas de teste conferem com a semente revelada</li>
+        <li>Cédulas ≤ comparecimento; contagem do BU soma o número de cédulas</li>
+        <li>Soma homomórfica por seção</li>
+        <li>Encerramento lista exatamente as seções recebidas e as sem mídia</li>
+        <li>Decifração parcial de cada trustee, seção por seção, com prova</li>
+        <li>BU impresso = apuração criptográfica</li>
+        <li>Resultado publicado = recalculado, por seção e total</li>
+      </ol>
+
+      <h2 id="ameacas">12. Modelo de ameaças e testes de invasão</h2>
+      <p>Foram considerados atacantes com poderes crescentes, e cada ataque foi executado contra os módulos reais do sistema:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Ataque</th><th>Atacante</th><th>Quem detectou</th></tr></thead>
+          <tbody>
+            <tr><td>Trocar um voto direto no banco</td><td>Acesso ao banco, sem chaves</td><td><span class="chip ok">auditor</span> e eleitores</td></tr>
+            <tr><td>Trocar um voto e recalcular os hashes</td><td>Acesso ao banco, sem chaves</td><td><span class="chip ok">auditor</span> (assinatura do quadro)</td></tr>
+            <tr><td>Remover uma cédula na totalização</td><td>Órgão eleitoral (chave do quadro)</td><td><span class="chip ok">auditor</span> (assinatura da urna) e eleitores</td></tr>
+            <tr><td>Alterar o resultado publicado</td><td>Órgão eleitoral</td><td><span class="chip ok">auditor</span></td></tr>
+            <tr><td>BU impresso com números falsos</td><td>Insider com a chave da urna</td><td><span class="chip ok">auditor</span> (BU ≠ apuração) e papel</td></tr>
+            <tr><td>Guardar ordem de chegada com horário</td><td>Insider com a chave da urna</td><td><span class="chip ok">auditor</span> (sigilo)</td></tr>
+            <tr><td>Cédula extra com credencial legítima</td><td>Insider com chaves da mesa e da urna</td><td><span class="chip ok">auditor</span> (comparecimento) e papel</td></tr>
+            <tr><td>Trocar figuras e códigos gravados</td><td>Insider com a chave da urna</td><td><span class="chip ok">auditor</span>, eleitores e papel</td></tr>
+            <tr><td>Reescrever uma seção inteira</td><td>Insider com chaves do quadro, da urna e da mesa</td><td><span class="chip alerta">auditor não vê</span> · eleitores (códigos somem) e BU em papel</td></tr>
+            <tr><td>Sumir com uma seção inteira</td><td>Órgão eleitoral</td><td><span class="chip alerta">auditor só avisa</span> · BU em papel e eleitores</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Urnas com software adulterado</h3>
+      <p>
+        Sete urnas de laboratório simulam programas trocados antes da carga. Todas mostram ao eleitor o que ele digitou, todas dizem que o
+        software confere, e o BU de todas passa na auditoria matemática — porque a urna conta no BU o que de fato cifrou. Em cada caso, a
+        fraude foi pega em casa:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Software adulterado</th><th>Resultado em casa</th></tr></thead>
+          <tbody>
+            <tr><td>Desvia todos os votos e mente no teste</td><td>Papel dizia 29; a chave reproduziu 21 → <span class="chip falha">fraude</span>, com assinatura válida</td></tr>
+            <tr><td>Desvia metade dos votos</td><td>2 de 3 testes pegaram o desvio → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Desvia só os votos de um candidato</td><td>Testou o candidato-vítima; a chave reproduziu outro → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Transforma votos em nulo</td><td>A cédula de teste era nula → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Imprime uma chave falsa no teste</td><td>A chave não abre a cédula selada → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Some com a cédula de teste</td><td>O teste não está no BU publicado → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Mostra o seu código e grava outra cédula (honesta no teste)</td><td>O código do voto não existe no BU → <span class="chip falha">fraude</span> (pega em “Meu voto”)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>A matemática não vê intenção.</strong> Uma urna que cifra o candidato errado produz uma cédula perfeitamente válida. Só o
+          eleitor sabe o que digitou — por isso o teste, conferido fora da urna, é indispensável, e por isso o sistema combina a auditoria
+          matemática com o papel e com o eleitor.
+        </p>
+      </div>
+
+      <h2 id="sigilo">13. Sigilo e a lição do TPS 2012</h2>
+      <p>
+        No Teste Público de Segurança de 2012, pesquisadores mostraram que a ordem dos votos gravados pela urna brasileira da época podia ser
+        reconstruída, porque o embaralhamento usava um gerador não criptográfico semeado com o horário. O TAI-VOTE responde em várias camadas:
+      </p>
+      <ul>
+        <li>Não há embaralhamento a semear: o BU traz as cédulas na ordem do rastreador, que é o hash de cifras aleatórias.</li>
+        <li>A memória da urna é uma tabela sem identificador sequencial, indexada por (urna, rastreador): a ordem guardada é a do hash, não a de chegada.</li>
+        <li>Nenhum registro por voto com horário; o journal do SQLite em modo DELETE e <code>secure_delete</code> apagam o que poderia sobrar.</li>
+        <li>O caderno não grava a ordem de comparecimento, e a mesa assina às cegas.</li>
+        <li>A chave de cada cédula depositada não existe depois do depósito.</li>
+      </ul>
+      <p>
+        Num teste estatístico com 160 cédulas por candidato, a primeira figura saiu “ímpar” em 49% das cédulas de um candidato e 50% das
+        do outro, como se espera de valores independentes do voto.
+      </p>
+
+      <h2 id="limites">14. Limites e trabalho futuro</h2>
+      <p>Dizer o que não está resolvido faz parte da segurança.</p>
+      <ul>
+        <li><strong>Sigilo contra uma urna adulterada.</strong> A urna vê o voto, como a de hoje. Adulterada, ela pode escolher a aleatoriedade
+          para que as figuras “codifiquem” o candidato — um canal subliminar demonstrado no laboratório (20 de 20 votos vazados com algumas dezenas de
+          cifrações por voto, no máximo). A integridade não depende de confiar na urna; o sigilo contra ela, sim. Futuro: aleatoriedade de um segundo
+          aparelho independente, com re-cifração antes do selo.</li>
+        <li><strong>Insider com as chaves da urna e da mesa</strong> consegue fabricar uma seção matematicamente perfeita. Quem pega são os
+          eleitores e o BU em papel; por isso o papel e as fotos dos fiscais continuam essenciais.</li>
+        <li><strong>Ataque de colisão entre eleitores</strong> (<em>clash</em>): uma urna adulterada poderia mostrar a dois eleitores a mesma
+          cédula. Cada um, isoladamente, encontra “o seu” código; só se pega comparando comprovantes.</li>
+        <li><strong>O teste é probabilístico</strong> e depende de quantos eleitores testam.</li>
+        <li><strong>Três de três trustees.</strong> Em produção: limiar <em>t</em>-de-<em>n</em> com geração distribuída de chaves.</li>
+        <li><strong>RSA-FDH</strong> nas credenciais. Em produção: assinaturas cegas padronizadas (RFC 9474).</li>
+        <li><strong>Chaves em software.</strong> Em produção: módulos de hardware (HSM/TPM), boot medido e builds reprodutíveis.</li>
+        <li><strong>Coerção presencial</strong> (alguém dentro da cabine, foto da tela) está fora do alcance da criptografia.</li>
+        <li><strong>Código não auditado por terceiros.</strong></li>
+      </ul>
+
+      <h2 id="reproduzir">15. Como reproduzir</h2>
+      <p>O protótipo roda num único computador, sem acesso à internet durante a execução.</p>
+      <pre>npm install
+npm run dev               # http://127.0.0.1:3000
+npm run teste             # protocolo em memória: auditor, teste refeito em casa e 14 ataques
+npm run teste:invasao     # eleição completa pelos módulos reais + relatório de invasão
+npm run validador         # gera o validador offline (um único arquivo HTML)
+npm run auditar -- pacote.json
+npm run verificar -- pacote.json &lt;código&gt; ["chave do teste"]
+npm run verificar -- pacote.json --bu 010-0123</pre>
+      <p>
+        Para não depender do arquivo do validador que você baixou, gere-o de novo a partir do código-fonte e compare o SHA-256: a compilação
+        é determinística. A especificação completa — formatos, domínios de hash, verificações e API — acompanha o código, e uma
+        implementação independente (em Python, por exemplo) deve aprovar os pacotes do protótipo e reprovar as mesmas adulterações.
+      </p>
+
+      <h2 id="fontes">Fontes</h2>
+      <div class="refs">
+        <div class="grupo">Falhas reais em sistemas de votação</div>
+        <ol>
+          <li>Aranha, D. F.; Karam, M. M.; Miranda, A.; Scarel, F. <em>Vulnerabilidades no software da urna eletrônica brasileira.</em> Relatório técnico do Teste Público de Segurança, 2012. Versão em inglês: “Software vulnerabilities in the Brazilian voting machine”, em <em>Design, Development, and Use of Secure Electronic Voting Systems</em>, IGI Global, 2014.</li>
+          <li>Aranha, D. F.; Barbosa, P. Y. S.; Cardoso, T. N. C.; Araújo, C. L.; Matias, P. “The return of software vulnerabilities in the Brazilian voting machine”. <em>Computers &amp; Security</em>, v. 86, 2019.</li>
+          <li>Tribunal Superior Eleitoral. Testes Públicos de Segurança do Sistema Eletrônico de Votação — documentação e relatórios. justicaeleitoral.jus.br.</li>
+          <li>Hursti, H. <em>Critical Security Issues with Diebold Optical Scan Design.</em> Black Box Voting Project, 2005.</li>
+          <li>Wolchok, S.; Wustrow, E.; Isabel, D.; Halderman, J. A. “Attacking the Washington, D.C. Internet Voting System”. <em>Financial Cryptography and Data Security</em>, 2012.</li>
+          <li>Gaudry, P.; Golovnev, A. “Breaking the Encryption Scheme of the Moscow Internet Voting System”. <em>Financial Cryptography and Data Security</em>, 2020.</li>
+          <li>Lewis, S. J.; Pereira, O.; Teague, V. “Ceci n'est pas une preuve: the use of trapdoor commitments in Bayer-Groth proofs and the implications for the verifiability of the Scytl-SwissPost Internet voting system”, 2019.</li>
+          <li>Bernhard, D.; Pereira, O.; Warinschi, B. “How Not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic and Applications to Helios”. <em>ASIACRYPT</em>, 2012.</li>
+        </ol>
+
+        <div class="grupo">Votação verificável de ponta a ponta</div>
+        <ol start="9">
+          <li>Benaloh, J. “Simple Verifiable Elections”. <em>USENIX/ACCURATE Electronic Voting Technology Workshop (EVT)</em>, 2006.</li>
+          <li>Benaloh, J. “Ballot Casting Assurance via Voter-Initiated Poll Station Auditing”. <em>EVT</em>, 2007.</li>
+          <li>Adida, B. “Helios: Web-based Open-Audit Voting”. <em>USENIX Security Symposium</em>, 2008.</li>
+          <li>Bell, S.; Benaloh, J.; Byrne, M. D.; DeBeauvoir, D.; Eakin, B.; Fisher, G.; Kortum, P.; McBurnett, N.; Montoya, J.; Parker, M.; Pereira, O.; Stark, P. B.; Wallach, D. S.; Winn, M. “STAR-Vote: A Secure, Transparent, Auditable, and Reliable Voting System”. <em>USENIX Journal of Election Technology and Systems (JETS)</em>, 2013.</li>
+          <li>Benaloh, J.; Naehrig, M. <em>ElectionGuard Design Specification</em>, versão 2.0. Microsoft, 2023. electionguard.vote.</li>
+          <li>Cramer, R.; Gennaro, R.; Schoenmakers, B. “A Secure and Optimally Efficient Multi-Authority Election Scheme”. <em>EUROCRYPT</em>, 1997.</li>
+          <li>Küsters, R.; Truderung, T.; Vogt, A. “Clash Attacks on the Verifiability of E-Voting Systems”. <em>IEEE Symposium on Security and Privacy</em>, 2012.</li>
+          <li>Rivest, R. L. “On the notion of ‘software independence’ in voting systems”. <em>Philosophical Transactions of the Royal Society A</em>, v. 366, 2008.</li>
+          <li>Stark, P. B.; Wagner, D. “Evidence-Based Elections”. <em>IEEE Security &amp; Privacy</em>, v. 10, n. 5, 2012.</li>
+          <li>Bernhard, M.; Benaloh, J.; Halderman, J. A.; Rivest, R. L.; Ryan, P. Y. A.; Stark, P. B.; Teague, V.; Vora, P. L.; Wallach, D. S. “Public Evidence from Secret Ballots”. <em>E-Vote-ID</em>, 2017.</li>
+          <li>National Institute of Standards and Technology. <em>Voluntary Voting System Guidelines (VVSG) 2.0</em>, 2021.</li>
+        </ol>
+
+        <div class="grupo">Primitivas criptográficas</div>
+        <ol start="20">
+          <li>ElGamal, T. “A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms”. <em>IEEE Transactions on Information Theory</em>, v. 31, n. 4, 1985.</li>
+          <li>Chaum, D. “Blind Signatures for Untraceable Payments”. <em>CRYPTO ’82</em>, 1983.</li>
+          <li>Chaum, D.; Pedersen, T. P. “Wallet Databases with Observers”. <em>CRYPTO ’92</em>, 1993.</li>
+          <li>Cramer, R.; Damgård, I.; Schoenmakers, B. “Proofs of Partial Knowledge and Simplified Design of Witness Hiding Protocols”. <em>CRYPTO ’94</em>, 1994.</li>
+          <li>Schnorr, C. P. “Efficient Signature Generation by Smart Cards”. <em>Journal of Cryptology</em>, v. 4, 1991.</li>
+          <li>Fiat, A.; Shamir, A. “How to Prove Yourself: Practical Solutions to Identification and Signature Problems”. <em>CRYPTO ’86</em>, 1987.</li>
+          <li>Pedersen, T. P. “A Threshold Cryptosystem without a Trusted Party”. <em>EUROCRYPT ’91</em>, 1991.</li>
+          <li>IETF RFC 8032 — <em>Edwards-Curve Digital Signature Algorithm (EdDSA)</em>, 2017.</li>
+          <li>IETF RFC 9496 — <em>The ristretto255 and decaf448 Groups</em>, 2023.</li>
+          <li>IETF RFC 9474 — <em>RSA Blind Signatures</em>, 2023.</li>
+          <li>NIST FIPS 180-4 — <em>Secure Hash Standard (SHS)</em>, 2015.</li>
+          <li>Crockford, D. <em>Base 32</em> (alfabeto sem caracteres ambíguos). crockford.com/base32.html.</li>
+        </ol>
+
+        <div class="grupo">Software e dados usados no protótipo</div>
+        <ol start="32">
+          <li>Miller, P. <em>noble-curves</em> e <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas e hashes em JavaScript. github.com/paulmillr.</li>
+          <li>Tribunal Superior Eleitoral. Portal de Dados Abertos: fotos de divulgação de candidatos (licença CC BY). dadosabertos.tse.jus.br.</li>
+          <li>Projeto TAI-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>).</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, sans-serif" });
+</script>

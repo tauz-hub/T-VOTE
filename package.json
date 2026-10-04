@@ -1,26 +1,37 @@
 {
-  "name": "tai-vote-tmp",
+  "name": "tai-vote",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 127.0.0.1",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start -H 127.0.0.1",
+    "lint": "eslint",
+    "teste": "tsx scripts/teste-protocolo.ts",
+    "auditar": "tsx scripts/auditar.ts",
+    "teste:urna": "tsx scripts/teste-urna.ts",
+    "verificar": "tsx scripts/verificar-voto.ts",
+    "teste:invasao": "tsx scripts/teste-invasao.ts",
+    "validador": "tsx scripts/gerar-validador.ts"
   },
   "dependencies": {
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "better-sqlite3": "^13.0.3",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
