@@ -21,7 +21,7 @@ function main() {
     process.exit(2);
   }
   const pacote = JSON.parse(readFileSync(arquivo, "utf8")) as Pacote;
-  console.log(`\nTAI-VOTE — validador do eleitor (offline)\nPacote: ${arquivo} · ${pacote.blocos.length} blocos\n`);
+  console.log(`\nT-VOTE — validador do eleitor (offline)\nPacote: ${arquivo} · ${pacote.blocos.length} blocos\n`);
 
   if (resto[0] === "--bu") {
     const secao = resto[1] ?? "";

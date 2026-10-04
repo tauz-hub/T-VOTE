@@ -60,7 +60,7 @@ import {
 
 export { agregarCedulas } from "./crypto/secao";
 
-export type Pacote = { formato: "tai-vote/pacote/v1"; exportado_em: string; blocos: Bloco[] };
+export type Pacote = { formato: "t-vote/pacote/v1"; exportado_em: string; blocos: Bloco[] };
 
 export type Fase = "vazia" | "configuracao" | "aberta" | "encerrada" | "apurada";
 export type StatusVerificacao = "ok" | "falha" | "pendente";

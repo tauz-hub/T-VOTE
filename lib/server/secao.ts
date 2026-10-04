@@ -199,8 +199,8 @@ export function abrirSecao(urna: LinhaUrna): DocumentoUrna<ZeresimaSecao> {
 // ---------------------------------------------------------------- votação
 
 const MAX_SELOS_POR_CREDENCIAL = 12;
-const memoriaSelos = globalThis as unknown as { __taiVoteSelosUrna?: Map<string, number> };
-const selosPorCredencial = (memoriaSelos.__taiVoteSelosUrna ??= new Map());
+const memoriaSelos = globalThis as unknown as { __tVoteSelosUrna?: Map<string, number> };
+const selosPorCredencial = (memoriaSelos.__tVoteSelosUrna ??= new Map());
 
 export type SeloUrna = { secao: string; selo: string; codigo: string; figuras: string[] };
 
@@ -384,7 +384,7 @@ export function encerrarSecao(urna: LinhaUrna): DocumentoUrna<BoletimUrna> {
 /** A mídia de resultado: o que vai num pen drive (ou pela rede de transmissão) para o TSE. */
 export function midiaDaSecao(urnaId: string): MidiaSecao {
   const { l } = secaoNaFase(urnaId, "encerrada", "transmitida");
-  return { formato: "tai-vote/midia-secao/v1", zeresima: JSON.parse(l.zeresima!), bu: JSON.parse(l.bu!) };
+  return { formato: "t-vote/midia-secao/v1", zeresima: JSON.parse(l.zeresima!), bu: JSON.parse(l.bu!) };
 }
 
 export function marcarTransmitida(urnaId: string, bloco: number) {

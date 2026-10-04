@@ -35,11 +35,11 @@ const ESPERA_MS = 25_000;
 
 // Contato com cada urna fica só em memória: nada de gravar no disco um
 // histórico de horários que pudesse ser cruzado com outra coisa.
-const memoria = globalThis as unknown as { __taiVoteContato?: Map<string, number>; __taiVoteConexoes?: Map<string, number> };
-const contato = (memoria.__taiVoteContato ??= new Map());
-const conexoes = (memoria.__taiVoteConexoes ??= new Map());
+const memoria = globalThis as unknown as { __tVoteContato?: Map<string, number>; __tVoteConexoes?: Map<string, number> };
+const contato = (memoria.__tVoteContato ??= new Map());
+const conexoes = (memoria.__tVoteConexoes ??= new Map());
 
-const hashToken = (token: string) => sha256Hex(`TAI-VOTE/urna/v1|${token}`);
+const hashToken = (token: string) => sha256Hex(`T-VOTE/urna/v1|${token}`);
 
 export function instalarUrna(dados: {
   nome?: unknown;

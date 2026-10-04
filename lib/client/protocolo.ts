@@ -135,7 +135,7 @@ export async function baixarPacote(): Promise<Pacote> {
  * para não se misturar às seções reais), com carga e seção abertas.
  */
 export async function urnaDeSimulacao(): Promise<{ token: string; carga: CargaUrna }> {
-  const CHAVE = "tai-vote:simulacao:urna";
+  const CHAVE = "t-vote:simulacao:urna";
   let token = typeof localStorage !== "undefined" ? localStorage.getItem(CHAVE) : null;
   let estado = token ? await estadoDaUrna(token).catch(() => null) : null;
   if (!token || !estado) {

@@ -47,7 +47,7 @@ export function caminhoFoto(hash: string): { arquivo: string; mime: string } | n
 
 export function lerFoto(hash: string): { bytes: Buffer; mime: string } | null {
   const c = caminhoFoto(hash);
-  // a pasta de dados é definida em tempo de execução (TAI_VOTE_DADOS): não rastrear no build
+  // a pasta de dados é definida em tempo de execução (T_VOTE_DADOS): não rastrear no build
   return c ? { bytes: readFileSync(/*turbopackIgnore: true*/ c.arquivo), mime: c.mime } : null;
 }
 

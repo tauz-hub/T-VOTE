@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T-VOTE 白皮书</title>
+<meta name="description" content="T-VOTE：选民可以在家核验的电子投票机。选民核验、逐屏介绍系统、密码协议、渗透测试与参考文献。">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="../assets/whitepaper.css">
+</head>
+<body>
+<nav class="idiomas" aria-label="语言">
+  <span class="globo" aria-hidden="true">🌐</span>
+  <a href="../index.html" lang="pt-BR" hreflang="pt-BR">Português</a>
+  <a href="../en/index.html" lang="en" hreflang="en">English</a>
+  <a href="../es/index.html" lang="es" hreflang="es">Español</a>
+  <a href="../de/index.html" lang="de" hreflang="de">Deutsch</a>
+  <a href="../ru/index.html" lang="ru" hreflang="ru">Русский</a>
+  <a href="../zh/index.html" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a>
+</nav>
+<div class="pagina">
+  <nav class="sumario" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#projeto">代码与下载</a></li>
+      <li><a href="#resumo">摘要</a></li>
+      <li class="parte">第一部分 · 写给所有人</li>
+      <li><a href="#ideia">1. 基本思路</a></li>
+      <li><a href="#dia">2. 选举日当天</a></li>
+      <li><a href="#casa">3. 在家：三项核验</a></li>
+      <li><a href="#sigilo-simples">4. 为什么没人能知道你投给了谁</a></li>
+      <li><a href="#fraude-simples">5. 如果有人作弊</a></li>
+      <li><a href="#perguntas">6. 常见问题</a></li>
+      <li class="parte">第二部分 · 逐屏看系统</li>
+      <li><a href="#t-mapa">A. 标签页一览</a></li>
+      <li><a href="#t-preparo">B. 选举之前</a></li>
+      <li><a href="#t-secao">C. 投票站开放</a></li>
+      <li><a href="#t-cabine">D. 在投票间里</a></li>
+      <li><a href="#t-fim">E. 一天结束</a></li>
+      <li><a href="#t-casa">F. 在家</a></li>
+      <li><a href="#t-apuracao">G. 计票与审计</a></li>
+      <li><a href="#t-laboratorio">H. 被篡改的投票机</a></li>
+      <li class="parte">第三部分 · 深入原理</li>
+      <li><a href="#arquitetura">7. 架构</a></li>
+      <li><a href="#cripto">8. 密码学</a></li>
+      <li><a href="#verificador">9. 选民核验什么</a></li>
+      <li><a href="#e2e">10. 端到端可验证性</a></li>
+      <li><a href="#auditoria">11. 全民审计</a></li>
+      <li><a href="#ameacas">12. 威胁与渗透测试</a></li>
+      <li><a href="#sigilo">13. 投票保密与 2012 年的教训</a></li>
+      <li><a href="#limites">14. 局限与后续工作</a></li>
+      <li><a href="#qrcode">15. 无打印机部署：二维码</a></li>
+      <li><a href="#reproduzir">16. 如何复现</a></li>
+      <li><a href="#fontes">参考文献</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <div class="coluna">
+      <div class="rotulo">白皮书 · 第 1 版 · 2026 年 10 月</div>
+      <h1>T-VOTE：选民可以在家核验的电子投票机</h1>
+      <p class="lead">
+        如何在一台与巴西现行投票机运作方式相同的机器上投票——投票站不联网、有投票站工作人员、早上打印零票报告、结果报告张贴在学校门口——并在之后用自己的电脑核验：你的选票按你的意愿被记录和计入，而无需信任投票机、服务器或选举组织者。
+      </p>
+      <div class="meta">
+        <span>开源学术原型</span>
+        <span>协议 v4 · 离线投票站</span>
+        <span>参考实现：TypeScript（Next.js + SQLite）</span>
+      </div>
+
+      <section class="projeto" id="projeto" aria-labelledby="projeto-titulo">
+        <h2 id="projeto-titulo">开放源代码：下载、运行、核验</h2>
+        <p>本文描述的整个系统均已公开。任何人都可以阅读代码，在自己的电脑上运行演示选举，并重复各项核验。</p>
+        <div class="botoes">
+          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">GitHub 代码仓库</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">下载项目（.zip）</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">离线验证器（GitHub）</a>
+          <a href="https://tauz-hub.github.io/TAI-VOTE/zh/" target="_blank" rel="noopener">本文在线版</a>
+        </div>
+        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev        # 在 http://127.0.0.1:3000 打开</pre>
+        <ul class="lista-docs">
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README：使用指南与演示流程</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">协议规范（v4）</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">渗透测试报告</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">密码学代码（<code>lib/crypto</code>）</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">审计器与选民验证器（<code>lib/auditoria.ts</code>）</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">报告问题或漏洞</a></li>
+        </ul>
+        <p class="aviso-idioma" style="margin:.8rem 0 0">原型的界面、代码和规范均为葡萄牙语；第二部分的截图按原样展示。</p>
+      </section>
+
+      <div class="aviso alerta">
+        <p>
+          <strong>这是一个研究原型，而非经过认证的系统。</strong>它用于研究和演示一种可验证投票设计。它未经第三方审计，不得用于真实选举。本文示例中的候选人均为虚构；原型只为让演示更逼真才可能加载公开的竞选照片，且没有任何示例偏向某位候选人（在舞弊测试中，受益候选人由随机抽签决定）。
+        </p>
+      </div>
+
+      <h2 id="resumo">摘要</h2>
+      <p>
+        T-VOTE 是一种<strong>端到端可验证</strong>（英文 <em>end-to-end verifiable</em>，简称 E2E-V）的电子投票设计。它保留了巴西选民熟悉的流程，并增加了三项任何人都能在家完成的核验，只需一个开源程序和一份公开的选举副本：
+      </p>
+      <ul>
+        <li><strong>我的选票：</strong>回执上印的代码会指向你所在投票站公开列表中的加密选票，并显示投票机当时展示的同样两张图片。这证明选票已被<em>记录</em>并进入<em>计票</em>——但不会透露你投给了谁。</li>
+        <li><strong>我的测试：</strong>如果你在投票机上按了 TESTAR（测试），回执上会印有这张测试选票的密钥。在家里，电脑会重新计算并显示其中装的是哪位候选人。如果投票机撒谎，它签名的那张纸就是证据。</li>
+        <li><strong>我所在投票站的报告：</strong>张贴在学校门口的结果报告带有一个代码；公布的报告必须具有相同的代码和相同的数字，而这些数字必须与密码学计票结果一致。</li>
+      </ul>
+      <p>
+        其底层是成熟的密码学原语：基于 ristretto255 群的同态 ElGamal 加密、零知识证明、用于匿名凭证的盲签名、Ed25519 签名，以及一条带签名的区块链。计票由三位密钥保管人（trustees）完成，他们只能解密每个投票站选票的<em>总和</em>，永远无法解密单张选票。本文先用通俗语言解释系统，再逐屏展示原型，然后深入技术细节，最后列出针对系统进行的渗透测试和全部参考文献。
+      </p>
+
+      <!-- ================================================================== 第一部分 -->
+      <div class="parte-titulo">
+        <div class="rotulo">第一部分</div>
+        <h2>写给所有人</h2>
+        <p>不涉及数学：你在投票机上做什么、带什么回家、能核验什么。</p>
+      </div>
+
+      <h2 id="ideia">1. 一句话说清思路</h2>
+      <p>
+        今天投票时，你必须相信投票机记录了你输入的号码，并且你所在投票站的总数计算无误。现行投票机有许多控制措施来赢得这种信任，但选民本人无法核验自己的选票。
+      </p>
+      <p>
+        在 T-VOTE 中，投票机仍然放在房间角落、不联网，你按的仍是同样的按键。区别在于：它在知道你要做什么之前，就对自己记录的内容<strong>作出承诺</strong>，之后再留下可供你在家核验的痕迹。如果它作弊，作弊就会暴露；如果负责汇总选票的机构作弊，同样会暴露。即便如此，任何人——包括你自己——都无法向他人证明你投给了谁。正是这一点防止了买票。
+      </p>
+
+      <h2 id="dia">2. 选举日当天</h2>
+      <p>一切都在投票站进行，和今天一样。投票机和投票站工作人员的终端只彼此通信；两者都不连接互联网。</p>
+      <ol class="passos">
+        <li>
+          <div>
+            <h4>工作人员核对证件并解锁投票机</h4>
+            <p>和今天一样。投票机只收到一个“可以投票”——它永远不知道你的名字。</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>你输入号码并看到照片</h4>
+            <p>屏幕显示候选人的姓名、政党和照片。投票机会将照片与选举前公布的指纹进行比对，任何人都无法替换照片。</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>你按下 CONFIRMA，出现两张图片和一个代码</h4>
+            <p>例如：🍄 蘑菇 和 🦴 骨头，以及代码 <span class="mono">010 0123 J7K6T</span>。每张图片在文字上方都有图画，方便不识字的人。请记住这两张图片；代码会被打印出来。</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>现在选择一个按键</h4>
+            <p><strong>CONFIRMA</strong>（确认）记录选票。<strong>TESTAR</strong>（测试）打开这张选票，让你看到投票机记录了什么（这张选票作废，你无需重新输入即可再投一次）。<strong>CORRIGE</strong>（更正）返回重新选择。</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>只打印一张纸</h4>
+            <p>回执上有选票代码、一个 8 位的“校验码”和两张图片的名称。如果你做了测试，同一张纸上还会印有测试内容：投票机声称找到的候选人、测试代码以及这张测试选票的密钥。</p>
+            <p style="margin-top:.4rem">在没有打印机的第一阶段，回执可以以<strong>工作人员终端屏幕上的二维码</strong>形式交付：选民走出投票间后用手机拍下二维码（<a href="#qrcode">第 15 节</a>）。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="lado-a-lado">
+        <div>
+          <div class="urna" role="img" aria-label="确认选票后的投票机屏幕，显示两张图片、代码以及 CONFIRMA、TESTAR 和 CORRIGE 按键">
+            <div class="tela">
+              <div class="t">请核对你的选票</div>
+              <div style="margin-top:.3rem">号码：<b>70</b> · 姓名：<b>示例候选人</b> · 政党：<b>X 党</b></div>
+              <div style="text-align:center;margin-top:.6rem;font-family:var(--f-display);font-weight:600;font-size:.8rem">请记住这 2 张图片：</div>
+              <div class="figuras">
+                <div class="figura"><span>🍄</span>蘑菇</div>
+                <div class="figura"><span>🦴</span>骨头</div>
+              </div>
+              <div class="codigo-urna">
+                <div>010<small>选区</small></div><div>0123<small>投票站</small></div><div>J7K6T<small>代码</small></div>
+              </div>
+              <div style="text-align:center;font-size:.75rem;margin-top:.3rem">校验码 <b>BNGJ 69AH</b></div>
+              <div style="border-top:1px solid var(--linha);margin-top:.6rem;padding-top:.4rem;font-size:.72rem">
+                请按键：<br><b>CONFIRMA</b> 投票<br><b>TESTAR</b> 测试投票机（此选票作废）<br><b>CORRIGE</b> 重新选择
+              </div>
+            </div>
+            <div class="teclas"><span class="k-branco">BRANCO</span><span class="k-corrige">CORRIGE</span><span class="k-confirma">CONFIRMA</span><span class="k-testar">TESTAR</span></div>
+          </div>
+          <div class="legenda">投票机屏幕不是触摸屏：一切操作都通过键盘完成。TESTAR 是唯一新增的按键。</div>
+        </div>
+        <div>
+          <div class="papel" role="img" aria-label="打印回执示例，包含选票代码和测试部分">
+            <div class="c b">投票回执</div>
+            <div class="c">选区 010 · 投票站 0123</div>
+            <hr>
+            <div class="c b">你的选票代码</div>
+            <div class="c grande">010 0123 HAAX2</div>
+            <div class="c">校验码：<b>ZCJV DS7A</b></div>
+            <div class="c">图片：<b>向日葵 · 彗星</b></div>
+            <div class="c b" style="margin-top:.3rem">此代码不会显示你投给了谁。</div>
+            <hr>
+            <div class="c b">投票机测试——已作废，不是选票</div>
+            <div class="c">投票机声明被测试的选票内容为：</div>
+            <div class="c b">70 — 示例候选人</div>
+            <div class="c">测试代码：<b>010 0123 J7K6T</b></div>
+            <div class="c">测试密钥：</div>
+            <div class="c b">5PVV ZHZ0 7DNJ ZWN1 SKWE QYC3 MM</div>
+            <div class="miudo" style="margin-top:.3rem">投票机签名的声明：284a4769a4febd488f44ff9e150b7dda…</div>
+            <hr>
+            <div class="miudo">完整哈希：66434bc097a1bc51ca669e01b0464bbc… · 投票机签名：9ccf0c2b83ca8b10…</div>
+          </div>
+          <div class="legenda">示意示例。每位选民一张纸：没有姓名、没有时间，也不显示你投给了谁。</div>
+        </div>
+      </div>
+
+      <div class="aviso info">
+        <p>
+          <strong>为什么要测试？</strong>当你按下 TESTAR 时，投票机已经显示了这张选票的代码和图片——它在不知道你要投票还是测试之前就作出了承诺。如果它经常记录与显示不同的候选人，每一位做测试的选民都是一次抓住它的机会。你甚至可以输入一个你不打算投的候选人号码来测试。
+        </p>
+      </div>
+
+      <h3>一天结束时</h3>
+      <p>
+        工作人员关闭投票站，投票机像今天一样打印<strong>结果报告（BU，<em>boletim de urna</em>）</strong>，列出每位候选人的票数。一份张贴在学校门口。新增的是<strong>BU 代码</strong>（例如 <span class="mono">0d94 dbf4 9855 15b1</span>），它唯一标识这份报告。随后，投票站的文件（“介质”）被送到选举机构，由其核查一切后发布到任何人都能下载的区块链上。
+      </p>
+
+      <h2 id="casa">3. 在家：三项核验</h2>
+      <p>
+        投票站数据公布后，你可以通过选举网站、一个离线可用的单一文件或命令行程序进行核验。三者使用同一份开放源代码，所有计算都在你的电脑上完成。
+      </p>
+      <div class="tres">
+        <div>
+          <h4>我的选票</h4>
+          <p>输入回执上的代码。应当出现你在投票机上看到的同样 2 张图片，以及与纸上相同的校验码。</p>
+          <p class="usa">证明：你的选票在你所在投票站的公开列表中，有效且已被计入。</p>
+        </div>
+        <div>
+          <h4>我的测试</h4>
+          <p>粘贴回执上的“投票机测试”部分。电脑用纸上的密钥重新加密每位候选人，找出其中装的是谁。</p>
+          <p class="usa">证明：投票机说了真话——或者撒了谎，而它在纸上的签名会证明这一点。</p>
+        </div>
+        <div>
+          <h4>投票站的 BU</h4>
+          <p>输入选区和投票站。BU 代码和公布的数字必须与学校门口那张纸上的一致。</p>
+          <p class="usa">证明：在数据离开学校之后，没有人调换你的投票站。</p>
+        </div>
+      </div>
+      <p>
+        一个真实例子，来自系统试运行中对两次测试的核验：第一次测试中投票机声明号码 80，在家复算结果为 80；第二次声明 27，结果为 27；两份声明都带有投票机的有效签名。结论：“投票站 001-0001 的投票机通过了你的 2 次测试”。
+      </p>
+
+      <h2 id="sigilo-simples">4. 为什么没人能从纸上知道你投给了谁</h2>
+      <ul>
+        <li><strong>代码和图片并非来自选票内容。</strong>它们来自投票机对一段密文的签名，而每张选票的密文都不同。两位投给同一候选人的选民得到的代码彼此毫无关联。你可以公开说“我的图片是 🌻 向日葵和 ☄️ 彗星”，而不会泄露任何信息。</li>
+        <li><strong>投下的选票永远不会被打开。</strong>每张选票有自己的密钥；投下选票的密钥在同一时刻于投票机内销毁。公开存在的只有密文。</li>
+        <li><strong>只打开总和。</strong>三位密钥保管人各持一部分，共同解密的只是每个投票站的总数。任何一人单独都打不开任何东西。</li>
+        <li><strong>测试不是选票。</strong>测试选票会作废。展示测试并不能证明你的选票，因为你可以测试一位候选人，却投给另一位。</li>
+        <li><strong>没有时间，也没有顺序。</strong>系统不保存选票到达的顺序或每张选票的时间。正是这类信息，使研究人员在 2012 年的一次公开测试中重建了当时巴西投票机的选票顺序。</li>
+      </ul>
+
+      <h2 id="fraude-simples">5. 如果有人作弊会怎样</h2>
+      <p>我们以多种方式故意攻击了系统。下表列出每种作弊由谁发现：</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>作弊方式</th><th>谁会发现</th></tr></thead>
+          <tbody>
+            <tr><td>投票机记录的候选人与显示的不同，并在测试中撒谎</td><td>做过测试的选民，在家用纸上的密钥发现</td></tr>
+            <tr><td>投票机显示你的代码，却记录了另一张选票</td><td>选民在“我的选票”中发现：其代码在投票站中不存在</td></tr>
+            <tr><td>投票机打印假密钥，或让测试选票消失</td><td>做过测试的选民：密钥打不开选票，或测试未被公布</td></tr>
+            <tr><td>有人篡改数据库中的选票</td><td>任何审计者：签名不再吻合</td></tr>
+            <tr><td>选举机构删掉一张选票或修改结果</td><td>任何审计者：投票机签名或计票证明不再吻合</td></tr>
+            <tr><td>内部人员利用从投票机中提取的密钥重做整个投票站</td><td>该投票站的选民（其代码消失）以及贴在学校门口的 BU</td></tr>
+            <tr><td>有人让整个投票站消失</td><td>纸质 BU 和该投票站的选民</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso ok">
+        <p><strong>结论：</strong>数学、纸张和选民相互补充。三者中任何一个单独都无法发现所有问题——合在一起，覆盖了所测试的全部舞弊方式。</p>
+      </div>
+
+      <h2 id="perguntas">6. 常见问题</h2>
+      <div class="faq">
+        <details>
+          <summary>投票机难道不能干脆撒谎显示“核验通过”吗？</summary>
+          <p>可以，所以真正有效的核验是在投票机<em>之外</em>进行的。被篡改的投票机能在自己的屏幕上撒谎，却无法让你电脑的计算得出不同结果：它在不知道你是否会测试之前就对选票作出了承诺，而它打印的密钥只能打开那一张选票。</p>
+        </details>
+        <details>
+          <summary>核验需要懂密码学吗？</summary>
+          <p>不需要。你输入代码，看图片是否相同；如果做过测试，就粘贴测试文本。结果会显示为“你的选票在其中”“投票机是诚实的”或“舞弊”。</p>
+        </details>
+        <details>
+          <summary>有人能强迫我出示回执来证明我的投票吗？</summary>
+          <p>可以要求，但回执什么也证明不了：代码不指向候选人，测试针对的是一张已作废的选票。想买票的人得不到任何保证。</p>
+        </details>
+        <details>
+          <summary>如果我弄丢了回执呢？</summary>
+          <p>你的选票照常计入。你只是失去了核验它的能力。投票站的总数仍然可以由任何人审计。</p>
+        </details>
+        <details>
+          <summary>这条区块链是加密货币吗？</summary>
+          <p>不是。它是一个公开登记簿，每一页都指向前一页并由选举机构签名。没有挖矿，也没有货币：它只是让任何人都能确认公布的内容没有被改动的一种方式。</p>
+        </details>
+        <details>
+          <summary>如果投票站没有打印机呢？</summary>
+          <p>投票后，回执可以以二维码形式显示在工作人员终端的屏幕上。选民走出投票间后用手机拍下二维码。内容与纸质回执相同，并由投票机签名，因此终端无法在不被发现的情况下篡改它。没有手机的人可以要求打印版。</p>
+        </details>
+        <details>
+          <summary>测试投票机会拖慢排队吗？</summary>
+          <p>只需几秒钟。测试选票当场打开；要真正投票，只需再按一次 CONFIRMA——无需重新输入号码。</p>
+        </details>
+      </div>
+
+      <!-- ================================================================== 第二部分（屏幕） -->
+      <div class="parte-titulo" id="telas">
+        <div class="rotulo">第二部分</div>
+        <h2>系统逐屏展示</h2>
+        <p>原型的真实截图，取自一次使用虚构候选人、虚构政党和剪影照片的演示选举。界面为葡萄牙语。</p>
+      </div>
+
+      <p>
+        以下屏幕按选举日的顺序排列：选举机构准备选举，投票站离线开放，选民投票并测试投票机，投票站关闭并传送数据，之后任何人都可以在家核验。最后，实验室展示被篡改软件的投票机如何被识破。点击图片可查看原尺寸。
+      </p>
+
+      <h2 id="t-mapa">A. 标签页一览</h2>
+      <p>原型在一台电脑上运行，但每个标签页代表一个不同的角色。在现实中，每个角色都在一台独立的设备上。</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>标签页（地址）</th><th>使用者</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Início</strong>（首页）<code>/</code></td><td>所有人</td><td>流程概览和快捷入口。</td></tr>
+            <tr><td><strong>Cadastro</strong>（登记）<code>/cadastro</code></td><td>选民登记机构</td><td>选民名册（可生成用于测试的虚构选民）。</td></tr>
+            <tr><td><strong>Mesário</strong>（工作人员）<code>/mesario</code> · <code>/terminal</code></td><td>投票站工作人员</td><td>工作台终端：装载、开站（零票报告）、放行选民、关站（BU）和介质。<code>/terminal</code> 只在独立窗口中打开终端。</td></tr>
+            <tr><td><strong>Urna</strong>（投票机）<code>/urna</code> · <code>/cabine</code></td><td>选民</td><td>投票机，只能用键盘操作（数字、BRANCO、CORRIGE、CONFIRMA 和 TESTAR）。<code>/cabine</code> 只打开投票机，放在终端旁边。</td></tr>
+            <tr><td><strong>Verificar voto</strong>（核验选票）<code>/verificar</code></td><td>选民，在家</td><td>按代码核验选票、查看投票站的 BU，并在高级标签页中查看回执和声明。</td></tr>
+            <tr><td><strong>Conferir teste</strong>（核验测试）<code>/teste</code></td><td>选民，在家</td><td>粘贴回执上的“投票机测试”部分，得到结论：诚实的投票机、舞弊或无法判定。</td></tr>
+            <tr><td><strong>Trustees</strong> <code>/apuracao</code></td><td>密钥保管人</td><td>生成各自的选举密钥份额，最后解密各投票站的总和。</td></tr>
+            <tr><td><strong>Auditoria</strong>（审计）<code>/auditoria</code></td><td>任何人</td><td>下载公开链，在浏览器中重做 22 项检查。</td></tr>
+            <tr><td><strong>Admin</strong> <code>/admin</code></td><td>选举机构</td><td>包含<em>选举</em>、<em>数据库</em>、<em>模拟</em>和<em>攻击实验室</em>标签页。</td></tr>
+            <tr><td><strong>Segurança</strong>（安全）<code>/seguranca</code></td><td>所有人</td><td>威胁模型，以及 2012 年和 2017 年公开安全测试的教训。</td></tr>
+            <tr><td><strong>离线验证器</strong> <code>/validador.html</code></td><td>选民和审计者</td><td>一个单独的 HTML 文件，无需联网即可完成同样的核验。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="tela"><a href="../img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/00-inicio.webp" alt="T-VOTE 首页，带标签页菜单和流程概览" loading="lazy"></div></a>
+        <figcaption>首页：顶部菜单通向系统中的每个角色。</figcaption></figure>
+
+      <h2 id="t-preparo">B. 选举之前</h2>
+      <p>
+        选举机构创建选举并录入候选人。每位候选人的照片通过哈希值封存在创世区块中，投票机会拒绝被替换的照片。三位密钥保管人各自在自己的浏览器中生成密钥份额。三份都公布后，选举开放，投票机即可接受装载。
+      </p>
+      <figure class="tela"><a href="../img/26-admin-eleicao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/26-admin-eleicao.webp" alt="Admin 的选举标签页：统计数据、开放与关闭按钮以及候选人列表" loading="lazy"></div></a>
+        <figcaption>Admin → 选举：创建、开放和停止接收。顶部数字显示保管人、凭证、投票站和区块数量。</figcaption></figure>
+      <figure class="tela"><a href="../img/29-cadastro.webp" target="_blank" rel="noopener"><img src="../img/29-cadastro.webp" alt="选民登记页面" loading="lazy"></a>
+        <figcaption>登记：选民名册。它知道谁来投票了，但永远不知道投给了谁，也不保存到达顺序。</figcaption></figure>
+
+      <h2 id="t-secao">C. 投票站离线开放</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/02-urna-instalacao.webp" target="_blank" rel="noopener"><img src="../img/02-urna-instalacao.webp" alt="处于安装模式的投票机，已输入选区 010 和投票站 0123" loading="lazy"></a>
+          <figcaption>1. 技术团队用投票机自身的键盘完成安装：选区和投票站。</figcaption></figure>
+        <figure class="tela"><a href="../img/03-urna-carga.webp" target="_blank" rel="noopener"><img src="../img/03-urna-carga.webp" alt="投票机装载界面，提示按 CONFIRMA" loading="lazy"></a>
+          <figcaption>2. 装载：投票机接收选举数据，并在内部生成自己的密钥。只有公钥部分会离开机器。</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/05-mesario-zeresima.webp" target="_blank" rel="noopener"><img src="../img/05-mesario-zeresima.webp" alt="工作人员终端：投票站已开放，零票报告已打印" loading="lazy"></a>
+        <figcaption>3. 工作人员终端：开站时，投票机打印<strong>零票报告</strong>（<em>zerésima</em>），显示零票以及投票机和工作台的密钥，供监票人拍照。</figcaption></figure>
+      <figure class="tela"><a href="../img/06-mesario-liberar.webp" target="_blank" rel="noopener"><img src="../img/06-mesario-liberar.webp" alt="工作人员搜索一位虚构选民，以及解锁投票机的按钮" loading="lazy"></a>
+        <figcaption>4. 工作人员查找选民、核对证件并解锁投票机。投票机只收到“可以投票”，永远不会收到姓名。</figcaption></figure>
+
+      <h2 id="t-cabine">D. 在投票间里</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/07-urna-votar.webp" target="_blank" rel="noopener"><img src="../img/07-urna-votar.webp" alt="投票机等待输入号码" loading="lazy"></a>
+          <figcaption>5. 解锁后的投票机等待输入号码。</figcaption></figure>
+        <figure class="tela"><a href="../img/08-urna-candidato.webp" target="_blank" rel="noopener"><img src="../img/08-urna-candidato.webp" alt="投票机显示 25 号候选人的照片、姓名和政党" loading="lazy"></a>
+          <figcaption>6. 输入 25：显示照片、姓名和政党。</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/09-urna-confira.webp" target="_blank" rel="noopener"><img src="../img/09-urna-confira.webp" alt="“请核对你的选票”界面，显示两张图片、代码和校验码" loading="lazy"></a>
+          <figcaption>7. CONFIRMA：投票机封存选票并作出承诺。它在知道选民要投票还是测试<em>之前</em>，就显示 2 张图片、代码和校验码。</figcaption></figure>
+        <figure class="tela"><a href="../img/10-urna-teste.webp" target="_blank" rel="noopener"><img src="../img/10-urna-teste.webp" alt="投票机测试界面，显示选票中所含的候选人" loading="lazy"></a>
+          <figcaption>8. TESTAR：选票被打开并作废，投票机显示它声称加密的内容。代码和密钥会印在回执上。</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/11-urna-de-novo.webp" target="_blank" rel="noopener"><img src="../img/11-urna-de-novo.webp" alt="“再次确认你的选票”界面，显示新的图片和新的代码" loading="lazy"></a>
+          <figcaption>9. 再按 CONFIRMA，无需重新输入：一张新选票，新的图片和新的代码。</figcaption></figure>
+        <figure class="tela"><a href="../img/12-urna-fim.webp" target="_blank" rel="noopener"><img src="../img/12-urna-fim.webp" alt="“结束”界面，显示选票的图片" loading="lazy"></a>
+          <figcaption>10. CONFIRMA：选票已投出。选票的密钥立即销毁。</figcaption></figure>
+      </div>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/14-comprovante.webp" target="_blank" rel="noopener"><img src="../img/14-comprovante.webp" alt="打印的回执，包含选票代码和投票机测试部分" loading="lazy"></a>
+          <figcaption>11. 只有一张纸：选票代码、校验码和图片，下方紧接着测试部分，包括声明的候选人、代码、密钥和投票机签名。</figcaption></figure>
+        <div class="nota-lado">
+          <h4>纸上有什么</h4>
+          <ul>
+            <li><strong>你的选票代码</strong>、<strong>校验码</strong>和<strong>图片</strong>：用于在公布的 BU 中找到你的加密选票。</li>
+            <li><strong>投票机测试</strong>：投票机的说法、被测试选票的代码和<strong>密钥</strong>，以及投票机<strong>签名的声明</strong>。</li>
+            <li>没有姓名、没有时间，也不显示你投给了谁。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="t-fim">E. 一天结束</h2>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/16-bu-papel.webp" target="_blank" rel="noopener"><img src="../img/16-bu-papel.webp" alt="打印的结果报告，包含各候选人票数和 BU 代码" loading="lazy"></a>
+          <figcaption>12. 打印的 BU 贴在学校门口。BU 代码唯一标识这份文件。</figcaption></figure>
+        <div class="nota-lado">
+          <h4>与今天的纸质报告相同，另加两项</h4>
+          <ul>
+            <li>各候选人票数、空白票、无效票和投票人数（投票人数来自工作台的计数器）。</li>
+            <li><strong>测试选票</strong>：已打开，不计入。</li>
+            <li><strong>BU 代码</strong>：签名后 BU 的哈希值开头部分。公布的 BU 必须具有相同的代码。</li>
+          </ul>
+        </div>
+      </div>
+      <figure class="tela"><a href="../img/17-mesario-transmitida.webp" target="_blank" rel="noopener"><img src="../img/17-mesario-transmitida.webp" alt="向选举机构传送介质后的工作人员终端" loading="lazy"></a>
+        <figcaption>13. 介质（零票报告 + BU + 加密选票）送往选举机构，后者在发布到链上之前核验投票机的签名。</figcaption></figure>
+
+      <h2 id="t-casa">F. 在家</h2>
+      <figure class="tela"><a href="../img/21-verificar-voto.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/21-verificar-voto.webp" alt="核验选票：输入的代码显示相同的图片和相同的校验码" loading="lazy"></div></a>
+        <figcaption>14. 核验选票：回执上的代码指向相同的图片和相同的校验码。选票在 BU 中且已被计入。</figcaption></figure>
+      <div class="par">
+        <figure class="tela"><a href="../img/22a-teste-texto-colado.webp" target="_blank" rel="noopener"><img src="../img/22a-teste-texto-colado.webp" alt="核验测试：回执文本已粘贴到输入框中" loading="lazy"></a>
+          <figcaption>15. 核验测试：选民粘贴测试文本，各字段自动填好。</figcaption></figure>
+        <figure class="tela"><a href="../img/23-teste-resultado.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/23-teste-resultado.webp" alt="结果：该投票站的投票机通过了测试" loading="lazy"></div></a>
+          <figcaption>16. 电脑用纸上的密钥重新加密。投票机说 25，计算结果是 25，签名有效：投票机是诚实的。</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/24-verificar-bu.webp" target="_blank" rel="noopener"><img src="../img/24-verificar-bu.webp" alt="公布的投票站报告，带有 BU 代码以及打印 BU 与密码学计票的对比" loading="lazy"></a>
+        <figcaption>17. 投票站报告：代码和数字与门口那张纸相同，打印的 BU 与密码学计票结果一致。</figcaption></figure>
+
+      <h2 id="t-apuracao">G. 计票与公开审计</h2>
+      <figure class="tela"><a href="../img/20-apuracao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/20-apuracao.webp" alt="保管人页面，显示解密情况和结果" loading="lazy"></div></a>
+        <figcaption>18. 保管人：每人先审计公告板、重新计算总和，然后才解密自己的份额。不会打开任何单张选票。</figcaption></figure>
+      <figure class="tela"><a href="../img/25-auditoria.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/25-auditoria.webp" alt="审计：22 项检查全部通过，重新计算的结果和区块链" loading="lazy"></div></a>
+        <figcaption>19. 审计：浏览器只下载公开链并重做 22 项检查。此处 22 项通过，无一失败。滚动图片可查看全部内容。</figcaption></figure>
+      <figure class="tela"><a href="../img/25b-cadeia.webp" target="_blank" rel="noopener"><img src="../img/25b-cadeia.webp" alt="公开区块链，从创世区块到结果" loading="lazy"></a>
+        <figcaption>20. 公开链，从创世区块到结果：每个区块都指向前一个区块并带有签名。</figcaption></figure>
+      <figure class="tela"><a href="../img/27-admin-bancos.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/27-admin-bancos.webp" alt="Admin 的数据库标签页：四个独立数据库的内容" loading="lazy"></div></a>
+        <figcaption>21. Admin → 数据库：管理员可以读取全部内容，即便如此，也没有任何东西能把选民和选票联系起来。</figcaption></figure>
+
+      <h2 id="t-laboratorio">H. 实验室：被篡改的投票机</h2>
+      <p>
+        在 <em>Admin → 攻击实验室</em>中，一个按钮会安装七台软件被篡改的投票机（受益候选人随机抽取），另一个按钮在每台机器上模拟一位做测试的选民并传送投票站数据，“在家核验”则把该选民的回执带到核验页面。
+      </p>
+      <figure class="tela"><a href="../img/30-laboratorio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/30-laboratorio.webp" alt="实验室中已传送数据的七台示例投票机" loading="lazy"></div></a>
+        <figcaption>22. 七台示例投票机，均已传送数据。它们都通过了数学审计，而每一台都会以各自的方式在家中被识破。</figcaption></figure>
+      <figure class="tela"><a href="../img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/31-teste-fraude.webp" alt="核验测试，结论为舞弊：投票机说 25，计算结果为 61" loading="lazy"></div></a>
+        <figcaption>23. 转移选票的投票机：纸上声称 25，选民的电脑复算出 61。签名的声明成为证据。</figcaption></figure>
+      <figure class="tela"><a href="../img/32-verificar-voto-sumiu.webp" target="_blank" rel="noopener"><img src="../img/32-verificar-voto-sumiu.webp" alt="核验选票：在投票站介质中未找到该代码" loading="lazy"></a>
+        <figcaption>24. 显示一个代码却记录另一张选票的投票机：在“核验选票”中，选民的代码不在投票站的介质里。</figcaption></figure>
+
+      <!-- ================================================================== 第三部分 -->
+      <div class="parte-titulo">
+        <div class="rotulo">第三部分</div>
+        <h2>深入原理</h2>
+        <p>架构、密码学、保证、渗透测试与局限。面向技术人员、审计者和研究人员。</p>
+      </div>
+
+      <h2 id="arquitetura">7. 架构</h2>
+      <h3>7.1 离线投票站与公开公告板</h3>
+      <p>
+        系统将全天离线运行的<strong>投票站</strong>与由选举机构维护的<strong>全国公开公告板</strong>分开。两者只在两个时刻交汇：
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>时刻</th><th>发生什么</th><th>公开记录</th></tr></thead>
+          <tbody>
+            <tr><td>选举前：<strong>装载</strong></td><td>投票机在内部生成自己的 Ed25519 密钥对；工作台终端生成用于凭证的 RSA 密钥。只有公钥会离开。</td><td><code>CARGA</code> 区块</td></tr>
+            <tr><td>关站后：<strong>介质</strong></td><td>由投票机签名的零票报告和结果报告，以及该投票站的全部加密选票。公告板在发布前将一切与装载记录核对。</td><td><code>SECAO</code> 区块</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="mermaid">
+flowchart LR
+  subgraph S["投票站（离线）"]
+    M["工作人员终端<br/>名册 · 工作台密钥"] -- 放行 --> U["投票机<br/>自有密钥 · 存储"]
+    U -- "零票报告 / BU" --> P["打印文件<br/>BU 贴在学校门口"]
+  end
+  Q["公开公告板<br/>带签名的区块链"]
+  Q -- "装载（之前）" --> U
+  U -- "介质（之后）" --> Q
+  Q --> T["3 位保管人<br/>解密各投票站总和"]
+  Q --> E["选民与审计者<br/>在家离线核验"]
+      </pre>
+
+      <h3>7.2 数据分离</h3>
+      <p>四个物理上独立的数据库。没有任何外键把选民和选票联系起来。</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>数据库</th><th>角色</th><th>知道</th><th>不知道</th></tr></thead>
+          <tbody>
+            <tr><td><code>registro.db</code></td><td>投票站名册</td><td>谁是选民、谁来投票了</td><td>与选票有关的一切；甚至不知道到达顺序</td></tr>
+            <tr><td><code>autoridade.db</code></td><td>工作台终端</td><td>投票站的 RSA 密钥以及签发了多少凭证</td><td>哪张凭证属于谁</td></tr>
+            <tr><td><code>urnas.db</code></td><td>投票机存储</td><td>投票机密钥、加密选票、各选项计数器</td><td>身份、时间、到达顺序、已投选票的密钥</td></tr>
+            <tr><td><code>boletim.db</code></td><td>公开公告板</td><td>各投票站的装载记录和介质</td><td>身份；介质到达之前对投票一无所知</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 阶段</h3>
+      <div class="formula">GENESE → CHAVE_TRUSTEE ×3 → ABERTURA → (CARGA | SECAO)* → ENCERRAMENTO → DECRIPTACAO_PARCIAL ×3 → RESULTADO</div>
+      <p>
+        每个区块包含前一个区块的哈希，并用公告板的 Ed25519 密钥签名，该公钥在创世区块中公布。创世区块还公布各选项（含每张照片的 SHA-256）以及投票站所运行软件的哈希。
+      </p>
+
+      <h2 id="cripto">8. 密码学</h2>
+      <h3>8.1 原语</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>功能</th><th>选择</th></tr></thead>
+          <tbody>
+            <tr><td>群</td><td>ristretto255（RFC 9496），素数阶 ≈ 2<sup>252</sup>，约 128 位安全强度</td></tr>
+            <tr><td>选票加密</td><td>指数 ElGamal，加法同态</td></tr>
+            <tr><td>证明</td><td>“0 或 1”析取证明（Cramer-Damgård-Schoenmakers）、Chaum-Pedersen、Schnorr；采用 SHA-512 的强 Fiat-Shamir</td></tr>
+            <tr><td>匿名凭证</td><td>RSA-2048 全域哈希盲签名（Chaum）</td></tr>
+            <tr><td>签名</td><td>Ed25519（RFC 8032），用于选票、投票机和公告板</td></tr>
+            <tr><td>哈希</td><td>SHA-256（标识符）和 SHA-512（挑战值）</td></tr>
+            <tr><td>随机性</td><td>操作系统 CSPRNG；静态分析规则禁止使用非密码学随机数生成器</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 选票</h3>
+      <p>设有 <em>k</em> 个选项（候选人、空白票和无效票），选票加密一个向量：所选选项为 1，其余为 0。对每个选项 <em>i</em>：</p>
+      <div class="formula">a_i = g^(r_i)        b_i = g^(m_i) · h^(r_i)        m_i ∈ {0, 1},   Σ m_i = 1</div>
+      <p>
+        <em>h</em> 是三位保管人的联合公钥。每一对 (a<sub>i</sub>, b<sub>i</sub>) 都附有其加密的是 0 或 1 的证明，选票还附有总和恰好为 1 的证明——且不透露是哪个选项。选票的<strong>追踪码</strong>是所有密文的 SHA-256。
+      </p>
+      <h4>选票的密钥</h4>
+      <p>每张选票都有一个来自投票机 CSPRNG 的 128 位种子，所有随机数都由它派生：</p>
+      <div class="formula">r_i = H("T-VOTE/aleatoriedade/v1", [种子, 选举哈希, i])  mod L</div>
+      <p>
+        对于投下的选票，种子在投票瞬间被销毁。对于测试选票，种子会被公开、发布在 BU 中并印在回执上：有了它，任何电脑都能重算每个可能选项的密文，找出被加密的是哪一个。
+      </p>
+
+      <h3>8.3 匿名凭证</h3>
+      <p>
+        工作人员放行后，投票机生成一个临时 Ed25519 密钥对，并请求工作台终端对公钥进行<em>盲</em>签名。工作台在看不到签名内容的情况下签名，只把计数器加 1，该数字作为投票人数印在 BU 上。选票用这张凭证签名，而<strong>作废标识</strong>（nullifier，即凭证密钥的 SHA-256）防止同一凭证投票两次。工作台和名册都无法把凭证与选民联系起来。
+      </p>
+
+      <h3>8.4 封印、代码、图片与校验码</h3>
+      <p>选票一经封存，投票机便用自己的密钥为其加上封印。封印是确定性的（Ed25519）：</p>
+      <div class="formula">封印   = Ed25519(投票机密钥, SHA-256("T-VOTE/selo/v1|" ‖ {选举, 追踪码, 投票站}))
+v      = SHA-256("T-VOTE/verificacao/v1|" ‖ 封印)
+
+图片   = 图片表[v[0]], 图片表[v[1]]                          16 位（256 张图片）
+代码   = 选区 ‖ 投票站 ‖ base32(v[2..6] 中的 25 位)            25 个随机位
+校验码 = base32(v[6..11] 中的 40 位)                           40 位</div>
+      <p>
+        代码使用 Crockford base32（不含 I、L、O、U）；读取时 O 视为 0，I/L 视为 1。它在投票站内唯一，前缀中的投票站使其在整个选举中唯一。256 张图片经过挑选，都易于画出，没有只差一个字母的组合，也不含政治、宗教或武器内容。
+      </p>
+      <div class="aviso alerta">
+        <p>
+          <strong>为什么需要校验码。</strong>仅凭 2 张图片只有 16 位：在一次试验中，一台被篡改的投票机在不到一千次加密内，就找到了两张图片相同的选票（每位候选人各一张）——它可以在测试时打开其中一张，而投出另一张。加上代码后（41 位），找到同样的一对约需 2<sup>20</sup> 次加密，仍在有准备的投票机能力范围之内。在决定前打印的校验码将承诺提高到 81 位：同样的攻击需要当场进行约 2<sup>40</sup> 次加密，这是不可行的。
+        </p>
+      </div>
+
+      <h3>8.5 投票机测试（Benaloh 挑战）</h3>
+      <p>
+        看到承诺后，选民可以按下 TESTAR。投票机公开种子，为 BU 保留已打开的选票，并<strong>签署一份声明</strong>，写明它声称找到的候选人以及打印的密钥：
+      </p>
+      <div class="formula">声明 = Ed25519(投票机密钥, SHA-256("T-VOTE/declaracao-teste/v2|" ‖ {选举, 投票站, 追踪码, 选项, 种子}))</div>
+      <p>
+        在家里，验证器用纸上的种子重新加密每个选项，寻找唯一一个能精确重现该代码下封存密文的选项。如果它不是声明的那个，就说明投票机撒了谎，而签名使其成为可转交的证据。如果有人篡改纸张，签名就不再吻合——伪造的纸张无法诬陷一台诚实的投票机。
+      </p>
+
+      <h3>8.6 零票报告与结果报告</h3>
+      <p>两者都是由投票机签名的规范 JSON 文档：</p>
+      <ul>
+        <li><strong>零票报告：</strong>选举、投票站、投票机密钥、工作台密钥、软件哈希、存储中的选票数（零）以及开站时间。</li>
+        <li><strong>BU：</strong>指向零票报告的哈希，包含投票人数（工作台计数器）、按追踪码排序的全部选票和测试选票、各选项的明文计数（即打印内容）以及密文的同态聚合值。</li>
+      </ul>
+      <p>印在纸上的 <strong>BU 代码</strong>是文档哈希的前 16 个十六进制字符。</p>
+
+      <h3>8.7 按投票站计票</h3>
+      <p>选举密钥是三位保管人密钥的乘积。对每个投票站 <em>s</em> 和选项 <em>j</em>，设聚合值为 (A<sub>sj</sub>, B<sub>sj</sub>)：</p>
+      <div class="formula">D_sj,t = A_sj^(x_t)                          （附 Chaum-Pedersen 证明；上下文包含投票站）
+g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   在 [0, 选票数] 中搜索得到 m_sj</div>
+      <p>
+        解密前，每位保管人都会审计数据包并重新计算聚合值；对于不是自己重新计算出的总和，一律拒绝解密。逐个投票站解密，使得每份打印的 BU 都能与密码学计票结果比对。
+      </p>
+
+      <h2 id="verificador">9. 选民验证器核验什么</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>输入</th><th>核验内容</th></tr></thead>
+          <tbody>
+            <tr><td>选票代码</td><td>选票存在于投票站介质中 · 链完整且已签名 · 介质由装载记录中的投票机签名 · 封印、代码和图片由封印派生 · 工作台签发的有效盲凭证 · 选票签名 · 零知识证明 · 唯一的作废标识 · 已计入聚合值 · 投票站解密附有证明</td></tr>
+            <tr><td>测试代码 + 密钥（+ 声明）</td><td>投票站已传送 · 测试选票在 BU 中 · 种子恰好重现一个选项 · 该选项即声明的选项 · 投票机对声明的签名 · 追踪码和封印吻合</td></tr>
+            <tr><td>选区与投票站</td><td>公布的 BU 由投票机签名 · 选票总和 = 聚合值 · 打印的计数 = 解密结果 · 用于与纸张比对的 BU 代码</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>测试结论：<span class="chip ok">诚实的投票机</span> <span class="chip falha">舞弊</span> <span class="chip alerta">无法判定</span>（例如投票站尚未传送数据，或输入的签名与所填候选人不符）。</p>
+
+      <h2 id="e2e">10. 端到端可验证性</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>性质</th><th>机制</th><th>谁来核验</th></tr></thead>
+          <tbody>
+            <tr><td><strong>按意愿加密</strong>（加密的选票就是选民的选择）</td><td>决定前的 81 位承诺 + 带打印密钥和签名声明的测试</td><td>做测试的选民，在投票机之外</td></tr>
+            <tr><td><strong>按投出记录</strong>（选票在公开记录中）</td><td>代码、图片和校验码记录在 BU 中并由投票机封印派生；BU 由投票机签名，并以学校门口的纸质报告为锚</td><td>任何持有回执的选民</td></tr>
+            <tr><td><strong>按记录计数</strong>（结果是正确的总和）</td><td>可重算的同态聚合值、附 Chaum-Pedersen 证明的解密、打印的 BU = 解密结果</td><td>任何人，凭公开数据包</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>测试的效力</h3>
+      <p>
+        由于投票机不知道谁会测试，篡改了 <em>k</em> 张选票的投票机，只要至少有一位选民测试到其中一张被篡改的选票就会被抓住。若每位选民做测试的概率为 <em>p</em>，被抓住的概率为 1 − (1 − p)<sup>k</sup>：
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th class="num">被篡改的选票数</th><th class="num">5% 测试</th><th class="num">10% 测试</th><th class="num">20% 测试</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">5.0%</td><td class="num">10.0%</td><td class="num">20.0%</td></tr>
+            <tr><td class="num">10</td><td class="num">40.1%</td><td class="num">65.1%</td><td class="num">89.3%</td></tr>
+            <tr><td class="num">50</td><td class="num">92.3%</td><td class="num">99.5%</td><td class="num">99.9986%</td></tr>
+            <tr><td class="num">100</td><td class="num">99.4%</td><td class="num">99.9973%</td><td class="num">&gt; 99.9999%</td></tr>
+            <tr><td class="num">300</td><td class="num">&gt; 99.9999%</td><td class="num">&gt; 99.9999%</td><td class="num">&gt; 99.9999%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="auditoria">11. 全民审计</h2>
+      <p>审计者只拿到公开数据包（区块链），并重做 22 项检查：</p>
+      <ol>
+        <li>链的完整性（每个区块的哈希和链接）</li>
+        <li>每个区块上的公告板签名</li>
+        <li>选举清单（创世区块）和协议版本</li>
+        <li>阶段顺序</li>
+        <li>附 Schnorr 证明的保管人密钥</li>
+        <li>全国零票报告和联合密钥</li>
+        <li>投票机装载：自有密钥、无重复、软件与创世区块一致、介质之后无装载</li>
+        <li>介质由装载的投票机签名、零票报告为零、每个投票站一份介质</li>
+        <li>选票无到达顺序和时间（字段精确、按追踪码排序）</li>
+        <li>投票站工作台签发的有效匿名凭证</li>
+        <li>每张选票的签名</li>
+        <li>零知识证明</li>
+        <li>重新计算的追踪码和作废标识</li>
+        <li>代码、图片和校验码由封印派生；代码唯一</li>
+        <li>一张凭证，一张选票</li>
+        <li>测试选票与公开的种子吻合</li>
+        <li>选票数 ≤ 投票人数；BU 计数之和等于选票数</li>
+        <li>各投票站的同态总和</li>
+        <li>关闭记录准确列出已接收的投票站和缺少介质的投票站</li>
+        <li>每位保管人逐站的部分解密及其证明</li>
+        <li>打印的 BU = 密码学计票结果</li>
+        <li>公布结果 = 重新计算的结果（按投票站及总计）</li>
+      </ol>
+
+      <h2 id="ameacas">12. 威胁模型与渗透测试</h2>
+      <p>我们考虑了能力逐级增强的攻击者，每种攻击都针对系统的真实模块实际执行：</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>攻击</th><th>攻击者</th><th>由谁发现</th></tr></thead>
+          <tbody>
+            <tr><td>直接在数据库中修改一张选票</td><td>可访问数据库，无密钥</td><td><span class="chip ok">审计者</span>和选民</td></tr>
+            <tr><td>修改一张选票并重算哈希</td><td>可访问数据库，无密钥</td><td><span class="chip ok">审计者</span>（公告板签名）</td></tr>
+            <tr><td>在汇总时删除一张选票</td><td>选举机构（公告板密钥）</td><td><span class="chip ok">审计者</span>（投票机签名）和选民</td></tr>
+            <tr><td>修改公布的结果</td><td>选举机构</td><td><span class="chip ok">审计者</span></td></tr>
+            <tr><td>打印带有虚假数字的 BU</td><td>持有投票机密钥的内部人员</td><td><span class="chip ok">审计者</span>（BU ≠ 计票结果）和纸张</td></tr>
+            <tr><td>保存带时间的到达顺序</td><td>持有投票机密钥的内部人员</td><td><span class="chip ok">审计者</span>（保密性）</td></tr>
+            <tr><td>用合法凭证多投一张选票</td><td>持有工作台和投票机密钥的内部人员</td><td><span class="chip ok">审计者</span>（投票人数）和纸张</td></tr>
+            <tr><td>调换已记录的图片和代码</td><td>持有投票机密钥的内部人员</td><td><span class="chip ok">审计者</span>、选民和纸张</td></tr>
+            <tr><td>重写整个投票站</td><td>持有公告板、投票机和工作台密钥的内部人员</td><td><span class="chip alerta">审计者看不到</span> · 选民（代码消失）和纸质 BU</td></tr>
+            <tr><td>让整个投票站消失</td><td>选举机构</td><td><span class="chip alerta">审计者只能警告</span> · 纸质 BU 和选民</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>软件被篡改的投票机</h3>
+      <p>
+        七台实验室投票机模拟在装载前被替换的程序。它们都向选民显示其输入的内容，都声称软件一致，而且每一台的 BU 都通过了数学审计——因为投票机在 BU 中计入的正是它实际加密的内容。每一种情况下，舞弊都在家中被发现：
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>被篡改的软件</th><th>在家核验的结果</th></tr></thead>
+          <tbody>
+            <tr><td>转移全部选票并在测试中撒谎</td><td>纸上写 29；密钥复算出 21 → <span class="chip falha">舞弊</span>，签名有效</td></tr>
+            <tr><td>转移一半选票</td><td>3 次测试中有 2 次发现转移 → <span class="chip falha">舞弊</span></td></tr>
+            <tr><td>只转移某一位候选人的选票</td><td>测试了受害候选人；密钥复算出另一人 → <span class="chip falha">舞弊</span></td></tr>
+            <tr><td>把选票变成无效票</td><td>测试选票为无效票 → <span class="chip falha">舞弊</span></td></tr>
+            <tr><td>在测试中打印假密钥</td><td>密钥打不开封存的选票 → <span class="chip falha">舞弊</span></td></tr>
+            <tr><td>让测试选票消失</td><td>测试不在公布的 BU 中 → <span class="chip falha">舞弊</span></td></tr>
+            <tr><td>显示你的代码却记录另一张选票（测试时诚实）</td><td>选票代码在 BU 中不存在 → <span class="chip falha">舞弊</span>（在“我的选票”中发现）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>数学看不见意图。</strong>一台加密了错误候选人的投票机，产生的是一张完全有效的选票。只有选民知道自己输入了什么——因此在投票机之外核验的测试不可或缺，这也是系统把数学审计与纸张和选民结合起来的原因。
+        </p>
+      </div>
+
+      <h2 id="sigilo">13. 投票保密与 2012 年 TPS 的教训</h2>
+      <p>
+        在 2012 年巴西投票机公开安全测试（TPS）中，研究人员证明可以重建当时投票机所记录选票的顺序，因为其洗牌使用了以时间为种子的非密码学随机数生成器。T-VOTE 从多个层面应对：
+      </p>
+      <ul>
+        <li>没有需要设定种子的洗牌：BU 按追踪码顺序列出选票，即随机密文的哈希顺序。</li>
+        <li>投票机存储是一张没有顺序编号的表，按（投票机，追踪码）索引：保存的是哈希顺序，而非到达顺序。</li>
+        <li>没有逐票带时间的记录；SQLite 日志采用 DELETE 模式并启用 <code>secure_delete</code>，抹去可能残留的数据。</li>
+        <li>名册不记录到场顺序，工作台进行盲签名。</li>
+        <li>每张投下选票的密钥在投票后即不复存在。</li>
+      </ul>
+      <p>
+        在一项每位候选人 160 张选票的统计测试中，第一张图片为“奇数”的比例在一位候选人的选票中是 49%，在另一位的选票中是 50%，符合与选票内容无关的取值的预期。
+      </p>
+
+      <h2 id="limites">14. 局限与后续工作</h2>
+      <p>说明尚未解决的问题，本身就是安全的一部分。</p>
+      <ul>
+        <li><strong>针对被篡改投票机的保密性。</strong>投票机能看到选票，和现行投票机一样。被篡改后，它可以挑选随机数，使图片“编码”候选人——这是一个在实验室中演示过的隐蔽信道（20 张选票全部泄露，每张最多只需几十次加密）。完整性不依赖于信任投票机；但针对它的保密性依赖。后续工作：由第二台独立设备提供随机性，并在封印前重新加密。</li>
+        <li><strong>持有投票机和工作台密钥的内部人员</strong>可以伪造一个在数学上完美的投票站。能发现它的是选民和纸质 BU；因此纸张和监票人的照片仍然不可或缺。</li>
+        <li><strong>选民之间的碰撞攻击</strong>（<em>clash</em>）：被篡改的投票机可能向两位选民展示同一张选票。每个人单独都能找到“自己的”代码；只有比对回执才能发现。</li>
+        <li><strong>测试是概率性的</strong>，取决于有多少选民做测试。</li>
+        <li><strong>三位保管人缺一不可。</strong>生产环境中：采用分布式密钥生成的 <em>t</em>-of-<em>n</em> 门限方案。</li>
+        <li>凭证使用 <strong>RSA-FDH</strong>。生产环境中：标准化盲签名（RFC 9474）。</li>
+        <li><strong>密钥存放在软件中。</strong>生产环境中：硬件模块（HSM/TPM）、度量启动和可复现构建。</li>
+        <li><strong>现场胁迫</strong>（有人在投票间内、拍摄屏幕）超出了密码学的能力范围。</li>
+        <li><strong>代码未经第三方审计。</strong></li>
+      </ul>
+
+      <h2 id="qrcode">15. 无打印机部署：以二维码交付回执</h2>
+      <p>
+        每台投票机配一台热敏打印机（以及纸张、维护和物流）是本设计中最昂贵的部分。为了在不承担这笔成本的情况下起步，回执可以以数字形式<strong>在投票后于工作人员终端上</strong>交付：
+      </p>
+      <ol>
+        <li>选民按上文所述在投票机上投票（如愿意也可测试）。投票机照常在自己的屏幕上显示图片、代码和校验码。</li>
+        <li>选民确认后，投票机通过其放行时已在使用的同一本地信道，将回执发送到工作人员终端，无需联网。</li>
+        <li>选民走出投票间，终端在朝向选民的屏幕区域显示包含回执的<strong>二维码</strong>。选民用手机拍下二维码，下一位选民被放行时屏幕即被清空。</li>
+        <li>在家里，核验页面或离线验证器读取二维码，完成与纸质回执相同的核验：选票、测试和 BU。</li>
+      </ol>
+      <h3>二维码里装了什么</h3>
+      <p>
+        与纸上完全相同的内容：选票代码、校验码、图片名称以及投票机对回执的签名。每次测试还包括声明的候选人、代码、测试选票的密钥和签名的声明。含一两张测试选票时大约是几百个字符，可以放进一个中等大小、易于从屏幕读取的二维码。如果二维码是核验页面的网址，数据必须放在 <code>#</code>（URL 片段）之后，浏览器不会把这部分发送给服务器：
+      </p>
+      <pre>https://&lt;核验页面&gt;/verificar#v=1&amp;c=0100123WGFTT&amp;k=9RD2RJJP&amp;s=…&amp;t=…</pre>
+      <h3>为什么放在工作人员终端，而不是投票间里</h3>
+      <ul>
+        <li><strong>法律禁止在投票间内使用手机。</strong>巴西第 9.504/1997 号法律第 91-A 条唯一款禁止携带手机和照相机进入投票间。二维码显示在终端上，选民只在离开投票间后才使用手机。</li>
+        <li><strong>终端本来就存在。</strong>无需新硬件，只需软件。部署成本接近于零。</li>
+        <li><strong>纸张仍然可用。</strong>两种方式可以并存：默认使用二维码，为提出要求或没有手机的人提供纸质回执。这使得可以逐个投票站逐步过渡。</li>
+      </ul>
+      <h3>对安全性有什么影响</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>问题</th><th>分析</th></tr></thead>
+          <tbody>
+            <tr><td>工作人员终端能显示伪造的二维码吗？</td><td>不被发现是做不到的。回执和测试声明都由投票机用装载时公布的密钥签名，验证器会核验这些签名。被篡改或调换的代码无法吻合：图片与投票机屏幕上显示的不同，或者签名验证失败。</td></tr>
+            <tr><td>工作人员会看到回执吗？</td><td>可能会，但这不会泄露选票：代码和图片与候选人无关。测试部分显示的是<em>被测试的</em>候选人，属于一张已作废的选票。为保持隐私，二维码显示在朝向选民的区域，并在下一次放行时消失。</td></tr>
+            <tr><td>如果终端不显示二维码呢？</td><td>选民只是失去了事后核验的机会。选票已经投出并被计入。系统性地拒绝交付回执是显而易见的，监票人可以记录在案。</td></tr>
+            <tr><td>对抗被篡改投票机的锚点</td><td>仍然是投票机在决定前于自己屏幕上显示的内容：2 张图片、代码和校验码。选民核对二维码中的值是否一致。这保持了第 8.4 节中的 81 位承诺。</td></tr>
+            <tr><td>买卖选票</td><td>与纸质回执相同：二维码无法证明此人投给了谁。</td></tr>
+            <tr><td>包容性</td><td>并非每位选民都有带摄像头的手机。因此应保留按需打印，即使每个投票地点只有少量打印机。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>原型中尚未实现。</strong>目前原型在纸上打印回执（在屏幕上模拟）。工作人员终端上的二维码是针对第一阶段部署的提案。密码学部分不变：改变的只是回执的交付方式。
+        </p>
+      </div>
+
+      <h2 id="reproduzir">16. 如何复现</h2>
+      <p>原型在单台电脑上运行，运行期间不访问互联网。代码：<a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>。</p>
+      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev               # http://127.0.0.1:3000
+npm run teste             # 内存中的协议：审计器、在家复算的测试以及 14 种攻击
+npm run teste:invasao     # 通过真实模块进行完整选举 + 渗透测试报告
+npm run validador         # 生成离线验证器（单个 HTML 文件）
+npm run auditar -- pacote.json
+npm run verificar -- pacote.json &lt;代码&gt; ["测试密钥"]
+npm run verificar -- pacote.json --bu 010-0123</pre>
+      <h3>演示流程</h3>
+      <ol>
+        <li><strong>Admin → 选举：</strong>创建选举（候选人可编辑）。</li>
+        <li><strong>Trustees：</strong>生成三把密钥；然后在 Admin 中点击<em>开放选举</em>。</li>
+        <li><strong>登记：</strong>生成虚构选民。</li>
+        <li><strong>工作人员：</strong>在不同窗口中打开终端和投票机。在投票机上用键盘完成安装（选区和投票站），按 CONFIRMA 进行装载。在终端上开放投票站。</li>
+        <li><strong>投票：</strong>放行一位选民，输入号码，按 TESTAR，再按 CONFIRMA；保留回执。</li>
+        <li><strong>关闭：</strong>关闭投票站（BU）并传送介质；在 Admin 中停止接收；在 Trustees 中解密。</li>
+        <li><strong>在家：</strong>核验选票（代码）、核验测试（粘贴回执）、投票站报告和审计。</li>
+        <li><strong>舞弊：</strong>Admin → 攻击实验室 → <em>创建 7 台示例投票机</em> → <em>全部模拟并传送</em> → <em>在家核验</em>。</li>
+      </ol>
+      <p>
+        为了不依赖你下载的验证器文件，请从源代码重新生成并比较 SHA-256：构建是确定性的。完整规范——格式、哈希域、检查项和 API——随代码一同提供，一个独立实现（例如用 Python）应当接受原型的数据包，并拒绝同样的篡改。
+      </p>
+
+      <h2 id="fontes">参考文献</h2>
+      <div class="refs">
+        <div class="grupo">投票系统中的真实漏洞</div>
+        <ol>
+          <li>Aranha, D. F.; Karam, M. M.; Miranda, A.; Scarel, F. <em>Vulnerabilidades no software da urna eletrônica brasileira</em>［巴西电子投票机软件中的漏洞］。公开安全测试技术报告，2012。英文版：“Software vulnerabilities in the Brazilian voting machine”，载于 <em>Design, Development, and Use of Secure Electronic Voting Systems</em>，IGI Global，2014。</li>
+          <li>Aranha, D. F.; Barbosa, P. Y. S.; Cardoso, T. N. C.; Araújo, C. L.; Matias, P. “The return of software vulnerabilities in the Brazilian voting machine”. <em>Computers &amp; Security</em>，第 86 卷，2019。</li>
+          <li>Tribunal Superior Eleitoral（巴西高等选举法院）。电子投票系统公开安全测试——文档与报告。justicaeleitoral.jus.br。</li>
+          <li>Hursti, H. <em>Critical Security Issues with Diebold Optical Scan Design.</em> Black Box Voting Project，2005。</li>
+          <li>Wolchok, S.; Wustrow, E.; Isabel, D.; Halderman, J. A. “Attacking the Washington, D.C. Internet Voting System”. <em>Financial Cryptography and Data Security</em>，2012。</li>
+          <li>Gaudry, P.; Golovnev, A. “Breaking the Encryption Scheme of the Moscow Internet Voting System”. <em>Financial Cryptography and Data Security</em>，2020。</li>
+          <li>Lewis, S. J.; Pereira, O.; Teague, V. “Ceci n'est pas une preuve: the use of trapdoor commitments in Bayer-Groth proofs and the implications for the verifiability of the Scytl-SwissPost Internet voting system”，2019。</li>
+          <li>Bernhard, D.; Pereira, O.; Warinschi, B. “How Not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic and Applications to Helios”. <em>ASIACRYPT</em>，2012。</li>
+        </ol>
+
+        <div class="grupo">端到端可验证投票</div>
+        <ol start="9">
+          <li>Benaloh, J. “Simple Verifiable Elections”. <em>USENIX/ACCURATE Electronic Voting Technology Workshop (EVT)</em>，2006。</li>
+          <li>Benaloh, J. “Ballot Casting Assurance via Voter-Initiated Poll Station Auditing”. <em>EVT</em>，2007。</li>
+          <li>Adida, B. “Helios: Web-based Open-Audit Voting”. <em>USENIX Security Symposium</em>，2008。</li>
+          <li>Bell, S.; Benaloh, J.; Byrne, M. D.; DeBeauvoir, D.; Eakin, B.; Fisher, G.; Kortum, P.; McBurnett, N.; Montoya, J.; Parker, M.; Pereira, O.; Stark, P. B.; Wallach, D. S.; Winn, M. “STAR-Vote: A Secure, Transparent, Auditable, and Reliable Voting System”. <em>USENIX Journal of Election Technology and Systems (JETS)</em>，2013。</li>
+          <li>Benaloh, J.; Naehrig, M. <em>ElectionGuard Design Specification</em>，2.0 版。Microsoft，2023。electionguard.vote。</li>
+          <li>Cramer, R.; Gennaro, R.; Schoenmakers, B. “A Secure and Optimally Efficient Multi-Authority Election Scheme”. <em>EUROCRYPT</em>，1997。</li>
+          <li>Küsters, R.; Truderung, T.; Vogt, A. “Clash Attacks on the Verifiability of E-Voting Systems”. <em>IEEE Symposium on Security and Privacy</em>，2012。</li>
+          <li>Rivest, R. L. “On the notion of 'software independence' in voting systems”. <em>Philosophical Transactions of the Royal Society A</em>，第 366 卷，2008。</li>
+          <li>Stark, P. B.; Wagner, D. “Evidence-Based Elections”. <em>IEEE Security &amp; Privacy</em>，第 10 卷第 5 期，2012。</li>
+          <li>Bernhard, M.; Benaloh, J.; Halderman, J. A.; Rivest, R. L.; Ryan, P. Y. A.; Stark, P. B.; Teague, V.; Vora, P. L.; Wallach, D. S. “Public Evidence from Secret Ballots”. <em>E-Vote-ID</em>，2017。</li>
+          <li>National Institute of Standards and Technology. <em>Voluntary Voting System Guidelines (VVSG) 2.0</em>，2021。</li>
+        </ol>
+
+        <div class="grupo">密码学原语</div>
+        <ol start="20">
+          <li>ElGamal, T. “A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms”. <em>IEEE Transactions on Information Theory</em>，第 31 卷第 4 期，1985。</li>
+          <li>Chaum, D. “Blind Signatures for Untraceable Payments”. <em>CRYPTO '82</em>，1983。</li>
+          <li>Chaum, D.; Pedersen, T. P. “Wallet Databases with Observers”. <em>CRYPTO '92</em>，1993。</li>
+          <li>Cramer, R.; Damgård, I.; Schoenmakers, B. “Proofs of Partial Knowledge and Simplified Design of Witness Hiding Protocols”. <em>CRYPTO '94</em>，1994。</li>
+          <li>Schnorr, C. P. “Efficient Signature Generation by Smart Cards”. <em>Journal of Cryptology</em>，第 4 卷，1991。</li>
+          <li>Fiat, A.; Shamir, A. “How to Prove Yourself: Practical Solutions to Identification and Signature Problems”. <em>CRYPTO '86</em>，1987。</li>
+          <li>Pedersen, T. P. “A Threshold Cryptosystem without a Trusted Party”. <em>EUROCRYPT '91</em>，1991。</li>
+          <li>IETF RFC 8032 — <em>Edwards-Curve Digital Signature Algorithm (EdDSA)</em>，2017。</li>
+          <li>IETF RFC 9496 — <em>The ristretto255 and decaf448 Groups</em>，2023。</li>
+          <li>IETF RFC 9474 — <em>RSA Blind Signatures</em>，2023。</li>
+          <li>NIST FIPS 180-4 — <em>Secure Hash Standard (SHS)</em>，2015。</li>
+          <li>Crockford, D. <em>Base 32</em>（不含易混淆字符的字母表）。crockford.com/base32.html。</li>
+        </ol>
+
+        <div class="grupo">法律与标准</div>
+        <ol start="32">
+          <li>巴西。1997 年 9 月 30 日第 9.504 号法律（《选举法》）第 91-A 条唯一款，由第 12.034/2009 号法律增补：禁止携带手机、照相机和摄像机进入投票间。planalto.gov.br。</li>
+          <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>。</li>
+        </ol>
+
+        <div class="grupo">原型使用的软件和数据</div>
+        <ol start="34">
+          <li>Miller, P. <em>noble-curves</em> 和 <em>noble-hashes</em>：经过审计的 JavaScript 椭圆曲线与哈希库。github.com/paulmillr。</li>
+          <li>Tribunal Superior Eleitoral。开放数据门户：候选人竞选照片（CC BY 许可）。dadosabertos.tse.jus.br。</li>
+          <li>T-VOTE 项目。源代码、协议规范（<code>docs/PROTOCOLO.md</code>）和渗透测试报告（<code>docs/RELATORIO-INVASAO.md</code>）。<a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>。</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, Noto Sans SC, sans-serif" });
+</script>
+</body>
+</html>

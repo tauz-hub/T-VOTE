@@ -11,7 +11,7 @@ import type { EstadoPublico } from "@/lib/tipos-api";
 import { Aviso, Botao, Cartao, GraficoResultado, Hash, Pagina, Selo, SeloFase } from "@/components/ui";
 
 const NOMES = ["Trustee A", "Trustee B", "Trustee C"];
-const chaveLocal = (eleicaoId: string, t: number) => `tai-vote:trustee:${eleicaoId}:${t}`;
+const chaveLocal = (eleicaoId: string, t: number) => `t-vote:trustee:${eleicaoId}:${t}`;
 
 function lerSegredo(eleicaoId: string, t: number): SegredoTrustee | null {
   try {
@@ -102,7 +102,7 @@ export default function Apuracao() {
     setErro(null);
     try {
       const s = JSON.parse(await arquivo.text()) as SegredoTrustee;
-      if (s.formato !== "tai-vote/trustee/v1" || s.eleicao_id !== id || s.trustee !== t)
+      if (s.formato !== "t-vote/trustee/v1" || s.eleicao_id !== id || s.trustee !== t)
         throw new Error("Arquivo não corresponde a este trustee nesta eleição");
       if (publicados.get(t)?.chave_publica !== s.chave_publica) throw new Error("A chave do arquivo não é a chave publicada no quadro");
       salvarSegredo(s);

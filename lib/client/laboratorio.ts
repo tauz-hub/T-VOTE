@@ -35,9 +35,9 @@ export type UrnaLaboratorio = {
   parametros: ParametrosFirmware;
 };
 
-export const CHAVE_URNAS_LABORATORIO = "tai-vote:laboratorio:urnas";
+export const CHAVE_URNAS_LABORATORIO = "t-vote:laboratorio:urnas";
 /** O comprovante que o laboratório passa para a tela "Conferir teste". */
-export const CHAVE_COMPROVANTE_PARA_CONFERIR = "tai-vote:teste:colar";
+export const CHAVE_COMPROVANTE_PARA_CONFERIR = "t-vote:teste:colar";
 
 export type EleitorSimulado = {
   escolhida: Opcao;

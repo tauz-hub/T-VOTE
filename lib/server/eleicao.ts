@@ -172,7 +172,7 @@ export async function receberMidia(bruta: MidiaSecao): Promise<Bloco<"SECAO">> {
   const doc = (d: { conteudo?: unknown; hash?: unknown; assinatura?: unknown } | undefined) => ({ conteudo: d?.conteudo, hash: d?.hash, assinatura: d?.assinatura });
   const midia = { zeresima: doc(bruta?.zeresima), bu: doc(bruta?.bu) } as unknown as Pick<MidiaSecao, "zeresima" | "bu">;
   const secao = String(midia.bu?.conteudo?.secao ?? "");
-  if (bruta?.formato !== "tai-vote/midia-secao/v1" || !/^\d{3}-\d{4}$/.test(secao)) throw new ErroHttp(400, "Arquivo não é uma mídia de seção do TAI-VOTE");
+  if (bruta?.formato !== "t-vote/midia-secao/v1" || !/^\d{3}-\d{4}$/.test(secao)) throw new ErroHttp(400, "Arquivo não é uma mídia de seção do T-VOTE");
   const blocos = listarBlocos();
   const carga = cargasDosBlocos(blocos).get(secao);
   if (!carga) throw new ErroHttp(409, `A seção ${secao} não tem carga publicada — mídia de urna desconhecida`);
@@ -274,7 +274,7 @@ export function receberDecifracaoParcial(c: Partial<ConteudoDecriptacao>) {
 // ------------------------------------------------------------ leitura pública
 
 export function pacotePublico() {
-  return { formato: "tai-vote/pacote/v1" as const, exportado_em: new Date().toISOString(), blocos: listarBlocos() };
+  return { formato: "t-vote/pacote/v1" as const, exportado_em: new Date().toISOString(), blocos: listarBlocos() };
 }
 
 export function estadoPublico(): EstadoPublico {

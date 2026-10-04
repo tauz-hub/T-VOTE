@@ -7,9 +7,9 @@ import { NextResponse, type NextRequest } from "next/server";
 // local através do navegador.
 //
 // Para uma rede local isolada com várias máquinas (mesário, urna, auditoria),
-// liste os hosts permitidos em TAI_VOTE_HOSTS (ex.: "192.168.0.10,urna.local").
+// liste os hosts permitidos em T_VOTE_HOSTS (ex.: "192.168.0.10,urna.local").
 const PERMITIDOS = new Set(
-  ["localhost", "127.0.0.1", "[::1]", ...(process.env.TAI_VOTE_HOSTS ?? "").split(",")]
+  ["localhost", "127.0.0.1", "[::1]", ...(process.env.T_VOTE_HOSTS ?? "").split(",")]
     .map((h) => h.trim().toLowerCase())
     .filter(Boolean),
 );

@@ -22,7 +22,7 @@ async function carregar(origem: string): Promise<Pacote> {
 
 async function main() {
   const origem = process.argv[2] ?? "http://127.0.0.1:3000/api/publico/pacote";
-  console.log(`\nTAI-VOTE — auditor independente\nOrigem: ${origem}\n`);
+  console.log(`\nT-VOTE — auditor independente\nOrigem: ${origem}\n`);
   const pacote = await carregar(origem);
 
   const tty = process.stdout.isTTY;

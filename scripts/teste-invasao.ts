@@ -15,8 +15,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const pasta = mkdtempSync(path.join(tmpdir(), "tai-vote-invasao-"));
-process.env.TAI_VOTE_DADOS = pasta;
+const pasta = mkdtempSync(path.join(tmpdir(), "t-vote-invasao-"));
+process.env.T_VOTE_DADOS = pasta;
 
 let falhas = 0;
 const relatorio: string[] = [];
@@ -27,7 +27,7 @@ function esperar(condicao: boolean, msg: string) {
 const md = (linha = "") => relatorio.push(linha);
 
 async function main() {
-  // importa depois de definir TAI_VOTE_DADOS
+  // importa depois de definir T_VOTE_DADOS
   const { auditarPacote, boletimDaSecao, conferirDeclaracaoTeste, reproduzirTeste, verificarMinhaCedula } = await import("../lib/auditoria");
   const { assinarCedula, assinarPedidoSelo, montarDesafiada, prepararCedula, verificarDesafiada } = await import("../lib/crypto/cedula");
   const { finalizarCredencial, iniciarCredencial } = await import("../lib/crypto/credencial");
@@ -49,7 +49,7 @@ async function main() {
   const { db } = await import("../lib/server/db");
   const { gerarChaveEd25519 } = await import("../lib/server/chaves");
 
-  md("# Relatório dos testes de invasão — TAI-VOTE v4");
+  md("# Relatório dos testes de invasão — T-VOTE v4");
   md();
   md(`Gerado por \`npm run teste:invasao\` em ${new Date().toLocaleString("pt-BR")}. Eleição completa pelos módulos reais do sistema, com dados numa pasta temporária.`);
   md();

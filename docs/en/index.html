@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T-VOTE White Paper</title>
+<meta name="description" content="T-VOTE: a voting machine that voters can check at home. Voter verification, the system screen by screen, the cryptographic protocol, penetration tests and sources.">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<link rel="stylesheet" href="../assets/whitepaper.css">
+</head>
+<body>
+<nav class="idiomas" aria-label="Language">
+  <span class="globo" aria-hidden="true">🌐</span>
+  <a href="../index.html" lang="pt-BR" hreflang="pt-BR">Português</a>
+  <a href="../en/index.html" lang="en" hreflang="en" aria-current="page">English</a>
+  <a href="../es/index.html" lang="es" hreflang="es">Español</a>
+  <a href="../de/index.html" lang="de" hreflang="de">Deutsch</a>
+  <a href="../ru/index.html" lang="ru" hreflang="ru">Русский</a>
+  <a href="../zh/index.html" lang="zh-CN" hreflang="zh-CN">中文</a>
+</nav>
+<div class="pagina">
+  <nav class="sumario" aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#projeto">Code and download</a></li>
+      <li><a href="#resumo">Summary</a></li>
+      <li class="parte">Part I · For everyone</li>
+      <li><a href="#ideia">1. The idea</a></li>
+      <li><a href="#dia">2. On election day</a></li>
+      <li><a href="#casa">3. At home: the three checks</a></li>
+      <li><a href="#sigilo-simples">4. Why nobody learns your vote</a></li>
+      <li><a href="#fraude-simples">5. If someone cheats</a></li>
+      <li><a href="#perguntas">6. Frequently asked questions</a></li>
+      <li class="parte">Part II · The system in screens</li>
+      <li><a href="#t-mapa">A. Map of the tabs</a></li>
+      <li><a href="#t-preparo">B. Before the election</a></li>
+      <li><a href="#t-secao">C. The polling station opens</a></li>
+      <li><a href="#t-cabine">D. In the booth</a></li>
+      <li><a href="#t-fim">E. End of the day</a></li>
+      <li><a href="#t-casa">F. At home</a></li>
+      <li><a href="#t-apuracao">G. Tally and audit</a></li>
+      <li><a href="#t-laboratorio">H. Rigged machines</a></li>
+      <li class="parte">Part III · Under the hood</li>
+      <li><a href="#arquitetura">7. Architecture</a></li>
+      <li><a href="#cripto">8. Cryptography</a></li>
+      <li><a href="#verificador">9. What the voter checks</a></li>
+      <li><a href="#e2e">10. End-to-end verifiability</a></li>
+      <li><a href="#auditoria">11. Universal audit</a></li>
+      <li><a href="#ameacas">12. Threats and penetration tests</a></li>
+      <li><a href="#sigilo">13. Secrecy and the 2012 lesson</a></li>
+      <li><a href="#limites">14. Limits and future work</a></li>
+      <li><a href="#qrcode">15. Deployment without printers: QR code</a></li>
+      <li><a href="#reproduzir">16. How to reproduce</a></li>
+      <li><a href="#fontes">Sources</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <div class="coluna">
+      <div class="rotulo">White paper · version 1 · October 2026</div>
+      <h1>T-VOTE: a voting machine that voters can check at home</h1>
+      <p class="lead">
+        How to vote on a machine that works like Brazil's current one — an offline polling station, a poll worker, a zero report in the
+        morning, a results report posted on the school door — and later check on your own computer that your vote was recorded and counted
+        as you cast it, without having to trust the machine, the server or whoever runs the election.
+      </p>
+      <div class="meta">
+        <span>Open-source academic prototype</span>
+        <span>Protocol v4 · offline polling station</span>
+        <span>Reference implementation: TypeScript (Next.js + SQLite)</span>
+      </div>
+
+      <section class="projeto" id="projeto" aria-labelledby="projeto-titulo">
+        <h2 id="projeto-titulo">Open source: download, run and check</h2>
+        <p>The whole system described here is published. Anyone can read the code, run the demo election on their own computer and repeat the checks.</p>
+        <div class="botoes">
+          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">Repository on GitHub</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Download the project (.zip)</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Offline validator (on GitHub)</a>
+          <a href="https://tauz-hub.github.io/TAI-VOTE/en/" target="_blank" rel="noopener">This document online</a>
+        </div>
+        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev        # opens at http://127.0.0.1:3000</pre>
+        <ul class="lista-docs">
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README: user guide and demo walkthrough</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Protocol specification (v4)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Penetration test report</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Cryptography code (<code>lib/crypto</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Auditor and voter validator (<code>lib/auditoria.ts</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">Report a problem or a flaw</a></li>
+        </ul>
+        <p class="aviso-idioma" style="margin:.8rem 0 0">The prototype's interface, code and specification are in Portuguese; the screenshots in Part II are shown as they are.</p>
+      </section>
+
+      <div class="aviso alerta">
+        <p>
+          <strong>This is a research prototype, not a certified system.</strong> It exists to study and demonstrate a verifiable voting
+          design. It has not been audited by third parties and must not be used in real elections. The candidates in this document's
+          examples are fictitious; the prototype can load public campaign photos only to make the demo realistic, and no example favours any
+          candidate (in the fraud tests, the candidate who benefits is drawn at random).
+        </p>
+      </div>
+
+      <h2 id="resumo">Summary</h2>
+      <p>
+        T-VOTE is an <strong>end-to-end verifiable</strong> (E2E-V) electronic voting design. It keeps the flow Brazilian voters already
+        know and adds three checks that anyone can do at home, with an open-source program and a public copy of the election:
+      </p>
+      <ul>
+        <li><strong>My vote:</strong> the code printed on the receipt leads to your encrypted vote in the public list of your polling station, with
+          the same two pictures the machine showed. This proves the vote was <em>recorded</em> and went into the <em>count</em> — without revealing who you voted for.</li>
+        <li><strong>My test:</strong> if you pressed TESTAR (test) on the machine, the receipt carries the key of that test ballot. At home, the
+          computer redoes the math and shows which candidate was inside it. If the machine lied, the paper it signed is proof.</li>
+        <li><strong>My polling station's report:</strong> the results report posted on the school door has a code; the published report must
+          have the same code and the same numbers, and the numbers must match the cryptographic tally.</li>
+      </ul>
+      <p>
+        Underneath are well-established cryptographic primitives: homomorphic ElGamal encryption over the ristretto255 group, zero-knowledge
+        proofs, blind signatures for anonymous credentials, Ed25519 signatures and a signed chain of blocks. The tally is done by three key
+        guardians (trustees) who can only decrypt the <em>sum</em> of each polling station's votes, never an individual vote. This document
+        first explains the system in plain language, then shows every screen of the prototype, then goes into technical detail, and ends
+        with the penetration tests run against it and all sources.
+      </p>
+
+      <!-- ================================================================== PART I -->
+      <div class="parte-titulo">
+        <div class="rotulo">Part I</div>
+        <h2>For everyone</h2>
+        <p>No math: what you do at the machine, what you take home and what you can check.</p>
+      </div>
+
+      <h2 id="ideia">1. The idea in a few words</h2>
+      <p>
+        Today, when you vote, you have to trust that the machine recorded the number you typed and that your polling station's total was
+        added up correctly. The current machine has many controls to earn that trust, but the voter, alone, has no way to check their own
+        vote.
+      </p>
+      <p>
+        With T-VOTE, the machine still sits in the corner of the room, offline, and you still press the same buttons. The difference is that
+        it <strong>commits</strong> to what it recorded before knowing what you will do, and then leaves traces you can check at home. If it
+        cheats, the cheating shows. If the body that adds up the votes cheats, that shows too. And even so, nobody — not even you — can
+        prove to someone else who you voted for. That is what prevents vote buying.
+      </p>
+
+      <h2 id="dia">2. On election day</h2>
+      <p>Everything happens at the polling station, as today. The machine and the poll worker's terminal only talk to each other; neither is connected to the internet.</p>
+      <ol class="passos">
+        <li>
+          <div>
+            <h4>The poll worker checks your ID and releases the machine</h4>
+            <p>As today. The machine only receives a "may vote" — it never learns your name.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>You type the number and see the photo</h4>
+            <p>The screen shows the candidate's name, party and photo. The machine itself checks the photo against a fingerprint published before the election, so nobody can swap it.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>You press CONFIRMA and two pictures and a code appear</h4>
+            <p>For example: 🍄 MUSHROOM and 🦴 BONE, and the code <span class="mono">010 0123 J7K6T</span>. Each picture has a drawing above the word for people who cannot read. Remember the pictures; the code is printed.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Now you choose a key</h4>
+            <p><strong>CONFIRMA</strong> (confirm) records the vote. <strong>TESTAR</strong> (test) opens that ballot so you can see what the machine recorded (it is cancelled and you vote again, without retyping). <strong>CORRIGE</strong> (correct) goes back to choose another.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>One single slip of paper comes out</h4>
+            <p>The receipt has the vote code, an 8-character "check code" and the names of the two pictures. If you tested, the same paper carries the test: the candidate the machine says it found, the test code and the key of that test ballot.</p>
+            <p style="margin-top:.4rem">In a first phase, without printers, the receipt can be delivered as a <strong>QR code on the poll worker's terminal screen</strong>: the voter leaves the booth and photographs the code with their phone (<a href="#qrcode">section 15</a>).</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="lado-a-lado">
+        <div>
+          <div class="urna" role="img" aria-label="Machine screen after confirming the vote, showing two pictures, the code and the CONFIRMA, TESTAR and CORRIGE keys">
+            <div class="tela">
+              <div class="t">Check your vote</div>
+              <div style="margin-top:.3rem">Number: <b>70</b> · Name: <b>Sample Candidate</b> · Party: <b>PARTY X</b></div>
+              <div style="text-align:center;margin-top:.6rem;font-family:var(--f-display);font-weight:600;font-size:.8rem">Remember these 2 pictures:</div>
+              <div class="figuras">
+                <div class="figura"><span>🍄</span>MUSHROOM</div>
+                <div class="figura"><span>🦴</span>BONE</div>
+              </div>
+              <div class="codigo-urna">
+                <div>010<small>ZONE</small></div><div>0123<small>STATION</small></div><div>J7K6T<small>CODE</small></div>
+              </div>
+              <div style="text-align:center;font-size:.75rem;margin-top:.3rem">check code <b>BNGJ 69AH</b></div>
+              <div style="border-top:1px solid var(--linha);margin-top:.6rem;padding-top:.4rem;font-size:.72rem">
+                Press:<br><b>CONFIRMA</b> to VOTE<br><b>TESTAR</b> to test the machine (this ballot is cancelled)<br><b>CORRIGE</b> to choose another
+              </div>
+            </div>
+            <div class="teclas"><span class="k-branco">BRANCO</span><span class="k-corrige">CORRIGE</span><span class="k-confirma">CONFIRMA</span><span class="k-testar">TESTAR</span></div>
+          </div>
+          <div class="legenda">The machine has no touch screen: everything is done with the keypad. TESTAR is the only new key.</div>
+        </div>
+        <div>
+          <div class="papel" role="img" aria-label="Example of a printed receipt with the vote code and the test section">
+            <div class="c b">VOTING RECEIPT</div>
+            <div class="c">ZONE 010 · STATION 0123</div>
+            <hr>
+            <div class="c b">YOUR VOTE CODE</div>
+            <div class="c grande">010 0123 HAAX2</div>
+            <div class="c">CHECK CODE: <b>ZCJV DS7A</b></div>
+            <div class="c">PICTURES: <b>SUNFLOWER · COMET</b></div>
+            <div class="c b" style="margin-top:.3rem">This code does NOT show who you voted for.</div>
+            <hr>
+            <div class="c b">MACHINE TEST — CANCELLED, NOT A VOTE</div>
+            <div class="c">The machine declares the tested ballot contained:</div>
+            <div class="c b">70 — Sample Candidate</div>
+            <div class="c">TEST CODE: <b>010 0123 J7K6T</b></div>
+            <div class="c">TEST KEY:</div>
+            <div class="c b">5PVV ZHZ0 7DNJ ZWN1 SKWE QYC3 MM</div>
+            <div class="miudo" style="margin-top:.3rem">Declaration signed by the machine: 284a4769a4febd488f44ff9e150b7dda…</div>
+            <hr>
+            <div class="miudo">Full hash: 66434bc097a1bc51ca669e01b0464bbc… · Machine signature: 9ccf0c2b83ca8b10…</div>
+          </div>
+          <div class="legenda">Illustrative example. One slip per voter: no name, no time, and it does not say who you voted for.</div>
+        </div>
+      </div>
+
+      <div class="aviso info">
+        <p>
+          <strong>Why test?</strong> When you press TESTAR, the machine has already shown that ballot's code and pictures — it committed
+          before knowing whether you would vote or test. If it tends to record a different candidate from the one it shows, every voter who
+          tests is a chance of catching it. You can even test by typing the number of someone you will not vote for.
+        </p>
+      </div>
+
+      <h3>At the end of the day</h3>
+      <p>
+        The poll worker closes the polling station and the machine prints the <strong>results report (BU, <em>boletim de urna</em>)</strong>, as today,
+        with each candidate's votes. One copy goes on the school door. What's new is the <strong>BU code</strong> (for example
+        <span class="mono">0d94 dbf4 9855 15b1</span>), which identifies exactly that report. Then the polling station's file (the "media") is
+        taken to the election authority, which checks everything and publishes it on a chain of blocks that anyone can download.
+      </p>
+
+      <h2 id="casa">3. At home: the three checks</h2>
+      <p>
+        Once the polling station is published, you can check using the election website, a single file that works offline, or a
+        command-line program. All three use the same open source code and do all the math on your computer.
+      </p>
+      <div class="tres">
+        <div>
+          <h4>My vote</h4>
+          <p>Type the receipt code. The same 2 pictures you saw on the machine and the same check code as on the paper must appear.</p>
+          <p class="usa">Proves: your vote is in your polling station's public list, is valid and was added up.</p>
+        </div>
+        <div>
+          <h4>My test</h4>
+          <p>Paste the "MACHINE TEST" part of the receipt. The computer re-encrypts every candidate with the key on the paper and finds which one was inside.</p>
+          <p class="usa">Proves: the machine told the truth — or lied, and its signature on the paper shows it.</p>
+        </div>
+        <div>
+          <h4>The polling station's BU</h4>
+          <p>Type zone and station. The BU code and the published numbers must equal those on the paper on the school door.</p>
+          <p class="usa">Proves: nobody swapped your polling station after it left the school.</p>
+        </div>
+      </div>
+      <p>
+        A real example, from checking two tests made in a trial run of the system: the first test, in which the machine declared number 80,
+        was redone at home and gave 80; the second, declared 27, gave 27; both declarations had a valid machine signature. Result: "the
+        machine at polling station 001-0001 passed your 2 tests".
+      </p>
+
+      <h2 id="sigilo-simples">4. Why nobody can learn your vote from the paper</h2>
+      <ul>
+        <li><strong>The code and the pictures do not come from the vote.</strong> They come from the machine's signature over an encryption that is
+          different for every ballot. Two voters who vote for the same candidate get codes with no relation to each other. You can say in public
+          "my pictures were 🌻 SUNFLOWER and ☄️ COMET" without revealing anything.</li>
+        <li><strong>The cast vote is never opened.</strong> Each ballot has its own key; the key of a cast vote is destroyed in the machine at that
+          very moment. All that exists publicly is the ciphertext.</li>
+        <li><strong>Only the sum is opened.</strong> Three key guardians, each holding a piece, jointly decrypt only each polling station's total.
+          None of them, alone, can open anything.</li>
+        <li><strong>The test is not the vote.</strong> The test ballot is cancelled. Showing the test does not prove the vote, because you can test
+          one candidate and vote for another.</li>
+        <li><strong>No time and no order.</strong> Nothing keeps the order in which votes arrived or the time of each one. That is exactly what
+          allowed researchers, in a 2012 public test, to reconstruct the order of votes on the Brazilian machine of that time.</li>
+      </ul>
+
+      <h2 id="fraude-simples">5. What happens if someone cheats</h2>
+      <p>The system was attacked on purpose, in many ways. This table shows who notices each kind of cheating:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Cheating</th><th>Who notices</th></tr></thead>
+          <tbody>
+            <tr><td>The machine records a different candidate from the one it shows and lies in the test</td><td>The voter who tested, at home, with the key on the paper</td></tr>
+            <tr><td>The machine shows your code but records another ballot</td><td>The voter, in "My vote": their code does not exist in the polling station</td></tr>
+            <tr><td>The machine prints a fake key or makes the test ballot disappear</td><td>The voter who tested: the key does not open the ballot, or the test is not published</td></tr>
+            <tr><td>Someone alters votes in the database</td><td>Any auditor: the signatures stop matching</td></tr>
+            <tr><td>The election authority removes a vote or changes the result</td><td>Any auditor: the machine's signature or the tally proofs stop matching</td></tr>
+            <tr><td>An insider, with keys extracted from the machine itself, rebuilds a whole polling station</td><td>That station's voters (their codes disappear) and the BU posted on the school door</td></tr>
+            <tr><td>Someone makes a whole polling station disappear</td><td>The paper BU and the station's voters</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso ok">
+        <p><strong>The lesson:</strong> math, paper and voter complement each other. None of the three catches everything alone — together, they cover the frauds tested.</p>
+      </div>
+
+      <h2 id="perguntas">6. Frequently asked questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Couldn't the machine simply show "verification OK" while lying?</summary>
+          <p>It could, and that is why the verification that counts is the one done <em>outside</em> the machine. A rigged machine can lie on its own screen, but it cannot make your computer's math give a different result: it committed to the ballot before knowing whether you would test, and the key it printed only opens that ballot.</p>
+        </details>
+        <details>
+          <summary>Do I need to understand cryptography to check?</summary>
+          <p>No. You type the code, see whether the pictures are the same and, if you tested, paste the test text. The answer comes as "your vote is there", "the machine was honest" or "fraud".</p>
+        </details>
+        <details>
+          <summary>Can someone force me to show the receipt to prove my vote?</summary>
+          <p>They can ask, but the receipt proves nothing: the code does not indicate the candidate, and the test is of a cancelled ballot. Anyone trying to buy votes gets no guarantee at all.</p>
+        </details>
+        <details>
+          <summary>What if I lose the receipt?</summary>
+          <p>Your vote is still counted normally. You only lose the ability to check it. The polling station's total remains auditable by anyone.</p>
+        </details>
+        <details>
+          <summary>Is the chain of blocks a cryptocurrency?</summary>
+          <p>No. It is a public record in which each page points to the previous one and is signed by the election authority. There is no mining and no currency: it is just a way for anyone to check that nobody changed what was published.</p>
+        </details>
+        <details>
+          <summary>What if the polling station has no printer?</summary>
+          <p>The receipt can be delivered as a QR code on the poll worker's terminal screen after the vote. The voter, already outside the booth, photographs the code with their phone. The content is the same as on paper and is signed by the machine, so the terminal cannot alter it without being caught. Anyone without a phone can ask for the printed version.</p>
+        </details>
+        <details>
+          <summary>Does testing the machine slow down the queue?</summary>
+          <p>A few seconds. The test ballot is opened on the spot, and to actually vote you just press CONFIRMA again — no need to retype the number.</p>
+        </details>
+      </div>
+
+      <!-- ================================================================== PART II (screens) -->
+      <div class="parte-titulo" id="telas">
+        <div class="rotulo">Part II</div>
+        <h2>The system, screen by screen</h2>
+        <p>Real screenshots of the prototype, taken in a demo election with fictitious candidates and parties and silhouette photos. The interface is in Portuguese.</p>
+      </div>
+
+      <p>
+        The screens below follow the order of an election day: the election authority prepares the election, the polling station opens
+        offline, the voter votes and tests the machine, the station closes and transmits, and then anyone checks at home. At the end, the lab
+        shows machines with tampered software being caught. Click an image to see it full size.
+      </p>
+
+      <h2 id="t-mapa">A. Map of the tabs</h2>
+      <p>The prototype runs on a single computer, but each tab represents a different actor. In real life, each would be on a separate device.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Tab (address)</th><th>Who uses it</th><th>What for</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Início</strong> (home) <code>/</code></td><td>Everyone</td><td>Overview of the flow and shortcuts.</td></tr>
+            <tr><td><strong>Cadastro</strong> (registry) <code>/cadastro</code></td><td>Electoral registry office</td><td>Voter roll (generates fictitious voters for testing).</td></tr>
+            <tr><td><strong>Mesário</strong> (poll worker) <code>/mesario</code> · <code>/terminal</code></td><td>Poll worker</td><td>The desk terminal: loading, opening (zero report), releasing the voter, closing (BU) and media. <code>/terminal</code> opens only the terminal, in its own window.</td></tr>
+            <tr><td><strong>Urna</strong> (machine) <code>/urna</code> · <code>/cabine</code></td><td>Voter</td><td>The voting machine, operated only with the keypad (digits, BRANCO, CORRIGE, CONFIRMA and TESTAR). <code>/cabine</code> opens only the machine, to sit next to the terminal.</td></tr>
+            <tr><td><strong>Verificar voto</strong> (check vote) <code>/verificar</code></td><td>Voter, at home</td><td>Check the vote by its code, the polling station's BU and, in the advanced tab, receipts and declarations.</td></tr>
+            <tr><td><strong>Conferir teste</strong> (check test) <code>/teste</code></td><td>Voter, at home</td><td>Paste the "MACHINE TEST" part of the receipt and get the verdict: honest machine, fraud or inconclusive.</td></tr>
+            <tr><td><strong>Trustees</strong> <code>/apuracao</code></td><td>Key guardians</td><td>Generate each one's share of the election key and, at the end, decrypt the per-station sums.</td></tr>
+            <tr><td><strong>Auditoria</strong> (audit) <code>/auditoria</code></td><td>Anyone</td><td>Download the public chain and redo the 22 checks in the browser.</td></tr>
+            <tr><td><strong>Admin</strong> <code>/admin</code></td><td>Election authority</td><td>Tabs <em>Election</em>, <em>Databases</em>, <em>Simulation</em> and <em>Attack lab</em>.</td></tr>
+            <tr><td><strong>Segurança</strong> (security) <code>/seguranca</code></td><td>Everyone</td><td>Threat model and lessons from the 2012 and 2017 public security tests.</td></tr>
+            <tr><td><strong>Offline validator</strong> <code>/validador.html</code></td><td>Voters and auditors</td><td>A single HTML file that does the same checks without internet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="tela"><a href="../img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/00-inicio.webp" alt="T-VOTE home page with the tab menu and the flow summary" loading="lazy"></div></a>
+        <figcaption>Home page: the menu at the top leads to each actor in the system.</figcaption></figure>
+
+      <h2 id="t-preparo">B. Before the election</h2>
+      <p>
+        The election authority creates the election with the candidates. Each candidate's photo is sealed by its hash in the genesis block,
+        and the machine refuses a swapped photo. The three trustees each generate their share of the key in their own browser. With all three
+        published, the election is opened and the machines can receive their loading.
+      </p>
+      <figure class="tela"><a href="../img/26-admin-eleicao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/26-admin-eleicao.webp" alt="Admin, Election tab: statistics, open and close buttons and the candidate list" loading="lazy"></div></a>
+        <figcaption>Admin → Election: create, open and stop receiving. The numbers at the top show trustees, credentials, polling stations and blocks.</figcaption></figure>
+      <figure class="tela"><a href="../img/29-cadastro.webp" target="_blank" rel="noopener"><img src="../img/29-cadastro.webp" alt="Voter registration page" loading="lazy"></a>
+        <figcaption>Registry: the voter roll. It knows who showed up, never who they voted for, and does not keep the order of arrival.</figcaption></figure>
+
+      <h2 id="t-secao">C. The polling station opens, offline</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/02-urna-instalacao.webp" target="_blank" rel="noopener"><img src="../img/02-urna-instalacao.webp" alt="Machine in installation mode, with zone 010 and station 0123 typed on the keypad" loading="lazy"></a>
+          <figcaption>1. The technical team installs the machine using its own keypad: zone and polling station.</figcaption></figure>
+        <figure class="tela"><a href="../img/03-urna-carga.webp" target="_blank" rel="noopener"><img src="../img/03-urna-carga.webp" alt="Machine loading screen asking for CONFIRMA" loading="lazy"></a>
+          <figcaption>2. Loading: the machine receives the election and generates its own key inside itself. Only the public part leaves.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/05-mesario-zeresima.webp" target="_blank" rel="noopener"><img src="../img/05-mesario-zeresima.webp" alt="Poll worker terminal with the station open and the zero report printed" loading="lazy"></a>
+        <figcaption>3. Poll worker terminal: when the station opens, the machine prints the <strong>zero report</strong> (<em>zerésima</em>), with zero votes and the keys of the machine and the desk, for observers to photograph.</figcaption></figure>
+      <figure class="tela"><a href="../img/06-mesario-liberar.webp" target="_blank" rel="noopener"><img src="../img/06-mesario-liberar.webp" alt="Poll worker searching for a fictitious voter and the button to release the machine" loading="lazy"></a>
+        <figcaption>4. The poll worker finds the voter, checks the ID and releases the machine. The machine only receives a "may vote", never the name.</figcaption></figure>
+
+      <h2 id="t-cabine">D. In the booth</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/07-urna-votar.webp" target="_blank" rel="noopener"><img src="../img/07-urna-votar.webp" alt="Machine ready for the number to be typed" loading="lazy"></a>
+          <figcaption>5. The released machine waits for the number.</figcaption></figure>
+        <figure class="tela"><a href="../img/08-urna-candidato.webp" target="_blank" rel="noopener"><img src="../img/08-urna-candidato.webp" alt="Machine showing candidate 25 with photo, name and party" loading="lazy"></a>
+          <figcaption>6. Typed 25: the photo, name and party appear.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/09-urna-confira.webp" target="_blank" rel="noopener"><img src="../img/09-urna-confira.webp" alt="Check-your-vote screen with two pictures, the code and the check code" loading="lazy"></a>
+          <figcaption>7. CONFIRMA: the machine seals the ballot and commits. It shows 2 pictures, the code and the check code <em>before</em> knowing whether the voter will vote or test.</figcaption></figure>
+        <figure class="tela"><a href="../img/10-urna-teste.webp" target="_blank" rel="noopener"><img src="../img/10-urna-teste.webp" alt="Machine test screen showing the candidate the ballot contained" loading="lazy"></a>
+          <figcaption>8. TESTAR: the ballot is opened and cancelled, and the machine shows what it says it encrypted. The code and the key go on the receipt.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/11-urna-de-novo.webp" target="_blank" rel="noopener"><img src="../img/11-urna-de-novo.webp" alt="Your-vote-again screen with new pictures and a new code" loading="lazy"></a>
+          <figcaption>9. CONFIRMA again, without retyping: a new ballot, with new pictures and a new code.</figcaption></figure>
+        <figure class="tela"><a href="../img/12-urna-fim.webp" target="_blank" rel="noopener"><img src="../img/12-urna-fim.webp" alt="END screen with the vote's pictures" loading="lazy"></a>
+          <figcaption>10. CONFIRMA: vote cast. The ballot's key is destroyed immediately.</figcaption></figure>
+      </div>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/14-comprovante.webp" target="_blank" rel="noopener"><img src="../img/14-comprovante.webp" alt="Printed receipt with the vote code and the machine test section" loading="lazy"></a>
+          <figcaption>11. A single slip: the vote code, the check code and the pictures, and right below the test, with the declared candidate, the code, the key and the machine's signature.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>What is on the paper</h4>
+          <ul>
+            <li><strong>Your vote code</strong>, <strong>check code</strong> and <strong>pictures</strong>: to find your encrypted ballot in the published BU.</li>
+            <li><strong>Machine test</strong>: what the machine said, the code and the <strong>key</strong> of the tested ballot, and the <strong>declaration signed</strong> by the machine.</li>
+            <li>No name, no time, and it does not say who you voted for.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="t-fim">E. End of the day</h2>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/16-bu-papel.webp" target="_blank" rel="noopener"><img src="../img/16-bu-papel.webp" alt="Printed results report with votes per candidate and the BU code" loading="lazy"></a>
+          <figcaption>12. The printed BU goes on the school door. The BU code identifies exactly that document.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>Like today's paper, with two extras</h4>
+          <ul>
+            <li>Votes per candidate, blank, null and turnout (turnout comes from the desk's counter).</li>
+            <li><strong>Test ballots</strong>: opened and not counted.</li>
+            <li><strong>BU code</strong>: the first part of the hash of the signed BU. The published BU must have the same code.</li>
+          </ul>
+        </div>
+      </div>
+      <figure class="tela"><a href="../img/17-mesario-transmitida.webp" target="_blank" rel="noopener"><img src="../img/17-mesario-transmitida.webp" alt="Poll worker terminal after transmitting the media to the election authority" loading="lazy"></a>
+        <figcaption>13. The media (zero report + BU + encrypted ballots) goes to the election authority, which checks the machine's signature before publishing it on the chain.</figcaption></figure>
+
+      <h2 id="t-casa">F. At home</h2>
+      <figure class="tela"><a href="../img/21-verificar-voto.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/21-verificar-voto.webp" alt="Check vote: the typed code shows the same pictures and the same check code" loading="lazy"></div></a>
+        <figcaption>14. Check vote: the receipt code leads to the same pictures and the same check code. The vote is in the BU and was counted.</figcaption></figure>
+      <div class="par">
+        <figure class="tela"><a href="../img/22a-teste-texto-colado.webp" target="_blank" rel="noopener"><img src="../img/22a-teste-texto-colado.webp" alt="Check test: the receipt text pasted into the box" loading="lazy"></a>
+          <figcaption>15. Check test: the voter pastes the test text. The fields fill in by themselves.</figcaption></figure>
+        <figure class="tela"><a href="../img/23-teste-resultado.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/23-teste-resultado.webp" alt="Result: the polling station's machine passed the test" loading="lazy"></div></a>
+          <figcaption>16. The computer re-encrypts with the key on the paper. The machine said 25, the math gave 25, and the signature is valid: honest machine.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/24-verificar-bu.webp" target="_blank" rel="noopener"><img src="../img/24-verificar-bu.webp" alt="Published polling station report with the BU code and a comparison between the printed BU and the cryptographic tally" loading="lazy"></a>
+        <figcaption>17. Polling station report: the code and numbers are the same as on the paper on the door, and the printed BU matches the cryptographic tally.</figcaption></figure>
+
+      <h2 id="t-apuracao">G. Tally and public audit</h2>
+      <figure class="tela"><a href="../img/20-apuracao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/20-apuracao.webp" alt="Trustees page with the decryptions and the result" loading="lazy"></div></a>
+        <figcaption>18. Trustees: each one audits the board, recomputes the sums and only then decrypts their share. No individual vote is opened.</figcaption></figure>
+      <figure class="tela"><a href="../img/25-auditoria.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/25-auditoria.webp" alt="Audit: 22 checks passed, recomputed result and chain of blocks" loading="lazy"></div></a>
+        <figcaption>19. Audit: the browser downloads only the public chain and redoes the 22 checks. Here, 22 passed and none failed. Scroll the image to see them all.</figcaption></figure>
+      <figure class="tela"><a href="../img/25b-cadeia.webp" target="_blank" rel="noopener"><img src="../img/25b-cadeia.webp" alt="Public chain of blocks, from genesis to result" loading="lazy"></a>
+        <figcaption>20. The public chain, from genesis to result: each block points to the previous one and is signed.</figcaption></figure>
+      <figure class="tela"><a href="../img/27-admin-bancos.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/27-admin-bancos.webp" alt="Admin, Databases: the contents of the four separate databases" loading="lazy"></div></a>
+        <figcaption>21. Admin → Databases: the administrator can read everything, and even so there is nothing linking voter to vote.</figcaption></figure>
+
+      <h2 id="t-laboratorio">H. Lab: rigged machines</h2>
+      <p>
+        In <em>Admin → Attack lab</em>, one button installs seven machines with tampered software (the favoured candidate is drawn at
+        random), another simulates a voter who tests on each one and transmits the polling stations, and "Check at home" takes that voter's
+        receipt to the checking screen.
+      </p>
+      <figure class="tela"><a href="../img/30-laboratorio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/30-laboratorio.webp" alt="Lab with the seven sample machines transmitted" loading="lazy"></div></a>
+        <figcaption>22. The seven sample machines, already transmitted. All pass the mathematical audit, and each one is caught at home in its own way.</figcaption></figure>
+      <figure class="tela"><a href="../img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/31-teste-fraude.webp" alt="Check test with a FRAUD verdict: the machine said 25 and the math gave 61" loading="lazy"></div></a>
+        <figcaption>23. The machine that diverts votes: on paper it said 25, and the voter's computer reproduced 61. The signed declaration becomes proof.</figcaption></figure>
+      <figure class="tela"><a href="../img/32-verificar-voto-sumiu.webp" target="_blank" rel="noopener"><img src="../img/32-verificar-voto-sumiu.webp" alt="Check vote: code not found in the polling station's media" loading="lazy"></a>
+        <figcaption>24. The machine that shows one code and records another ballot: in Check vote, the voter's code is not in the polling station's media.</figcaption></figure>
+
+      <!-- ================================================================== PART III -->
+      <div class="parte-titulo">
+        <div class="rotulo">Part III</div>
+        <h2>Under the hood</h2>
+        <p>Architecture, cryptography, guarantees, penetration tests and limitations. For engineers, auditors and researchers.</p>
+      </div>
+
+      <h2 id="arquitetura">7. Architecture</h2>
+      <h3>7.1 Offline polling station and public board</h3>
+      <p>
+        The system separates the <strong>polling station</strong>, which runs offline all day, from the <strong>national public
+        board</strong>, kept by the election authority. They meet at only two moments:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Moment</th><th>What happens</th><th>Public record</th></tr></thead>
+          <tbody>
+            <tr><td>Before the election: <strong>loading</strong></td><td>The machine generates its own Ed25519 key pair inside itself; the desk terminal generates the RSA key for credentials. Only the public keys leave.</td><td><code>CARGA</code> block</td></tr>
+            <tr><td>After closing: <strong>media</strong></td><td>The zero report and the results report, signed by the machine, with all the station's encrypted ballots. The board checks everything against the loading before publishing.</td><td><code>SECAO</code> block</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="mermaid">
+flowchart LR
+  subgraph S["Polling station (offline)"]
+    M["Poll worker terminal<br/>roll · desk key"] -- releases --> U["Voting machine<br/>own key · memory"]
+    U -- "zero report / BU" --> P["Printed papers<br/>BU on the school door"]
+  end
+  Q["Public board<br/>signed chain of blocks"]
+  Q -- "loading (before)" --> U
+  U -- "media (after)" --> Q
+  Q --> T["3 trustees<br/>decrypt per-station sums"]
+  Q --> E["Voters and auditors<br/>check at home, offline"]
+      </pre>
+
+      <h3>7.2 Data separation</h3>
+      <p>Four physically separate databases. No foreign key links a voter to a ballot.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Database</th><th>Role</th><th>Knows</th><th>Does not know</th></tr></thead>
+          <tbody>
+            <tr><td><code>registro.db</code></td><td>Polling station roll</td><td>Who is a voter and who showed up</td><td>Nothing about the vote; not even the order of arrival</td></tr>
+            <tr><td><code>autoridade.db</code></td><td>Desk terminal</td><td>The station's RSA key and how many credentials it signed</td><td>Which credential belongs to whom</td></tr>
+            <tr><td><code>urnas.db</code></td><td>Machine memory</td><td>Machine key, encrypted ballots, per-option counter</td><td>Identity, time, order of arrival, keys of cast ballots</td></tr>
+            <tr><td><code>boletim.db</code></td><td>Public board</td><td>Loadings and media of the polling stations</td><td>Identity; nothing about voting before the media arrives</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Phases</h3>
+      <div class="formula">GENESE → CHAVE_TRUSTEE ×3 → ABERTURA → (CARGA | SECAO)* → ENCERRAMENTO → DECRIPTACAO_PARCIAL ×3 → RESULTADO</div>
+      <p>
+        Each block contains the hash of the previous one and is signed with the board's Ed25519 key, published in the genesis block. The
+        genesis also publishes the options (with the SHA-256 of each photo) and the hash of the software running at the polling station.
+      </p>
+
+      <h2 id="cripto">8. Cryptography</h2>
+      <h3>8.1 Primitives</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Function</th><th>Choice</th></tr></thead>
+          <tbody>
+            <tr><td>Group</td><td>ristretto255 (RFC 9496), prime order ≈ 2<sup>252</sup>, about 128-bit security</td></tr>
+            <tr><td>Vote encryption</td><td>Exponential ElGamal, additively homomorphic</td></tr>
+            <tr><td>Proofs</td><td>0-or-1 disjunction (Cramer-Damgård-Schoenmakers), Chaum-Pedersen, Schnorr; strong Fiat-Shamir with SHA-512</td></tr>
+            <tr><td>Anonymous credential</td><td>RSA-2048 blind signature with full-domain hash (Chaum)</td></tr>
+            <tr><td>Signatures</td><td>Ed25519 (RFC 8032) for ballot, machine and board</td></tr>
+            <tr><td>Hashes</td><td>SHA-256 (identifiers) and SHA-512 (challenges)</td></tr>
+            <tr><td>Randomness</td><td>Operating-system CSPRNG; non-cryptographic generators are forbidden by a static-analysis rule</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 The ballot</h3>
+      <p>With <em>k</em> options (candidates, blank and null), the ballot encrypts a vector with 1 in the chosen option and 0 in the others. For each option <em>i</em>:</p>
+      <div class="formula">a_i = g^(r_i)        b_i = g^(m_i) · h^(r_i)        m_i ∈ {0, 1},   Σ m_i = 1</div>
+      <p>
+        <em>h</em> is the three trustees' joint public key. Each pair (a<sub>i</sub>, b<sub>i</sub>) carries a proof that it encrypts 0 or 1,
+        and the ballot carries a proof that the sum encrypts exactly 1 — without revealing which option. The ballot's <strong>tracker</strong>
+        is the SHA-256 of all the ciphertexts.
+      </p>
+      <h4>The ballot key</h4>
+      <p>Each ballot has a 128-bit seed from the machine's CSPRNG, and all its randomness derives from it:</p>
+      <div class="formula">r_i = H("T-VOTE/aleatoriedade/v1", [seed, election_hash, i])  mod L</div>
+      <p>
+        For a cast ballot, the seed is destroyed at the moment of casting. For a test ballot, it is revealed, published in the BU and printed
+        on the receipt: with it, any computer redoes the ciphertexts of every possible option and finds out which one was encrypted.
+      </p>
+
+      <h3>8.3 Anonymous credential</h3>
+      <p>
+        Once released by the poll worker, the machine generates an ephemeral Ed25519 pair and asks the desk terminal for a <em>blind</em>
+        signature over the public key. The desk signs without seeing what it signs and only adds 1 to its counter, which is printed on the BU
+        as turnout. The ballot is signed with this credential, and the <strong>nullifier</strong> (SHA-256 of the credential key) prevents
+        the same credential from voting twice. Neither the desk nor the roll can link a credential to a voter.
+      </p>
+
+      <h3>8.4 Seal, code, pictures and check code</h3>
+      <p>As soon as the ballot is sealed, the machine seals it with its own key. The seal is deterministic (Ed25519):</p>
+      <div class="formula">seal  = Ed25519(machine_key, SHA-256("T-VOTE/selo/v1|" ‖ {election, tracker, station}))
+v     = SHA-256("T-VOTE/verificacao/v1|" ‖ seal)
+
+pictures   = PICTURES[v[0]], PICTURES[v[1]]                 16 bits (256 pictures)
+code       = zone ‖ station ‖ base32(25 bits of v[2..6])     25 random bits
+check code = base32(40 bits of v[6..11])                     40 bits</div>
+      <p>
+        The code uses Crockford base32 (no I, L, O or U); when reading, O becomes 0 and I/L become 1. It is unique within the polling
+        station, and the station prefix makes it unique within the election. The 256 pictures were chosen to be drawable, with no pairs
+        differing by a single letter and no political, religious or weapon content.
+      </p>
+      <div class="aviso alerta">
+        <p>
+          <strong>Why the check code exists.</strong> The 2 pictures alone have 16 bits: in a trial, a rigged machine found, in fewer than
+          a thousand encryptions, two ballots (one per candidate) with the same pictures — and could open one in the test and cast the other.
+          With code and pictures (41 bits), the same pair would need about 2<sup>20</sup> encryptions, still within reach of a prepared
+          machine. The check code, printed before the decision, raises the commitment to 81 bits: the same attack then needs about
+          2<sup>40</sup> encryptions on the spot, which is infeasible.
+        </p>
+      </div>
+
+      <h3>8.5 Machine test (Benaloh challenge)</h3>
+      <p>
+        After seeing the commitment, the voter can press TESTAR. The machine reveals the seed, keeps the opened ballot for the BU and
+        <strong>signs a declaration</strong> with the candidate it says it found and the printed key:
+      </p>
+      <div class="formula">declaration = Ed25519(machine_key, SHA-256("T-VOTE/declaracao-teste/v2|" ‖ {election, station, tracker, option, seed}))</div>
+      <p>
+        At home, the validator re-encrypts each option with the seed from the paper and looks for the only one that exactly reproduces the
+        ciphertexts sealed under that code. If it is not the declared one, the machine lied, and the signature turns this into transferable
+        proof. If someone alters the paper, the signature stops matching — a forged paper cannot incriminate an honest machine.
+      </p>
+
+      <h3>8.6 Zero report and results report</h3>
+      <p>Both are canonical JSON documents signed by the machine:</p>
+      <ul>
+        <li><strong>Zero report:</strong> election, polling station, machine key, desk key, software hash, number of ballots in memory (zero) and opening time.</li>
+        <li><strong>BU:</strong> points to the zero report's hash and carries turnout (the desk's counter), all ballots and test ballots in tracker order, the plaintext count per option (what gets printed) and the homomorphic aggregate of the ciphertexts.</li>
+      </ul>
+      <p>The <strong>BU code</strong> printed on paper is the first 16 hexadecimal characters of the document's hash.</p>
+
+      <h3>8.7 Per-station tally</h3>
+      <p>The election key is the product of the three trustees' keys. For each polling station <em>s</em> and option <em>j</em>, with aggregate (A<sub>sj</sub>, B<sub>sj</sub>):</p>
+      <div class="formula">D_sj,t = A_sj^(x_t)                          (with a Chaum-Pedersen proof; context includes the station)
+g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj by search in [0, number of ballots]</div>
+      <p>
+        Before decrypting, each trustee audits the package and recomputes the aggregate; it refuses to decrypt anything that is not the sum
+        it recomputed itself. Decrypting station by station makes it possible to compare each printed BU with the cryptographic tally.
+      </p>
+
+      <h2 id="verificador">9. What the voter's validator checks</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Input</th><th>Checks</th></tr></thead>
+          <tbody>
+            <tr><td>Vote code</td><td>Ballot present in the station's media · chain intact and signed · media signed by the loaded machine · seal, code and pictures derived from the seal · valid blind credential from the desk · ballot signature · zero-knowledge proofs · unique nullifier · included in the aggregate · station decryption with proofs</td></tr>
+            <tr><td>Test code + key (+ declaration)</td><td>Station transmitted · test ballot in the BU · the seed reproduces exactly one option · that option is the declared one · machine signature on the declaration · tracker and seal match</td></tr>
+            <tr><td>Zone and station</td><td>Published BU signed by the machine · sum of ballots = aggregate · printed count = decryption · BU code to compare with the paper</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Test verdicts: <span class="chip ok">honest machine</span> <span class="chip falha">fraud</span> <span class="chip alerta">inconclusive</span> (for example, when the station has not transmitted yet or when the typed signature does not match the stated candidate).</p>
+
+      <h2 id="e2e">10. End-to-end verifiability</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Property</th><th>Mechanism</th><th>Who checks</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Cast as intended</strong> (the encrypted vote is what the voter chose)</td><td>81-bit commitment before the decision + test with printed key and signed declaration</td><td>The voter who tests, outside the machine</td></tr>
+            <tr><td><strong>Recorded as cast</strong> (the ballot is in the public record)</td><td>Code, pictures and check code recorded in the BU and derived from the machine's seal; BU signed by the machine and anchored in the paper on the school door</td><td>Any voter with the receipt</td></tr>
+            <tr><td><strong>Counted as recorded</strong> (the result is the correct sum)</td><td>Recomputable homomorphic aggregate, decryption with Chaum-Pedersen proofs, printed BU = decryption</td><td>Anyone, with the public package</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Strength of the test</h3>
+      <p>
+        Since the machine does not know who will test, a machine that alters <em>k</em> votes is caught if at least one voter tests one of
+        the altered ballots. With each voter testing with probability <em>p</em>, the chance of catching it is 1 − (1 − p)<sup>k</sup>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th class="num">Votes altered</th><th class="num">5% test</th><th class="num">10% test</th><th class="num">20% test</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">5.0%</td><td class="num">10.0%</td><td class="num">20.0%</td></tr>
+            <tr><td class="num">10</td><td class="num">40.1%</td><td class="num">65.1%</td><td class="num">89.3%</td></tr>
+            <tr><td class="num">50</td><td class="num">92.3%</td><td class="num">99.5%</td><td class="num">99.9986%</td></tr>
+            <tr><td class="num">100</td><td class="num">99.4%</td><td class="num">99.9973%</td><td class="num">&gt; 99.9999%</td></tr>
+            <tr><td class="num">300</td><td class="num">&gt; 99.9999%</td><td class="num">&gt; 99.9999%</td><td class="num">&gt; 99.9999%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="auditoria">11. Universal audit</h2>
+      <p>The auditor receives only the public package (the chain of blocks) and redoes 22 checks:</p>
+      <ol>
+        <li>Chain integrity (hash and linking of each block)</li>
+        <li>Board signature on each block</li>
+        <li>Election manifest (genesis) and protocol version</li>
+        <li>Order of phases</li>
+        <li>Trustee keys with Schnorr proof</li>
+        <li>National zero report and joint key</li>
+        <li>Machine loading: own key, none repeated, software equal to the genesis, no loading after the media</li>
+        <li>Media signed by the loaded machine, zero report at zero, one media per station</li>
+        <li>Ballots without arrival order and without time (exact fields, tracker order)</li>
+        <li>Valid anonymous credentials from the station's desk</li>
+        <li>Signature of each ballot</li>
+        <li>Zero-knowledge proofs</li>
+        <li>Trackers and nullifiers recomputed</li>
+        <li>Code, pictures and check code derived from the seal; unique codes</li>
+        <li>One credential, one vote</li>
+        <li>Test ballots match the revealed seed</li>
+        <li>Ballots ≤ turnout; the BU count adds up to the number of ballots</li>
+        <li>Homomorphic sum per station</li>
+        <li>Closing lists exactly the stations received and those without media</li>
+        <li>Each trustee's partial decryption, station by station, with proof</li>
+        <li>Printed BU = cryptographic tally</li>
+        <li>Published result = recomputed, per station and in total</li>
+      </ol>
+
+      <h2 id="ameacas">12. Threat model and penetration tests</h2>
+      <p>Attackers with increasing power were considered, and each attack was run against the system's real modules:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Attack</th><th>Attacker</th><th>Who detected it</th></tr></thead>
+          <tbody>
+            <tr><td>Change a vote directly in the database</td><td>Database access, no keys</td><td><span class="chip ok">auditor</span> and voters</td></tr>
+            <tr><td>Change a vote and recompute the hashes</td><td>Database access, no keys</td><td><span class="chip ok">auditor</span> (board signature)</td></tr>
+            <tr><td>Remove a ballot during totalling</td><td>Election authority (board key)</td><td><span class="chip ok">auditor</span> (machine signature) and voters</td></tr>
+            <tr><td>Alter the published result</td><td>Election authority</td><td><span class="chip ok">auditor</span></td></tr>
+            <tr><td>Printed BU with false numbers</td><td>Insider with the machine key</td><td><span class="chip ok">auditor</span> (BU ≠ tally) and paper</td></tr>
+            <tr><td>Keep arrival order with timestamps</td><td>Insider with the machine key</td><td><span class="chip ok">auditor</span> (secrecy)</td></tr>
+            <tr><td>Extra ballot with a legitimate credential</td><td>Insider with desk and machine keys</td><td><span class="chip ok">auditor</span> (turnout) and paper</td></tr>
+            <tr><td>Swap recorded pictures and codes</td><td>Insider with the machine key</td><td><span class="chip ok">auditor</span>, voters and paper</td></tr>
+            <tr><td>Rewrite a whole polling station</td><td>Insider with board, machine and desk keys</td><td><span class="chip alerta">auditor does not see it</span> · voters (codes disappear) and paper BU</td></tr>
+            <tr><td>Make a whole polling station disappear</td><td>Election authority</td><td><span class="chip alerta">auditor only warns</span> · paper BU and voters</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Machines with tampered software</h3>
+      <p>
+        Seven lab machines simulate programs swapped before loading. All of them show voters what they typed, all claim the software
+        checks out, and every one's BU passes the mathematical audit — because the machine counts in the BU what it actually encrypted. In
+        every case, the fraud was caught at home:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Tampered software</th><th>Result at home</th></tr></thead>
+          <tbody>
+            <tr><td>Diverts all votes and lies in the test</td><td>Paper said 29; the key reproduced 21 → <span class="chip falha">fraud</span>, with a valid signature</td></tr>
+            <tr><td>Diverts half of the votes</td><td>2 of 3 tests caught the diversion → <span class="chip falha">fraud</span></td></tr>
+            <tr><td>Diverts only one candidate's votes</td><td>Tested the victim candidate; the key reproduced another → <span class="chip falha">fraud</span></td></tr>
+            <tr><td>Turns votes into null</td><td>The test ballot was null → <span class="chip falha">fraud</span></td></tr>
+            <tr><td>Prints a fake key in the test</td><td>The key does not open the sealed ballot → <span class="chip falha">fraud</span></td></tr>
+            <tr><td>Makes the test ballot disappear</td><td>The test is not in the published BU → <span class="chip falha">fraud</span></td></tr>
+            <tr><td>Shows your code and records another ballot (honest in the test)</td><td>The vote code does not exist in the BU → <span class="chip falha">fraud</span> (caught in "My vote")</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Math does not see intent.</strong> A machine that encrypts the wrong candidate produces a perfectly valid ballot. Only the
+          voter knows what they typed — that is why the test, checked outside the machine, is indispensable, and why the system combines the
+          mathematical audit with the paper and the voter.
+        </p>
+      </div>
+
+      <h2 id="sigilo">13. Secrecy and the lesson of TPS 2012</h2>
+      <p>
+        In the 2012 Public Security Test (TPS) of the Brazilian voting machine, researchers showed that the order of the votes recorded by the
+        machine of that time could be reconstructed, because the shuffling used a non-cryptographic generator seeded with the time. T-VOTE
+        responds in several layers:
+      </p>
+      <ul>
+        <li>There is no shuffle to seed: the BU lists the ballots in tracker order, which is the hash of random ciphertexts.</li>
+        <li>The machine's memory is a table with no sequential identifier, indexed by (machine, tracker): the stored order is the hash order, not the arrival order.</li>
+        <li>No per-vote record with a timestamp; SQLite's journal in DELETE mode and <code>secure_delete</code> erase what could remain.</li>
+        <li>The roll does not record the order of attendance, and the desk signs blindly.</li>
+        <li>The key of each cast ballot no longer exists after casting.</li>
+      </ul>
+      <p>
+        In a statistical test with 160 ballots per candidate, the first picture came out "odd" in 49% of one candidate's ballots and 50% of the
+        other's, as expected from values independent of the vote.
+      </p>
+
+      <h2 id="limites">14. Limits and future work</h2>
+      <p>Saying what is not solved is part of security.</p>
+      <ul>
+        <li><strong>Secrecy against a rigged machine.</strong> The machine sees the vote, like today's. If rigged, it can choose the randomness so
+          that the pictures "encode" the candidate — a subliminal channel demonstrated in the lab (20 out of 20 votes leaked with at most a few
+          dozen encryptions per vote). Integrity does not depend on trusting the machine; secrecy against it does. Future work: randomness from
+          a second independent device, with re-encryption before the seal.</li>
+        <li><strong>An insider with the machine and desk keys</strong> can fabricate a mathematically perfect polling station. Those who catch it
+          are the voters and the paper BU; that is why paper and observers' photos remain essential.</li>
+        <li><strong>Clash attack between voters</strong>: a rigged machine could show two voters the same ballot. Each one, in isolation, finds
+          "their" code; it is only caught by comparing receipts.</li>
+        <li><strong>The test is probabilistic</strong> and depends on how many voters test.</li>
+        <li><strong>Three out of three trustees.</strong> In production: a <em>t</em>-of-<em>n</em> threshold with distributed key generation.</li>
+        <li><strong>RSA-FDH</strong> for credentials. In production: standardized blind signatures (RFC 9474).</li>
+        <li><strong>Keys in software.</strong> In production: hardware modules (HSM/TPM), measured boot and reproducible builds.</li>
+        <li><strong>In-person coercion</strong> (someone inside the booth, a photo of the screen) is beyond the reach of cryptography.</li>
+        <li><strong>Code not audited by third parties.</strong></li>
+      </ul>
+
+      <h2 id="qrcode">15. Deployment without printers: receipt by QR code</h2>
+      <p>
+        A thermal printer in every machine (plus the paper, maintenance and logistics) is the most expensive item in this design. To start
+        without that cost, the receipt can be delivered digitally, <strong>on the poll worker's terminal, after voting</strong>:
+      </p>
+      <ol>
+        <li>The voter votes (and, if they wish, tests) on the machine, as described above. The machine shows the pictures, the code and the check code on its own screen, as always.</li>
+        <li>When the voter confirms, the machine sends the receipt to the poll worker's terminal over the same local channel it already uses for the release, without internet.</li>
+        <li>The voter leaves the booth and the terminal shows a <strong>QR code</strong> with the receipt, in an area of the screen facing them. They photograph the code with their phone, and the screen is cleared as soon as the next voter is released.</li>
+        <li>At home, the verification page or the offline validator reads the QR code and does the same checks as with paper: vote, test and BU.</li>
+      </ol>
+      <h3>What goes inside the QR code</h3>
+      <p>
+        Exactly what the paper carries: vote code, check code, picture names and the machine's signature on the receipt. For each test, the
+        declared candidate, the code, the test ballot key and the signed declaration. With one or two test ballots this is a few hundred
+        characters, which fits in a medium-sized QR code that is easy to read from a screen. If the code is an address of the verification
+        page, the data must go after the <code>#</code> (the URL fragment), which the browser does not send to the server:
+      </p>
+      <pre>https://&lt;verification page&gt;/verificar#v=1&amp;c=0100123WGFTT&amp;k=9RD2RJJP&amp;s=…&amp;t=…</pre>
+      <h3>Why on the poll worker's terminal and not in the booth</h3>
+      <ul>
+        <li><strong>The law forbids phones in the booth.</strong> Brazilian Law 9,504/1997, art. 91-A, sole paragraph, forbids carrying phones and cameras into the voting booth. With the QR code on the terminal, the voter only uses the phone after leaving.</li>
+        <li><strong>The terminal already exists.</strong> No new hardware, only software. Deployment cost is close to zero.</li>
+        <li><strong>Paper is still possible.</strong> Both forms can coexist: QR code by default and paper for anyone who asks or has no phone. This allows a gradual transition, station by station.</li>
+      </ul>
+      <h3>What changes for security</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Point</th><th>Analysis</th></tr></thead>
+          <tbody>
+            <tr><td>Could the poll worker's terminal show a fake QR code?</td><td>Not without being caught. The receipt and the test declaration are signed by the machine, with the key published at loading, and the validator checks those signatures. An altered or swapped code does not match: the pictures differ from the ones the machine showed on its screen, or the signature fails.</td></tr>
+            <tr><td>Does the poll worker see the receipt?</td><td>They may, and it does not reveal the vote: the code and pictures do not depend on the candidate. The test part shows the <em>tested</em> candidate, which belongs to a cancelled ballot. For discretion, the QR code sits in an area facing the voter and disappears with the next release.</td></tr>
+            <tr><td>What if the terminal does not show the QR code?</td><td>The voter only loses the later check. The vote has already been cast and counted. A systematic refusal to deliver receipts is visible and can be recorded by observers.</td></tr>
+            <tr><td>Anchor against a rigged machine</td><td>It is still what the machine showed on its own screen, before the decision: the 2 pictures, the code and the check code. The voter checks that the QR code carries the same values. This keeps the 81-bit commitment of section 8.4.</td></tr>
+            <tr><td>Vote selling</td><td>Same as paper: the QR code does not prove who the person voted for.</td></tr>
+            <tr><td>Inclusion</td><td>Not every voter has a phone with a camera. That is why printing on demand should remain available, even if with only a few printers per voting location.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Not yet in the prototype.</strong> Today the prototype prints the receipt on paper (simulated on screen). The QR code on the
+          poll worker's terminal is the proposal for the first deployment phase. The cryptography does not change: only the way the receipt
+          is delivered.
+        </p>
+      </div>
+
+      <h2 id="reproduzir">16. How to reproduce</h2>
+      <p>The prototype runs on a single computer, with no internet access during execution. Code: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
+      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev               # http://127.0.0.1:3000
+npm run teste             # in-memory protocol: auditor, test redone at home and 14 attacks
+npm run teste:invasao     # full election through the real modules + penetration report
+npm run validador         # builds the offline validator (a single HTML file)
+npm run auditar -- pacote.json
+npm run verificar -- pacote.json &lt;code&gt; ["test key"]
+npm run verificar -- pacote.json --bu 010-0123</pre>
+      <h3>Demo walkthrough</h3>
+      <ol>
+        <li><strong>Admin → Election:</strong> create the election (candidates can be edited).</li>
+        <li><strong>Trustees:</strong> generate the three keys; then, in Admin, <em>Open election</em>.</li>
+        <li><strong>Registry:</strong> generate fictitious voters.</li>
+        <li><strong>Poll worker:</strong> open the terminal and the machine in separate windows. On the machine, install with the keypad (zone and station) and press CONFIRMA for loading. On the terminal, open the station.</li>
+        <li><strong>Vote:</strong> release a voter, type a number, press TESTAR and then CONFIRMA; keep the receipt.</li>
+        <li><strong>Close:</strong> close the station (BU) and transmit the media; in Admin, stop receiving; in Trustees, decrypt.</li>
+        <li><strong>At home:</strong> Check vote (code), Check test (paste the receipt), Polling station report and Audit.</li>
+        <li><strong>Frauds:</strong> Admin → Attack lab → <em>Create the 7 sample machines</em> → <em>Simulate all and transmit</em> → <em>Check at home</em>.</li>
+      </ol>
+      <p>
+        So as not to depend on the validator file you downloaded, rebuild it from the source code and compare the SHA-256: the build is
+        deterministic. The full specification — formats, hash domains, checks and API — comes with the code, and an independent
+        implementation (in Python, for example) must accept the prototype's packages and reject the same tamperings.
+      </p>
+
+      <h2 id="fontes">Sources</h2>
+      <div class="refs">
+        <div class="grupo">Real flaws in voting systems</div>
+        <ol>
+          <li>Aranha, D. F.; Karam, M. M.; Miranda, A.; Scarel, F. <em>Vulnerabilidades no software da urna eletrônica brasileira</em> [Vulnerabilities in the software of the Brazilian voting machine]. Public Security Test technical report, 2012. English version: "Software vulnerabilities in the Brazilian voting machine", in <em>Design, Development, and Use of Secure Electronic Voting Systems</em>, IGI Global, 2014.</li>
+          <li>Aranha, D. F.; Barbosa, P. Y. S.; Cardoso, T. N. C.; Araújo, C. L.; Matias, P. "The return of software vulnerabilities in the Brazilian voting machine". <em>Computers &amp; Security</em>, vol. 86, 2019.</li>
+          <li>Tribunal Superior Eleitoral (Brazilian Superior Electoral Court). Public Security Tests of the Electronic Voting System — documentation and reports. justicaeleitoral.jus.br.</li>
+          <li>Hursti, H. <em>Critical Security Issues with Diebold Optical Scan Design.</em> Black Box Voting Project, 2005.</li>
+          <li>Wolchok, S.; Wustrow, E.; Isabel, D.; Halderman, J. A. "Attacking the Washington, D.C. Internet Voting System". <em>Financial Cryptography and Data Security</em>, 2012.</li>
+          <li>Gaudry, P.; Golovnev, A. "Breaking the Encryption Scheme of the Moscow Internet Voting System". <em>Financial Cryptography and Data Security</em>, 2020.</li>
+          <li>Lewis, S. J.; Pereira, O.; Teague, V. "Ceci n'est pas une preuve: the use of trapdoor commitments in Bayer-Groth proofs and the implications for the verifiability of the Scytl-SwissPost Internet voting system", 2019.</li>
+          <li>Bernhard, D.; Pereira, O.; Warinschi, B. "How Not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic and Applications to Helios". <em>ASIACRYPT</em>, 2012.</li>
+        </ol>
+
+        <div class="grupo">End-to-end verifiable voting</div>
+        <ol start="9">
+          <li>Benaloh, J. "Simple Verifiable Elections". <em>USENIX/ACCURATE Electronic Voting Technology Workshop (EVT)</em>, 2006.</li>
+          <li>Benaloh, J. "Ballot Casting Assurance via Voter-Initiated Poll Station Auditing". <em>EVT</em>, 2007.</li>
+          <li>Adida, B. "Helios: Web-based Open-Audit Voting". <em>USENIX Security Symposium</em>, 2008.</li>
+          <li>Bell, S.; Benaloh, J.; Byrne, M. D.; DeBeauvoir, D.; Eakin, B.; Fisher, G.; Kortum, P.; McBurnett, N.; Montoya, J.; Parker, M.; Pereira, O.; Stark, P. B.; Wallach, D. S.; Winn, M. "STAR-Vote: A Secure, Transparent, Auditable, and Reliable Voting System". <em>USENIX Journal of Election Technology and Systems (JETS)</em>, 2013.</li>
+          <li>Benaloh, J.; Naehrig, M. <em>ElectionGuard Design Specification</em>, version 2.0. Microsoft, 2023. electionguard.vote.</li>
+          <li>Cramer, R.; Gennaro, R.; Schoenmakers, B. "A Secure and Optimally Efficient Multi-Authority Election Scheme". <em>EUROCRYPT</em>, 1997.</li>
+          <li>Küsters, R.; Truderung, T.; Vogt, A. "Clash Attacks on the Verifiability of E-Voting Systems". <em>IEEE Symposium on Security and Privacy</em>, 2012.</li>
+          <li>Rivest, R. L. "On the notion of 'software independence' in voting systems". <em>Philosophical Transactions of the Royal Society A</em>, vol. 366, 2008.</li>
+          <li>Stark, P. B.; Wagner, D. "Evidence-Based Elections". <em>IEEE Security &amp; Privacy</em>, vol. 10, no. 5, 2012.</li>
+          <li>Bernhard, M.; Benaloh, J.; Halderman, J. A.; Rivest, R. L.; Ryan, P. Y. A.; Stark, P. B.; Teague, V.; Vora, P. L.; Wallach, D. S. "Public Evidence from Secret Ballots". <em>E-Vote-ID</em>, 2017.</li>
+          <li>National Institute of Standards and Technology. <em>Voluntary Voting System Guidelines (VVSG) 2.0</em>, 2021.</li>
+        </ol>
+
+        <div class="grupo">Cryptographic primitives</div>
+        <ol start="20">
+          <li>ElGamal, T. "A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms". <em>IEEE Transactions on Information Theory</em>, vol. 31, no. 4, 1985.</li>
+          <li>Chaum, D. "Blind Signatures for Untraceable Payments". <em>CRYPTO '82</em>, 1983.</li>
+          <li>Chaum, D.; Pedersen, T. P. "Wallet Databases with Observers". <em>CRYPTO '92</em>, 1993.</li>
+          <li>Cramer, R.; Damgård, I.; Schoenmakers, B. "Proofs of Partial Knowledge and Simplified Design of Witness Hiding Protocols". <em>CRYPTO '94</em>, 1994.</li>
+          <li>Schnorr, C. P. "Efficient Signature Generation by Smart Cards". <em>Journal of Cryptology</em>, vol. 4, 1991.</li>
+          <li>Fiat, A.; Shamir, A. "How to Prove Yourself: Practical Solutions to Identification and Signature Problems". <em>CRYPTO '86</em>, 1987.</li>
+          <li>Pedersen, T. P. "A Threshold Cryptosystem without a Trusted Party". <em>EUROCRYPT '91</em>, 1991.</li>
+          <li>IETF RFC 8032 — <em>Edwards-Curve Digital Signature Algorithm (EdDSA)</em>, 2017.</li>
+          <li>IETF RFC 9496 — <em>The ristretto255 and decaf448 Groups</em>, 2023.</li>
+          <li>IETF RFC 9474 — <em>RSA Blind Signatures</em>, 2023.</li>
+          <li>NIST FIPS 180-4 — <em>Secure Hash Standard (SHS)</em>, 2015.</li>
+          <li>Crockford, D. <em>Base 32</em> (alphabet without ambiguous characters). crockford.com/base32.html.</li>
+        </ol>
+
+        <div class="grupo">Legislation and standards</div>
+        <ol start="32">
+          <li>Brazil. Law No. 9,504 of 30 September 1997 (Elections Law), art. 91-A, sole paragraph, added by Law No. 12,034/2009: prohibition on carrying phones, cameras and camcorders into the voting booth. planalto.gov.br.</li>
+          <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
+        </ol>
+
+        <div class="grupo">Software and data used in the prototype</div>
+        <ol start="34">
+          <li>Miller, P. <em>noble-curves</em> and <em>noble-hashes</em>: audited elliptic-curve and hash libraries in JavaScript. github.com/paulmillr.</li>
+          <li>Tribunal Superior Eleitoral. Open Data Portal: candidates' campaign photos (CC BY licence). dadosabertos.tse.jus.br.</li>
+          <li>T-VOTE project. Source code, protocol specification (<code>docs/PROTOCOLO.md</code>) and penetration test report (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, sans-serif" });
+</script>
+</body>
+</html>

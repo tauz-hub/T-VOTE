@@ -25,7 +25,7 @@ function lerUrnas(): UrnaLaboratorio[] {
   }
 }
 
-const CHAVE_ELEITORES = "tai-vote:laboratorio:eleitores";
+const CHAVE_ELEITORES = "t-vote:laboratorio:eleitores";
 
 /** Os comprovantes dos eleitores simulados ficam guardados: dá para sair da tela e voltar. */
 function lerEleitores(): Record<string, EleitorSimulado[]> {
@@ -189,7 +189,7 @@ export function LaboratorioFraudes({ eleicaoAberta }: { eleicaoAberta: boolean }
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Botao variante="secundario" onClick={() => window.open(`/laboratorio/urna?u=${u.id}`, `tai-vote-lab-${u.id}`, "popup,width=1000,height=760")}>
+                  <Botao variante="secundario" onClick={() => window.open(`/laboratorio/urna?u=${u.id}`, `t-vote-lab-${u.id}`, "popup,width=1000,height=760")}>
                     Abrir a urna
                   </Botao>
                   <Botao onClick={() => simular(u)} disabled={fase !== "aberta" || ocupado !== null}>

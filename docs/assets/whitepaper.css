@@ -1,0 +1,186 @@
+/* Layout: documento longo em uma coluna de leitura (~68ch), com sumário fixo à esquerda em telas largas.
+   Parte I usa "cartões de urna" para o caminho do eleitor; Parte II é densa, com tabelas e blocos de fórmula. */
+:root {
+  --fundo: #f6f7f9;
+  --papel: #ffffff;
+  --tinta: #1b2330;
+  --suave: #5b6576;
+  --linha: #dde1e8;
+  --acento: #1f4e8c;      /* azul-tinta de cédula */
+  --acento-fundo: #e8eef8;
+  --ok: #1f7a4d;
+  --ok-fundo: #e5f4ec;
+  --alerta: #b45309;
+  --alerta-fundo: #fdf1e2;
+  --falha: #b42318;
+  --falha-fundo: #fbe9e7;
+  --urna: #c9c4b6;        /* gabinete da urna */
+  --tela: #f3f1e7;        /* tela da urna */
+  --codigo-fundo: #eef1f5;
+  --f-display: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-texto: "Literata", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
+    --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
+    --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
+    --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
+  --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
+  --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
+  --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--fundo); color: var(--tinta); font-family: var(--f-texto); font-size: 17px; line-height: 1.65; }
+.pagina { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 2.5rem 5rem; }
+@media (min-width: 1040px) { .pagina { grid-template-columns: 15rem minmax(0, 1fr); } }
+
+/* sumário */
+nav.sumario { font-family: var(--f-display); font-size: 0.86rem; }
+@media (min-width: 1040px) { nav.sumario { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; max-height: calc(100vh - 3rem); overflow-y: auto; } }
+nav.sumario h2 { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--suave); margin: 0 0 0.6rem; }
+nav.sumario ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.15rem; }
+nav.sumario a { color: var(--tinta); text-decoration: none; display: block; padding: 0.2rem 0.5rem; border-radius: 6px; }
+nav.sumario a:hover, nav.sumario a:focus-visible { background: var(--acento-fundo); color: var(--acento); outline: none; }
+nav.sumario .parte { margin-top: 0.8rem; color: var(--suave); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding-left: 0.5rem; }
+
+article { min-width: 0; }
+.coluna { max-width: 68ch; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; color: var(--tinta); }
+h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin: 0.4rem 0 1rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.65rem; font-weight: 700; margin: 3.2rem 0 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--linha); scroll-margin-top: 1rem; }
+h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.5rem; scroll-margin-top: 1rem; }
+h4 { font-size: 1rem; font-weight: 600; margin: 1.4rem 0 0.4rem; }
+p { margin: 0 0 1rem; }
+a { color: var(--acento); }
+.rotulo { font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--acento); }
+.lead { font-size: 1.2rem; line-height: 1.55; color: var(--tinta); }
+.meta { font-family: var(--f-display); font-size: 0.85rem; color: var(--suave); display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+.parte-titulo { margin-top: 4rem; padding: 1.4rem 1.6rem; background: var(--acento-fundo); border-radius: 12px; }
+.parte-titulo h2 { border: 0; margin: 0.2rem 0 0.4rem; padding: 0; }
+.parte-titulo p { margin: 0; color: var(--suave); font-family: var(--f-display); font-size: 0.95rem; }
+
+ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+li { margin: 0.25rem 0; }
+strong { font-weight: 600; }
+code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
+code { background: var(--codigo-fundo); padding: 0.08em 0.35em; border-radius: 4px; }
+pre { font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; background: var(--codigo-fundo); padding: 1rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: 0 0 1.2rem; }
+
+.aviso { border-radius: 10px; padding: 0.9rem 1.1rem; margin: 1.2rem 0; font-family: var(--f-display); font-size: 0.93rem; line-height: 1.55; }
+.aviso p:last-child { margin: 0; }
+.aviso.info { background: var(--acento-fundo); }
+.aviso.ok { background: var(--ok-fundo); }
+.aviso.alerta { background: var(--alerta-fundo); }
+.aviso.falha { background: var(--falha-fundo); }
+.aviso strong { color: var(--tinta); }
+
+/* tabelas */
+.tabela { overflow-x: auto; margin: 0 0 1.4rem; }
+table { border-collapse: collapse; width: 100%; font-family: var(--f-display); font-size: 0.88rem; line-height: 1.45; }
+th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { font-weight: 600; color: var(--suave); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.chip { display: inline-block; font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+.chip.ok { background: var(--ok-fundo); color: var(--ok); }
+.chip.falha { background: var(--falha-fundo); color: var(--falha); }
+.chip.alerta { background: var(--alerta-fundo); color: var(--alerta); }
+
+/* passos do eleitor */
+.passos { list-style: none; padding: 0; margin: 1.4rem 0; display: grid; gap: 1rem; counter-reset: passo; }
+.passos > li { counter-increment: passo; display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0.9rem; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; margin: 0; }
+.passos > li::before { content: counter(passo); font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--acento); color: var(--papel); }
+.passos h4 { margin: 0.2rem 0 0.3rem; }
+.passos p { margin: 0; font-size: 0.98rem; }
+
+/* tela da urna e comprovante de exemplo */
+.lado-a-lado { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; margin: 1.4rem 0; align-items: start; }
+@media (min-width: 760px) { .lado-a-lado { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+.urna { background: var(--urna); border-radius: 14px; padding: 0.9rem; }
+.urna .tela { background: var(--tela); border: 4px solid color-mix(in srgb, var(--urna) 70%, #000 30%); border-radius: 8px; padding: 1rem; font-family: var(--f-mono); font-size: 0.82rem; color: var(--tinta); }
+.urna .tela .t { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--suave); }
+.figuras { display: flex; gap: 0.7rem; justify-content: center; margin: 0.7rem 0; }
+.figura { display: grid; justify-items: center; background: var(--papel); border: 2px solid var(--linha); border-radius: 10px; padding: 0.35rem 0.8rem; font-family: var(--f-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.05em; }
+.figura span { font-size: 2.2rem; line-height: 1.2; }
+.codigo-urna { display: flex; justify-content: center; gap: 1rem; font-family: var(--f-mono); font-weight: 600; font-size: 1.25rem; text-align: center; }
+.codigo-urna small { display: block; font-size: 0.6rem; font-weight: 400; letter-spacing: 0.08em; color: var(--suave); }
+.teclas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; margin-top: 0.7rem; font-family: var(--f-display); font-size: 0.7rem; font-weight: 700; text-align: center; }
+.teclas span { border-radius: 5px; padding: 0.45rem 0.2rem; color: #1b2330; }
+.k-branco { background: #ffffff; } .k-corrige { background: #f28b2c; } .k-confirma { background: #3db37a; } .k-testar { background: #7cc3ef; }
+.papel { background: #ffffff; color: #111; font-family: var(--f-mono); font-size: 0.74rem; line-height: 1.45; padding: 1rem 1.1rem; border-radius: 2px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.18); max-width: 22rem; margin-inline: auto; }
+.papel .c { text-align: center; }
+.papel .b { font-weight: 600; }
+.papel hr { border: 0; border-top: 1px dashed #111; margin: 0.55rem 0; }
+.papel .grande { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.08em; }
+.papel .miudo { font-size: 0.56rem; word-break: break-all; color: #333; }
+.legenda { font-family: var(--f-display); font-size: 0.8rem; color: var(--suave); text-align: center; margin-top: 0.5rem; }
+
+/* três conferências */
+.tres { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 1.2rem 0 1.6rem; }
+@media (min-width: 760px) { .tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tres > div { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; font-family: var(--f-display); font-size: 0.9rem; line-height: 1.5; }
+.tres h4 { margin: 0 0 0.4rem; font-size: 1rem; }
+.tres p { margin: 0 0 0.5rem; }
+.tres .usa { color: var(--suave); font-size: 0.8rem; }
+
+.formula { font-family: var(--f-mono); font-size: 0.85rem; background: var(--codigo-fundo); border-radius: 8px; padding: 0.8rem 1rem; margin: 0 0 1.2rem; overflow-x: auto; white-space: pre; line-height: 1.6; }
+pre.mermaid { background: var(--papel); border: 1px solid var(--linha); text-align: center; }
+
+.faq details { border-bottom: 1px solid var(--linha); padding: 0.7rem 0; }
+.faq summary { font-family: var(--f-display); font-weight: 600; cursor: pointer; }
+.faq details p { margin: 0.6rem 0 0.2rem; }
+
+.refs ol { font-family: var(--f-display); font-size: 0.86rem; line-height: 1.5; padding-left: 1.6rem; }
+.refs li { margin: 0.45rem 0; }
+.refs .grupo { margin-top: 1.6rem; font-family: var(--f-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); }
+
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* projeto e download */
+.projeto { margin: 1.6rem 0 0.4rem; padding: 1.1rem 1.2rem; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; font-family: var(--f-display); }
+.projeto h2 { margin: 0 0 0.3rem; padding: 0; border: 0; font-size: 1.15rem; }
+.projeto p { font-size: 0.92rem; color: var(--suave); margin: 0 0 0.8rem; }
+.botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
+.botoes a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 8px; border: 1px solid var(--linha); color: var(--tinta); text-decoration: none; font-size: 0.88rem; font-weight: 500; background: var(--fundo); }
+.botoes a:hover, .botoes a:focus-visible { border-color: var(--acento); color: var(--acento); }
+.botoes a.principal { background: var(--acento); border-color: var(--acento); color: var(--papel); }
+.botoes a.principal:hover { color: var(--papel); filter: brightness(1.08); }
+.projeto pre { margin: 0; font-size: 0.8rem; }
+.projeto .lista-docs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem 1.2rem; font-size: 0.88rem; margin: 0.9rem 0 0; padding: 0; list-style: none; }
+@media (min-width: 640px) { .projeto .lista-docs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* capturas de tela */
+.coluna { max-width: 920px; }
+.coluna > p, .coluna > ul, .coluna > ol, .coluna > .lead, .coluna > h1, .coluna > .formula, .coluna > pre { max-width: 68ch; }
+figure.tela { margin: 1rem 0 1.6rem; }
+figure.tela a { display: block; border-radius: 10px; overflow: hidden; border: 1px solid var(--linha); background: var(--papel); }
+figure.tela img { display: block; width: 100%; height: auto; }
+figure.tela .rolagem { max-height: 620px; overflow: auto; }
+figure.tela figcaption { font-family: var(--f-display); font-size: 0.85rem; line-height: 1.5; color: var(--suave); margin-top: 0.5rem; }
+figure.papel-foto a { max-width: 340px; margin-inline: auto; }
+.par { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 1.2rem; }
+@media (min-width: 760px) { .par { grid-template-columns: repeat(2, minmax(0, 1fr)); } .par.estreito { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; } }
+.nota-lado { font-family: var(--f-display); font-size: 0.92rem; line-height: 1.55; background: var(--acento-fundo); border-radius: 12px; padding: 1rem 1.1rem; margin: 1rem 0; }
+.nota-lado h4 { margin: 0 0 0.4rem; }
+.nota-lado ul { margin: 0; }
+
+/* barra de idiomas */
+.idiomas { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.35rem; max-width: 1180px; margin: 0 auto; padding: 0.9rem 20px 0; font-family: var(--f-display); font-size: 0.85rem; }
+.idiomas .globo { color: var(--suave); margin-right: 0.15rem; }
+.idiomas a { color: var(--tinta); text-decoration: none; padding: 0.3rem 0.75rem; border: 1px solid var(--linha); border-radius: 999px; background: var(--papel); line-height: 1.3; }
+.idiomas a:hover, .idiomas a:focus-visible { border-color: var(--acento); color: var(--acento); }
+.idiomas a[aria-current="page"] { background: var(--acento); border-color: var(--acento); color: var(--papel); }
+.aviso-idioma { font-family: var(--f-display); font-size: 0.85rem; color: var(--suave); }
+
+/* chinês: texto corrido em sans-serif, com fontes CJK do sistema */
+:lang(zh) { --f-display: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif; --f-texto: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif; }
+:lang(zh) body { line-height: 1.8; }
+

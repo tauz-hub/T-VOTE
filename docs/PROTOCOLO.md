@@ -1,4 +1,4 @@
-# Especificação do protocolo TAI-VOTE (v4 — seção offline)
+# Especificação do protocolo T-VOTE (v4 — seção offline)
 
 Este documento descreve o protocolo implementado no protótipoNext.js com precisão suficiente para reimplementá-lo em
 Python. **Critério de compatibilidade:** um auditor Python deve aprovar um pacote gerado pelo protótipo, e o auditor do
@@ -49,26 +49,26 @@ Resultados dos testes de invasão: [RELATORIO-INVASAO.md](RELATORIO-INVASAO.md).
 
 | Uso | Valor |
 |---|---|
-| Prova Schnorr / Chaum-Pedersen / 0-ou-1 | `H("TAI-VOTE/prova/schnorr/v1", …)`, `H("TAI-VOTE/prova/chaum-pedersen/v1", …)`, `H("TAI-VOTE/prova/zero-ou-um/v1", …)` com o enunciado completo |
+| Prova Schnorr / Chaum-Pedersen / 0-ou-1 | `H("T-VOTE/prova/schnorr/v1", …)`, `H("T-VOTE/prova/chaum-pedersen/v1", …)`, `H("T-VOTE/prova/zero-ou-um/v1", …)` com o enunciado completo |
 | ctx do trustee | `"{eleicao_id}\|trustee\|{n}"` |
 | ctx da opção i / da soma | `"{hash_eleicao}\|{chave_credencial}\|opcao\|{i}"` / `"…\|soma"` |
 | ctx da decifração | `"{hash_eleicao}\|decriptacao\|{secao}\|{trustee}\|{opcao}"` |
-| **Aleatoriedade da cédula** | `r_i = H("TAI-VOTE/aleatoriedade/v1", [semente, hash_eleicao, str(i)])`, `semente` = 16 bytes do CSPRNG (hex) |
-| Mensagem da credencial | `"TAI-VOTE/credencial/v1\|{eleicao_id}\|{chave_credencial}"` (assinada às cegas pela mesa) |
-| Rastreador | `SHA256hex(jsonCanonico({"dominio":"TAI-VOTE/rastreador/v1","eleicao":hash_eleicao,"cifras":[{a,b}…]}))` |
-| Nullificador | `SHA256hex("TAI-VOTE/nullificador/v1\|{chave_credencial}")` |
-| Mensagem da cédula | `"TAI-VOTE/cedula/v1\|" + jsonCanonico({eleicao, credencial, escolhas, prova_soma})` |
-| Pedido de selo | `"TAI-VOTE/pedido-selo/v1\|{hash_eleicao}\|{rastreador}"` (assinado pela credencial) |
-| **Selo** | `Ed25519(sk_urna, SHA256hex("TAI-VOTE/selo/v1\|" + jsonCanonico({eleicao, rastreador, secao})))` |
-| **Recibo** | `SHA256hex("TAI-VOTE/recibo/v2\|" + jsonCanonico({tipo, eleicao, secao, rastreador}))`, assinado pela urna |
-| **Declaração do teste** | `SHA256hex("TAI-VOTE/declaracao-teste/v2\|" + jsonCanonico({eleicao, secao, rastreador, opcao, semente}))`, assinada pela urna |
-| **Documento da urna** (zerésima, BU) | `hash = SHA256hex("TAI-VOTE/documento-urna/v1\|" + jsonCanonico(conteudo))`, `assinatura = Ed25519(sk_urna, hash)` |
-| Hash do bloco | `SHA256hex("TAI-VOTE/bloco/v1\|" + jsonCanonico({numero, tipo, conteudo, hash_anterior, publicado_em}))`, assinado pelo quadro |
-| Hash da eleição | `SHA256hex(jsonCanonico({"dominio":"TAI-VOTE/eleicao/v1","genese":hash_bloco_1,"trustees":[{trustee,chave_publica}],"chave_conjunta":h}))` |
+| **Aleatoriedade da cédula** | `r_i = H("T-VOTE/aleatoriedade/v1", [semente, hash_eleicao, str(i)])`, `semente` = 16 bytes do CSPRNG (hex) |
+| Mensagem da credencial | `"T-VOTE/credencial/v1\|{eleicao_id}\|{chave_credencial}"` (assinada às cegas pela mesa) |
+| Rastreador | `SHA256hex(jsonCanonico({"dominio":"T-VOTE/rastreador/v1","eleicao":hash_eleicao,"cifras":[{a,b}…]}))` |
+| Nullificador | `SHA256hex("T-VOTE/nullificador/v1\|{chave_credencial}")` |
+| Mensagem da cédula | `"T-VOTE/cedula/v1\|" + jsonCanonico({eleicao, credencial, escolhas, prova_soma})` |
+| Pedido de selo | `"T-VOTE/pedido-selo/v1\|{hash_eleicao}\|{rastreador}"` (assinado pela credencial) |
+| **Selo** | `Ed25519(sk_urna, SHA256hex("T-VOTE/selo/v1\|" + jsonCanonico({eleicao, rastreador, secao})))` |
+| **Recibo** | `SHA256hex("T-VOTE/recibo/v2\|" + jsonCanonico({tipo, eleicao, secao, rastreador}))`, assinado pela urna |
+| **Declaração do teste** | `SHA256hex("T-VOTE/declaracao-teste/v2\|" + jsonCanonico({eleicao, secao, rastreador, opcao, semente}))`, assinada pela urna |
+| **Documento da urna** (zerésima, BU) | `hash = SHA256hex("T-VOTE/documento-urna/v1\|" + jsonCanonico(conteudo))`, `assinatura = Ed25519(sk_urna, hash)` |
+| Hash do bloco | `SHA256hex("T-VOTE/bloco/v1\|" + jsonCanonico({numero, tipo, conteudo, hash_anterior, publicado_em}))`, assinado pelo quadro |
+| Hash da eleição | `SHA256hex(jsonCanonico({"dominio":"T-VOTE/eleicao/v1","genese":hash_bloco_1,"trustees":[{trustee,chave_publica}],"chave_conjunta":h}))` |
 
 ### 2.2 O que o eleitor vê: figuras, código e conferência
 
-Tudo sai de `v = SHA256hex("TAI-VOTE/verificacao/v1|{selo}")` (o selo é determinístico):
+Tudo sai de `v = SHA256hex("T-VOTE/verificacao/v1|{selo}")` (o selo é determinístico):
 
 | Item | Bits | Derivação | Exemplo |
 |---|---|---|---|
@@ -154,7 +154,7 @@ A urna gera `(sk, pk)` Ed25519, envia `m' = FDH(mensagemCredencial(pk)) · r^e m
 ### 5.4 Encerramento e mídia
 A urna monta o `BU` (contagem do contador, comparecimento da mesa, cédulas, testes, agregado `Π a_ij, Π b_ij`), assina e
 imprime: na porta da seção vai o **código do BU** = 16 primeiros hex do hash, em grupos de 4. A mídia
-`{formato: "tai-vote/midia-secao/v1", zeresima, bu}` vai ao TSE (transmissão ou arquivo), que confere tudo (§7) contra a
+`{formato: "t-vote/midia-secao/v1", zeresima, bu}` vai ao TSE (transmissão ou arquivo), que confere tudo (§7) contra a
 carga e só então publica `SECAO`. Mídia inválida é recusada com os motivos.
 
 ### 5.5 Apuração

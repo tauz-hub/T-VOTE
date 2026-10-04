@@ -32,7 +32,7 @@ async function main() {
     `  o eleitor vê: código ${formatarCodigo(ex.codigo)} · conferência ${formatarConferencia(e.lembrancas.find((l) => l.codigo === ex.codigo)!.conferencia)} · ${palavrasDoSelo(ex.selo).map((f) => `${f.figura} ${f.palavra}`).join("  ")}`,
   );
 
-  const pacote: Pacote = { formato: "tai-vote/pacote/v1", exportado_em: new Date().toISOString(), blocos };
+  const pacote: Pacote = { formato: "t-vote/pacote/v1", exportado_em: new Date().toISOString(), blocos };
   console.log("\n▶ Auditoria da eleição honesta");
   const rel = await auditarPacote(pacote);
   for (const v of rel.verificacoes) console.log(`  ${v.status === "ok" ? "PASS" : v.status.toUpperCase().padEnd(4)}  ${v.titulo}`);
@@ -231,7 +231,7 @@ async function main() {
   {
     const alvo = 0;
     const m = montarEleicao({ secoes: [{ zona: 9, secao: 9, eleitores: 12, adulterada: { alvo, percentual: 100 } }], taxaTeste: 0.5 });
-    const p: Pacote = { formato: "tai-vote/pacote/v1", exportado_em: new Date().toISOString(), blocos: m.blocos };
+    const p: Pacote = { formato: "t-vote/pacote/v1", exportado_em: new Date().toISOString(), blocos: m.blocos };
     const r = await auditarPacote(p);
     esperar(r.aprovado, "a auditoria matemática PASSA (a urna conta no BU o que cifrou) — esperado: matemática não vê intenção");
     const testes = m.lembrancas.filter((l) => l.teste);

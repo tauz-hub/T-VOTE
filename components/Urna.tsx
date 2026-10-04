@@ -46,8 +46,8 @@ const TAMANHO_CAMPO: Record<CampoInstalacao, number> = { zona: 3, secao: 4, alvo
 const chavesDoPerfil = (perfil: PerfilUrna, idLaboratorio?: string) => {
   const sufixo = idLaboratorio ? `:${idLaboratorio}` : "";
   return {
-    instalacao: perfil === "laboratorio" ? `tai-vote:laboratorio:instalacao${sufixo}` : "tai-vote:urna:instalacao",
-    sessao: perfil === "laboratorio" ? `tai-vote:laboratorio:credencial${sufixo}` : "tai-vote:urna:credencial",
+    instalacao: perfil === "laboratorio" ? `t-vote:laboratorio:instalacao${sufixo}` : "t-vote:urna:instalacao",
+    sessao: perfil === "laboratorio" ? `t-vote:laboratorio:credencial${sufixo}` : "t-vote:urna:credencial",
   };
 };
 
@@ -666,7 +666,7 @@ export function Urna({ cabine = false, perfil = "padrao", idLaboratorio }: { cab
 
         {/* Teclado */}
         <div className="rounded-lg bg-stone-800 p-4">
-          <div className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-stone-300">TAI-VOTE · urna de demonstração</div>
+          <div className="mb-3 text-center text-xs font-semibold uppercase tracking-widest text-stone-300">T-VOTE · urna de demonstração</div>
           <div className="grid grid-cols-3 gap-2">
             {(["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const).map((n) => (
               <Tecla key={n} rotulo={n} desabilitada={!ativas.digitos} onClick={() => apertar(n)} />

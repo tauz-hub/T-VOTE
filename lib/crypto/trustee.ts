@@ -7,7 +7,7 @@ import { provarConhecimento, provarIgualdadeLog } from "./provas";
 import { type ConteudoChaveTrustee, type ConteudoDecriptacao, contextoDecriptacao, contextoTrustee } from "./quadro";
 
 export type SegredoTrustee = {
-  formato: "tai-vote/trustee/v1";
+  formato: "t-vote/trustee/v1";
   eleicao_id: string;
   trustee: number;
   nome: string;
@@ -24,7 +24,7 @@ export function gerarChaveTrustee(
   const X = gElevado(x);
   const chave_publica = pontoHex(X);
   return {
-    segredo: { formato: "tai-vote/trustee/v1", eleicao_id: eleicaoId, trustee, nome, chave_privada: escalarHex(x), chave_publica },
+    segredo: { formato: "t-vote/trustee/v1", eleicao_id: eleicaoId, trustee, nome, chave_privada: escalarHex(x), chave_publica },
     publico: { trustee, nome, chave_publica, prova: provarConhecimento(x, X, contextoTrustee(eleicaoId, trustee)) },
   };
 }

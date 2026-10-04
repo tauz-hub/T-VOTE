@@ -54,7 +54,7 @@ export function Comprovante({
   const linha = <div className="my-2 border-t border-dashed border-black" />;
   return (
     <div className={`${imprimivel ? "area-impressao" : ""} mx-auto w-[300px] bg-white px-4 py-3 text-left font-mono text-[11px] leading-snug text-black shadow ring-1 ring-stone-300`}>
-      <div className="text-center font-bold">TAI-VOTE · DEMONSTRAÇÃO</div>
+      <div className="text-center font-bold">T-VOTE · DEMONSTRAÇÃO</div>
       <div className="text-center font-bold">COMPROVANTE DE VOTAÇÃO</div>
       <div className="mt-1 text-center">{eleicao}</div>
       <div className="text-center">{data}</div>

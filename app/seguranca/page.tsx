@@ -183,7 +183,7 @@ export default function Seguranca() {
                 <p className="text-sm text-slate-700">{c.falha}</p>
               </div>
               <div>
-                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">Como o TAI-VOTE responde</div>
+                <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">Como o T-VOTE responde</div>
                 <ul className="list-disc space-y-1 pl-4 text-sm text-slate-700">
                   {c.mitigacao.map((m) => (
                     <li key={m}>{m}</li>

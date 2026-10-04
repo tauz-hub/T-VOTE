@@ -24,7 +24,7 @@ function mostrar(id: string, html: string) {
 async function carregar(arquivo: File) {
   try {
     const p = JSON.parse(await arquivo.text()) as Pacote;
-    if (p?.formato !== "tai-vote/pacote/v1" || !Array.isArray(p.blocos)) throw new Error("não é um pacote do TAI-VOTE");
+    if (p?.formato !== "t-vote/pacote/v1" || !Array.isArray(p.blocos)) throw new Error("não é um pacote do T-VOTE");
     pacote = p;
     const g = p.blocos[0] as { conteudo?: { nome?: string } } | undefined;
     mostrar("estado", `✔ Pacote carregado: <b>${esc(g?.conteudo?.nome ?? "?")}</b> · ${p.blocos.length} blocos · exportado em ${esc(new Date(p.exportado_em).toLocaleString("pt-BR"))}`);

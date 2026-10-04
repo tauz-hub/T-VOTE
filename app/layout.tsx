@@ -3,7 +3,7 @@ import { Nav } from "@/components/Nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TAI-VOTE — votação verificável",
+  title: "T-VOTE — votação verificável",
   description: "protótipo de votação eletrônica criptograficamente verificável",
 };
 
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Nav />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">{children}</main>
         <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-500">
-          TAI-VOTE · protótipo — não utilizar em eleições reais · rede eleitoral local (127.0.0.1)
+          T-VOTE · protótipo — não utilizar em eleições reais · rede eleitoral local (127.0.0.1)
         </footer>
       </body>
     </html>

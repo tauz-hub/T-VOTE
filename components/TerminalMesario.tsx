@@ -121,8 +121,8 @@ export function TerminalMesario({ quiosque = false }: { quiosque?: boolean }) {
   };
 
   // Cada aparelho da seção numa janela própria: a urna "no canto" e o terminal na mesa.
-  const abrirCabine = () => window.open("/cabine", "tai-vote-cabine", "popup,width=1000,height=760");
-  const abrirTerminal = () => window.open("/terminal", "tai-vote-terminal", "popup,width=1100,height=820");
+  const abrirCabine = () => window.open("/cabine", "t-vote-cabine", "popup,width=1000,height=760");
+  const abrirTerminal = () => window.open("/terminal", "t-vote-terminal", "popup,width=1100,height=820");
 
   const podeLiberar = !!urna && urna.online && urna.estado === "livre" && aberta;
 

@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>T-VOTE Whitepaper</title>
+<meta name="description" content="T-VOTE: ein Wahlgerät, das Wähler zu Hause überprüfen können. Prüfung durch die Wähler, das System Bildschirm für Bildschirm, kryptografisches Protokoll, Penetrationstests und Quellen.">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<link rel="stylesheet" href="../assets/whitepaper.css">
+</head>
+<body>
+<nav class="idiomas" aria-label="Sprache">
+  <span class="globo" aria-hidden="true">🌐</span>
+  <a href="../index.html" lang="pt-BR" hreflang="pt-BR">Português</a>
+  <a href="../en/index.html" lang="en" hreflang="en">English</a>
+  <a href="../es/index.html" lang="es" hreflang="es">Español</a>
+  <a href="../de/index.html" lang="de" hreflang="de" aria-current="page">Deutsch</a>
+  <a href="../ru/index.html" lang="ru" hreflang="ru">Русский</a>
+  <a href="../zh/index.html" lang="zh-CN" hreflang="zh-CN">中文</a>
+</nav>
+<div class="pagina">
+  <nav class="sumario" aria-label="Inhalt">
+    <h2>Inhalt</h2>
+    <ol>
+      <li><a href="#projeto">Code und Download</a></li>
+      <li><a href="#resumo">Zusammenfassung</a></li>
+      <li class="parte">Teil I · Für alle</li>
+      <li><a href="#ideia">1. Die Idee</a></li>
+      <li><a href="#dia">2. Am Wahltag</a></li>
+      <li><a href="#casa">3. Zu Hause: die drei Prüfungen</a></li>
+      <li><a href="#sigilo-simples">4. Warum niemand Ihre Stimme erfährt</a></li>
+      <li><a href="#fraude-simples">5. Wenn jemand betrügt</a></li>
+      <li><a href="#perguntas">6. Häufige Fragen</a></li>
+      <li class="parte">Teil II · Das System in Bildschirmen</li>
+      <li><a href="#t-mapa">A. Übersicht der Reiter</a></li>
+      <li><a href="#t-preparo">B. Vor der Wahl</a></li>
+      <li><a href="#t-secao">C. Das Wahllokal öffnet</a></li>
+      <li><a href="#t-cabine">D. In der Wahlkabine</a></li>
+      <li><a href="#t-fim">E. Ende des Tages</a></li>
+      <li><a href="#t-casa">F. Zu Hause</a></li>
+      <li><a href="#t-apuracao">G. Auszählung und Prüfung</a></li>
+      <li><a href="#t-laboratorio">H. Manipulierte Geräte</a></li>
+      <li class="parte">Teil III · Unter der Haube</li>
+      <li><a href="#arquitetura">7. Architektur</a></li>
+      <li><a href="#cripto">8. Kryptografie</a></li>
+      <li><a href="#verificador">9. Was die Wähler prüfen</a></li>
+      <li><a href="#e2e">10. Ende-zu-Ende-Verifizierbarkeit</a></li>
+      <li><a href="#auditoria">11. Universelle Prüfung</a></li>
+      <li><a href="#ameacas">12. Bedrohungen und Penetrationstests</a></li>
+      <li><a href="#sigilo">13. Wahlgeheimnis und die Lehre von 2012</a></li>
+      <li><a href="#limites">14. Grenzen und künftige Arbeit</a></li>
+      <li><a href="#qrcode">15. Einführung ohne Drucker: QR-Code</a></li>
+      <li><a href="#reproduzir">16. Nachvollziehen</a></li>
+      <li><a href="#fontes">Quellen</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <div class="coluna">
+      <div class="rotulo">Whitepaper · Version 1 · Oktober 2026</div>
+      <h1>T-VOTE: ein Wahlgerät, das Wähler zu Hause überprüfen können</h1>
+      <p class="lead">
+        Wie man an einem Gerät wählt, das wie das heutige brasilianische funktioniert — Wahllokal ohne Internet, Wahlhelfer, Nullprotokoll am
+        Morgen, Ergebnisprotokoll an der Schultür — und danach am eigenen Computer überprüft, dass die eigene Stimme so erfasst und gezählt
+        wurde, wie man sie abgegeben hat, ohne dem Gerät, dem Server oder den Wahlveranstaltern vertrauen zu müssen.
+      </p>
+      <div class="meta">
+        <span>Akademischer Open-Source-Prototyp</span>
+        <span>Protokoll v4 · Wahllokal offline</span>
+        <span>Referenzimplementierung: TypeScript (Next.js + SQLite)</span>
+      </div>
+
+      <section class="projeto" id="projeto" aria-labelledby="projeto-titulo">
+        <h2 id="projeto-titulo">Offener Quellcode: herunterladen, ausführen, prüfen</h2>
+        <p>Das gesamte hier beschriebene System ist veröffentlicht. Jeder kann den Code lesen, die Demowahl auf dem eigenen Computer ausführen und die Prüfungen wiederholen.</p>
+        <div class="botoes">
+          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">Repository auf GitHub</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Projekt herunterladen (.zip)</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Offline-Validator (auf GitHub)</a>
+          <a href="https://tauz-hub.github.io/TAI-VOTE/de/" target="_blank" rel="noopener">Dieses Dokument online</a>
+        </div>
+        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev        # öffnet unter http://127.0.0.1:3000</pre>
+        <ul class="lista-docs">
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README: Anleitung und Ablauf der Demo</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Protokollspezifikation (v4)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Bericht der Penetrationstests</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Kryptografie-Code (<code>lib/crypto</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Prüfer und Wählervalidator (<code>lib/auditoria.ts</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">Ein Problem oder eine Schwachstelle melden</a></li>
+        </ul>
+        <p class="aviso-idioma" style="margin:.8rem 0 0">Oberfläche, Code und Spezifikation des Prototyps sind auf Portugiesisch; die Bildschirmfotos in Teil II werden unverändert gezeigt.</p>
+      </section>
+
+      <div class="aviso alerta">
+        <p>
+          <strong>Dies ist ein Forschungsprototyp, kein zertifiziertes System.</strong> Er dient dazu, ein verifizierbares Wahlverfahren zu
+          untersuchen und vorzuführen. Er wurde nicht von Dritten geprüft und darf nicht bei echten Wahlen eingesetzt werden. Die Kandidaten in
+          den Beispielen dieses Dokuments sind fiktiv; der Prototyp kann öffentliche Wahlkampffotos nur laden, um die Demo realistisch zu machen,
+          und kein Beispiel bevorzugt einen Kandidaten (in den Betrugstests wird der begünstigte Kandidat ausgelost).
+        </p>
+      </div>
+
+      <h2 id="resumo">Zusammenfassung</h2>
+      <p>
+        T-VOTE ist ein Entwurf für elektronische Wahlen, der <strong>Ende-zu-Ende-verifizierbar</strong> ist (englisch <em>end-to-end
+        verifiable</em>, E2E-V). Er behält den Ablauf bei, den brasilianische Wähler kennen, und ergänzt drei Prüfungen, die jeder zu Hause
+        durchführen kann — mit einem Open-Source-Programm und einer öffentlichen Kopie der Wahl:
+      </p>
+      <ul>
+        <li><strong>Meine Stimme:</strong> Der Code auf dem Beleg führt zu Ihrer verschlüsselten Stimme in der öffentlichen Liste Ihres
+          Wahllokals, mit denselben zwei Bildern, die das Gerät gezeigt hat. Das beweist, dass die Stimme <em>erfasst</em> und <em>mitgezählt</em> wurde — ohne zu verraten, wen Sie gewählt haben.</li>
+        <li><strong>Mein Test:</strong> Wenn Sie am Gerät TESTAR (testen) gedrückt haben, enthält der Beleg den Schlüssel dieses Teststimmzettels.
+          Zu Hause rechnet der Computer nach und zeigt, welcher Kandidat darin war. Hat das Gerät gelogen, ist das von ihm signierte Papier der Beweis.</li>
+        <li><strong>Das Protokoll meines Wahllokals:</strong> Das an der Schultür ausgehängte Ergebnisprotokoll hat einen Code; das veröffentlichte
+          Protokoll muss denselben Code und dieselben Zahlen haben, und die Zahlen müssen mit der kryptografischen Auszählung übereinstimmen.</li>
+      </ul>
+      <p>
+        Darunter liegen bewährte kryptografische Bausteine: homomorphe ElGamal-Verschlüsselung über der Gruppe ristretto255,
+        Zero-Knowledge-Beweise, blinde Signaturen für anonyme Berechtigungsnachweise, Ed25519-Signaturen und eine signierte Blockkette. Die
+        Auszählung erfolgt durch drei Schlüsselverwahrer (Trustees), die nur die <em>Summe</em> der Stimmen eines Wahllokals entschlüsseln
+        können, nie eine einzelne Stimme. Dieses Dokument erklärt das System zuerst in Alltagssprache, zeigt dann jeden Bildschirm des
+        Prototyps und geht schließlich ins technische Detail; am Ende stehen die durchgeführten Penetrationstests und alle Quellen.
+      </p>
+
+      <!-- ================================================================== TEIL I -->
+      <div class="parte-titulo">
+        <div class="rotulo">Teil I</div>
+        <h2>Für alle</h2>
+        <p>Ohne Mathematik: was Sie am Gerät tun, was Sie mit nach Hause nehmen und was Sie prüfen können.</p>
+      </div>
+
+      <h2 id="ideia">1. Die Idee in wenigen Worten</h2>
+      <p>
+        Wenn Sie heute wählen, müssen Sie darauf vertrauen, dass das Gerät die eingegebene Nummer gespeichert hat und dass die Summe Ihres
+        Wahllokals richtig gebildet wurde. Das heutige Gerät hat viele Kontrollen, um dieses Vertrauen zu verdienen, aber der einzelne Wähler
+        kann seine eigene Stimme nicht überprüfen.
+      </p>
+      <p>
+        Bei T-VOTE steht das Gerät weiterhin in der Ecke des Raums, ohne Internet, und Sie drücken weiterhin dieselben Tasten. Der Unterschied:
+        Es <strong>legt sich fest</strong>, was es gespeichert hat, bevor es weiß, was Sie tun werden, und hinterlässt danach Spuren, die Sie zu
+        Hause prüfen. Betrügt es, fällt der Betrug auf. Betrügt die Stelle, die die Stimmen zusammenzählt, fällt das ebenfalls auf. Und trotzdem
+        kann niemand — auch Sie nicht — einer anderen Person beweisen, wen Sie gewählt haben. Genau das verhindert Stimmenkauf.
+      </p>
+
+      <h2 id="dia">2. Am Wahltag</h2>
+      <p>Alles geschieht im Wahllokal, wie heute. Das Gerät und das Terminal des Wahlhelfers sprechen nur miteinander; keines ist mit dem Internet verbunden.</p>
+      <ol class="passos">
+        <li>
+          <div>
+            <h4>Der Wahlhelfer prüft Ihren Ausweis und gibt das Gerät frei</h4>
+            <p>Wie heute. Das Gerät erhält nur ein „darf wählen“ — Ihren Namen erfährt es nie.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Sie tippen die Nummer und sehen das Foto</h4>
+            <p>Der Bildschirm zeigt Name, Partei und Foto des Kandidaten. Das Gerät prüft das Foto selbst gegen einen vor der Wahl veröffentlichten Fingerabdruck, damit niemand es austauschen kann.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Sie drücken CONFIRMA und es erscheinen zwei Bilder und ein Code</h4>
+            <p>Zum Beispiel: 🍄 PILZ und 🦴 KNOCHEN sowie der Code <span class="mono">010 0123 J7K6T</span>. Jedes Bild hat über dem Wort eine Zeichnung für Menschen, die nicht lesen können. Merken Sie sich die Bilder; der Code wird gedruckt.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Jetzt wählen Sie eine Taste</h4>
+            <p><strong>CONFIRMA</strong> (bestätigen) speichert die Stimme. <strong>TESTAR</strong> (testen) öffnet diesen Stimmzettel, damit Sie sehen, was das Gerät gespeichert hat (er wird ungültig und Sie wählen erneut, ohne neu zu tippen). <strong>CORRIGE</strong> (korrigieren) geht zurück, um einen anderen zu wählen.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Es kommt ein einziger Zettel heraus</h4>
+            <p>Der Beleg enthält den Stimmcode, einen 8-stelligen „Prüfcode“ und die Namen der beiden Bilder. Wenn Sie getestet haben, steht auf demselben Zettel der Test: der Kandidat, den das Gerät gefunden haben will, der Testcode und der Schlüssel dieses Teststimmzettels.</p>
+            <p style="margin-top:.4rem">In einer ersten Phase ohne Drucker kann der Beleg als <strong>QR-Code auf dem Bildschirm des Wahlhelfer-Terminals</strong> ausgegeben werden: Der Wähler verlässt die Kabine und fotografiert den Code mit dem Handy (<a href="#qrcode">Abschnitt 15</a>).</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="lado-a-lado">
+        <div>
+          <div class="urna" role="img" aria-label="Bildschirm des Geräts nach dem Bestätigen der Stimme mit zwei Bildern, dem Code und den Tasten CONFIRMA, TESTAR und CORRIGE">
+            <div class="tela">
+              <div class="t">Prüfen Sie Ihre Stimme</div>
+              <div style="margin-top:.3rem">Nummer: <b>70</b> · Name: <b>Beispielkandidatin</b> · Partei: <b>PARTEI X</b></div>
+              <div style="text-align:center;margin-top:.6rem;font-family:var(--f-display);font-weight:600;font-size:.8rem">Merken Sie sich diese 2 Bilder:</div>
+              <div class="figuras">
+                <div class="figura"><span>🍄</span>PILZ</div>
+                <div class="figura"><span>🦴</span>KNOCHEN</div>
+              </div>
+              <div class="codigo-urna">
+                <div>010<small>ZONE</small></div><div>0123<small>LOKAL</small></div><div>J7K6T<small>CODE</small></div>
+              </div>
+              <div style="text-align:center;font-size:.75rem;margin-top:.3rem">Prüfcode <b>BNGJ 69AH</b></div>
+              <div style="border-top:1px solid var(--linha);margin-top:.6rem;padding-top:.4rem;font-size:.72rem">
+                Drücken Sie:<br><b>CONFIRMA</b> zum WÄHLEN<br><b>TESTAR</b> zum Testen des Geräts (dieser Stimmzettel wird ungültig)<br><b>CORRIGE</b> für eine andere Wahl
+              </div>
+            </div>
+            <div class="teclas"><span class="k-branco">BRANCO</span><span class="k-corrige">CORRIGE</span><span class="k-confirma">CONFIRMA</span><span class="k-testar">TESTAR</span></div>
+          </div>
+          <div class="legenda">Das Gerät hat keinen Touchscreen: Alles geschieht über die Tastatur. TESTAR ist die einzige neue Taste.</div>
+        </div>
+        <div>
+          <div class="papel" role="img" aria-label="Beispiel eines gedruckten Belegs mit dem Stimmcode und dem Testteil">
+            <div class="c b">WAHLBELEG</div>
+            <div class="c">ZONE 010 · LOKAL 0123</div>
+            <hr>
+            <div class="c b">CODE IHRER STIMME</div>
+            <div class="c grande">010 0123 HAAX2</div>
+            <div class="c">PRÜFCODE: <b>ZCJV DS7A</b></div>
+            <div class="c">BILDER: <b>SONNENBLUME · KOMET</b></div>
+            <div class="c b" style="margin-top:.3rem">Dieser Code zeigt NICHT, wen Sie gewählt haben.</div>
+            <hr>
+            <div class="c b">GERÄTETEST — UNGÜLTIG, KEINE STIMME</div>
+            <div class="c">Das Gerät erklärt, der getestete Stimmzettel enthielt:</div>
+            <div class="c b">70 — Beispielkandidatin</div>
+            <div class="c">TESTCODE: <b>010 0123 J7K6T</b></div>
+            <div class="c">TESTSCHLÜSSEL:</div>
+            <div class="c b">5PVV ZHZ0 7DNJ ZWN1 SKWE QYC3 MM</div>
+            <div class="miudo" style="margin-top:.3rem">Vom Gerät signierte Erklärung: 284a4769a4febd488f44ff9e150b7dda…</div>
+            <hr>
+            <div class="miudo">Vollständiger Hash: 66434bc097a1bc51ca669e01b0464bbc… · Signatur des Geräts: 9ccf0c2b83ca8b10…</div>
+          </div>
+          <div class="legenda">Anschauungsbeispiel. Ein Zettel pro Wähler: kein Name, keine Uhrzeit, und er verrät nicht, wen Sie gewählt haben.</div>
+        </div>
+      </div>
+
+      <div class="aviso info">
+        <p>
+          <strong>Warum testen?</strong> Wenn Sie TESTAR drücken, hat das Gerät Code und Bilder dieses Stimmzettels bereits gezeigt — es hat
+          sich festgelegt, bevor es wusste, ob Sie wählen oder testen. Speichert es oft einen anderen Kandidaten als den angezeigten, ist jeder
+          testende Wähler eine Chance, es zu ertappen. Sie können sogar mit der Nummer von jemandem testen, den Sie nicht wählen werden.
+        </p>
+      </div>
+
+      <h3>Am Ende des Tages</h3>
+      <p>
+        Der Wahlhelfer schließt das Wahllokal, und das Gerät druckt wie heute das <strong>Ergebnisprotokoll (BU, <em>boletim de urna</em>)</strong>
+        mit den Stimmen jedes Kandidaten. Ein Exemplar kommt an die Schultür. Neu ist der <strong>BU-Code</strong> (zum Beispiel
+        <span class="mono">0d94 dbf4 9855 15b1</span>), der genau dieses Protokoll identifiziert. Danach wird die Datei des Wahllokals (das
+        „Medium“) zur Wahlbehörde gebracht, die alles prüft und auf einer Blockkette veröffentlicht, die jeder herunterladen kann.
+      </p>
+
+      <h2 id="casa">3. Zu Hause: die drei Prüfungen</h2>
+      <p>
+        Sobald das Wahllokal veröffentlicht ist, können Sie mit der Website der Wahl prüfen, mit einer einzelnen Datei, die offline funktioniert,
+        oder mit einem Kommandozeilenprogramm. Alle drei nutzen denselben offenen Quellcode und rechnen vollständig auf Ihrem Computer.
+      </p>
+      <div class="tres">
+        <div>
+          <h4>Meine Stimme</h4>
+          <p>Geben Sie den Code vom Beleg ein. Es müssen dieselben 2 Bilder wie am Gerät und derselbe Prüfcode wie auf dem Papier erscheinen.</p>
+          <p class="usa">Beweist: Ihre Stimme steht in der öffentlichen Liste Ihres Wahllokals, ist gültig und wurde mitgezählt.</p>
+        </div>
+        <div>
+          <h4>Mein Test</h4>
+          <p>Fügen Sie den Teil „GERÄTETEST“ des Belegs ein. Der Computer verschlüsselt jeden Kandidaten mit dem Schlüssel vom Papier neu und findet den, der darin war.</p>
+          <p class="usa">Beweist: Das Gerät hat die Wahrheit gesagt — oder gelogen, und seine Signatur auf dem Papier zeigt es.</p>
+        </div>
+        <div>
+          <h4>Das BU des Wahllokals</h4>
+          <p>Geben Sie Zone und Lokal ein. BU-Code und veröffentlichte Zahlen müssen mit dem Papier an der Schultür übereinstimmen.</p>
+          <p class="usa">Beweist: Niemand hat Ihr Wahllokal ausgetauscht, nachdem es die Schule verlassen hat.</p>
+        </div>
+      </div>
+      <p>
+        Ein echtes Beispiel, aus der Prüfung zweier Tests bei einem Probelauf des Systems: Der erste Test, bei dem das Gerät die Nummer 80
+        erklärte, wurde zu Hause nachgerechnet und ergab 80; der zweite, erklärt 27, ergab 27; beide Erklärungen trugen eine gültige Signatur
+        des Geräts. Ergebnis: „Das Gerät im Wahllokal 001-0001 hat Ihre 2 Tests bestanden“.
+      </p>
+
+      <h2 id="sigilo-simples">4. Warum niemand Ihre Stimme am Papier erkennt</h2>
+      <ul>
+        <li><strong>Code und Bilder stammen nicht aus der Stimme.</strong> Sie entstehen aus einer Signatur des Geräts über eine Verschlüsselung, die
+          bei jedem Stimmzettel anders ist. Zwei Wähler, die denselben Kandidaten wählen, erhalten Codes ohne jeden Zusammenhang. Sie können
+          öffentlich sagen „meine Bilder waren 🌻 SONNENBLUME und ☄️ KOMET“, ohne etwas zu verraten.</li>
+        <li><strong>Die abgegebene Stimme wird nie geöffnet.</strong> Jeder Stimmzettel hat einen eigenen Schlüssel; der Schlüssel der abgegebenen
+          Stimme wird im selben Moment im Gerät vernichtet. Öffentlich existiert nur der Geheimtext.</li>
+        <li><strong>Nur die Summe wird geöffnet.</strong> Drei Schlüsselverwahrer mit je einem Teil entschlüsseln gemeinsam nur die Gesamtsumme jedes
+          Wahllokals. Keiner von ihnen kann allein etwas öffnen.</li>
+        <li><strong>Der Test ist nicht die Stimme.</strong> Der Teststimmzettel ist ungültig. Den Test zu zeigen beweist die Stimme nicht, denn man kann
+          einen Kandidaten testen und einen anderen wählen.</li>
+        <li><strong>Keine Uhrzeit und keine Reihenfolge.</strong> Nichts speichert die Reihenfolge, in der die Stimmen eingingen, oder deren Uhrzeit.
+          Genau das erlaubte es bei einem öffentlichen Test 2012, die Reihenfolge der Stimmen im damaligen brasilianischen Gerät zu rekonstruieren.</li>
+      </ul>
+
+      <h2 id="fraude-simples">5. Was passiert, wenn jemand betrügt</h2>
+      <p>Das System wurde absichtlich auf viele Arten angegriffen. Diese Tabelle zeigt, wer welchen Betrug bemerkt:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Betrug</th><th>Wer ihn bemerkt</th></tr></thead>
+          <tbody>
+            <tr><td>Das Gerät speichert einen anderen Kandidaten als den angezeigten und lügt im Test</td><td>Der Wähler, der getestet hat, zu Hause mit dem Schlüssel vom Papier</td></tr>
+            <tr><td>Das Gerät zeigt Ihren Code, speichert aber einen anderen Stimmzettel</td><td>Der Wähler unter „Meine Stimme“: sein Code existiert im Wahllokal nicht</td></tr>
+            <tr><td>Das Gerät druckt einen falschen Schlüssel oder lässt den Teststimmzettel verschwinden</td><td>Der Wähler, der getestet hat: Der Schlüssel öffnet den Stimmzettel nicht, oder der Test ist nicht veröffentlicht</td></tr>
+            <tr><td>Jemand ändert Stimmen in der Datenbank</td><td>Jeder Prüfer: die Signaturen passen nicht mehr</td></tr>
+            <tr><td>Die Wahlbehörde entfernt eine Stimme oder ändert das Ergebnis</td><td>Jeder Prüfer: die Signatur des Geräts oder die Auszählungsbeweise passen nicht mehr</td></tr>
+            <tr><td>Ein Insider baut mit aus dem Gerät extrahierten Schlüsseln ein ganzes Wahllokal neu</td><td>Die Wähler dieses Lokals (ihre Codes verschwinden) und das BU an der Schultür</td></tr>
+            <tr><td>Jemand lässt ein ganzes Wahllokal verschwinden</td><td>Das Papier-BU und die Wähler des Lokals</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso ok">
+        <p><strong>Die Lehre:</strong> Mathematik, Papier und Wähler ergänzen einander. Keiner der drei erkennt allein alles — zusammen decken sie die getesteten Betrugsarten ab.</p>
+      </div>
+
+      <h2 id="perguntas">6. Häufige Fragen</h2>
+      <div class="faq">
+        <details>
+          <summary>Könnte das Gerät nicht einfach lügend „Prüfung OK“ anzeigen?</summary>
+          <p>Doch, und deshalb zählt nur die Prüfung <em>außerhalb</em> des Geräts. Ein manipuliertes Gerät kann auf dem eigenen Bildschirm lügen, aber es kann nicht bewirken, dass die Rechnung Ihres Computers ein anderes Ergebnis liefert: Es hat sich auf den Stimmzettel festgelegt, bevor es wusste, ob Sie testen, und der gedruckte Schlüssel öffnet nur diesen Stimmzettel.</p>
+        </details>
+        <details>
+          <summary>Muss ich Kryptografie verstehen, um zu prüfen?</summary>
+          <p>Nein. Sie geben den Code ein, sehen nach, ob die Bilder gleich sind, und fügen, falls Sie getestet haben, den Testtext ein. Die Antwort lautet „Ihre Stimme ist da“, „das Gerät war ehrlich“ oder „Betrug“.</p>
+        </details>
+        <details>
+          <summary>Kann mich jemand zwingen, den Beleg vorzuzeigen, um meine Stimme zu beweisen?</summary>
+          <p>Verlangen kann man es, aber der Beleg beweist nichts: Der Code verrät keinen Kandidaten, und der Test betrifft einen ungültigen Stimmzettel. Wer Stimmen kaufen will, bekommt keinerlei Garantie.</p>
+        </details>
+        <details>
+          <summary>Und wenn ich den Beleg verliere?</summary>
+          <p>Ihre Stimme wird ganz normal gezählt. Sie verlieren nur die Möglichkeit, sie zu prüfen. Die Summe des Wahllokals bleibt für alle prüfbar.</p>
+        </details>
+        <details>
+          <summary>Ist die Blockkette eine Kryptowährung?</summary>
+          <p>Nein. Sie ist ein öffentliches Register, in dem jede Seite auf die vorherige verweist und von der Wahlbehörde signiert ist. Es gibt kein Mining und keine Währung: Es ist nur ein Weg, wie jeder prüfen kann, dass niemand das Veröffentlichte verändert hat.</p>
+        </details>
+        <details>
+          <summary>Und wenn das Wahllokal keinen Drucker hat?</summary>
+          <p>Der Beleg kann nach der Stimmabgabe als QR-Code auf dem Bildschirm des Wahlhelfer-Terminals ausgegeben werden. Der Wähler, bereits außerhalb der Kabine, fotografiert den Code mit dem Handy. Der Inhalt ist derselbe wie auf Papier und vom Gerät signiert, sodass das Terminal ihn nicht unbemerkt ändern kann. Wer kein Handy hat, kann die gedruckte Version verlangen.</p>
+        </details>
+        <details>
+          <summary>Verlängert das Testen die Warteschlange?</summary>
+          <p>Um wenige Sekunden. Der Teststimmzettel wird sofort geöffnet, und um tatsächlich zu wählen, drückt man einfach erneut CONFIRMA — ohne die Nummer neu einzugeben.</p>
+        </details>
+      </div>
+
+      <!-- ================================================================== TEIL II (Bildschirme) -->
+      <div class="parte-titulo" id="telas">
+        <div class="rotulo">Teil II</div>
+        <h2>Das System, Bildschirm für Bildschirm</h2>
+        <p>Echte Bildschirmfotos des Prototyps aus einer Demowahl mit fiktiven Kandidaten und Parteien und Silhouettenfotos. Die Oberfläche ist auf Portugiesisch.</p>
+      </div>
+
+      <p>
+        Die Bildschirme folgen dem Ablauf eines Wahltags: Die Wahlbehörde bereitet die Wahl vor, das Wahllokal öffnet offline, der Wähler wählt
+        und testet das Gerät, das Lokal schließt und überträgt, und danach prüft jeder zu Hause. Am Ende zeigt das Labor, wie Geräte mit
+        manipulierter Software ertappt werden. Klicken Sie auf ein Bild, um es in voller Größe zu sehen.
+      </p>
+
+      <h2 id="t-mapa">A. Übersicht der Reiter</h2>
+      <p>Der Prototyp läuft auf einem einzigen Computer, aber jeder Reiter steht für einen anderen Akteur. In der Praxis wäre jeder auf einem eigenen Gerät.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Reiter (Adresse)</th><th>Wer ihn nutzt</th><th>Wofür</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Início</strong> (Start) <code>/</code></td><td>Alle</td><td>Überblick über den Ablauf und Verknüpfungen.</td></tr>
+            <tr><td><strong>Cadastro</strong> (Register) <code>/cadastro</code></td><td>Wahlregister</td><td>Wählerverzeichnis (erzeugt fiktive Wähler für Tests).</td></tr>
+            <tr><td><strong>Mesário</strong> (Wahlhelfer) <code>/mesario</code> · <code>/terminal</code></td><td>Wahlhelfer</td><td>Terminal des Wahlvorstands: Laden, Eröffnung (Nullprotokoll), Freigabe des Wählers, Schließung (BU) und Medium. <code>/terminal</code> öffnet nur das Terminal in einem eigenen Fenster.</td></tr>
+            <tr><td><strong>Urna</strong> (Gerät) <code>/urna</code> · <code>/cabine</code></td><td>Wähler</td><td>Das Wahlgerät, nur über die Tastatur bedient (Ziffern, BRANCO, CORRIGE, CONFIRMA und TESTAR). <code>/cabine</code> öffnet nur das Gerät, neben dem Terminal.</td></tr>
+            <tr><td><strong>Verificar voto</strong> (Stimme prüfen) <code>/verificar</code></td><td>Wähler, zu Hause</td><td>Stimme per Code prüfen, das BU des Wahllokals und im erweiterten Reiter Belege und Erklärungen.</td></tr>
+            <tr><td><strong>Conferir teste</strong> (Test prüfen) <code>/teste</code></td><td>Wähler, zu Hause</td><td>Den Teil „GERÄTETEST“ des Belegs einfügen und das Urteil erhalten: ehrliches Gerät, Betrug oder nicht eindeutig.</td></tr>
+            <tr><td><strong>Trustees</strong> <code>/apuracao</code></td><td>Schlüsselverwahrer</td><td>Den eigenen Anteil am Wahlschlüssel erzeugen und am Ende die Summen pro Wahllokal entschlüsseln.</td></tr>
+            <tr><td><strong>Auditoria</strong> (Prüfung) <code>/auditoria</code></td><td>Jeder</td><td>Die öffentliche Kette herunterladen und die 22 Prüfungen im Browser wiederholen.</td></tr>
+            <tr><td><strong>Admin</strong> <code>/admin</code></td><td>Wahlbehörde</td><td>Reiter <em>Wahl</em>, <em>Datenbanken</em>, <em>Simulation</em> und <em>Angriffslabor</em>.</td></tr>
+            <tr><td><strong>Segurança</strong> (Sicherheit) <code>/seguranca</code></td><td>Alle</td><td>Bedrohungsmodell und Lehren aus den öffentlichen Sicherheitstests 2012 und 2017.</td></tr>
+            <tr><td><strong>Offline-Validator</strong> <code>/validador.html</code></td><td>Wähler und Prüfer</td><td>Eine einzelne HTML-Datei, die dieselben Prüfungen ohne Internet durchführt.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="tela"><a href="../img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/00-inicio.webp" alt="Startseite von T-VOTE mit dem Reitermenü und der Ablaufübersicht" loading="lazy"></div></a>
+        <figcaption>Startseite: Das Menü oben führt zu jedem Akteur des Systems.</figcaption></figure>
+
+      <h2 id="t-preparo">B. Vor der Wahl</h2>
+      <p>
+        Die Wahlbehörde legt die Wahl mit den Kandidaten an. Das Foto jedes Kandidaten wird per Hash im Genesis-Block versiegelt, und das Gerät
+        lehnt ein ausgetauschtes Foto ab. Die drei Trustees erzeugen jeweils ihren Schlüsselanteil im eigenen Browser. Sind alle drei
+        veröffentlicht, wird die Wahl eröffnet und die Geräte können geladen werden.
+      </p>
+      <figure class="tela"><a href="../img/26-admin-eleicao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/26-admin-eleicao.webp" alt="Reiter Admin, Wahl: Statistiken, Schaltflächen zum Eröffnen und Schließen und die Kandidatenliste" loading="lazy"></div></a>
+        <figcaption>Admin → Wahl: anlegen, eröffnen und Annahme beenden. Die Zahlen oben zeigen Trustees, Berechtigungsnachweise, Wahllokale und Blöcke.</figcaption></figure>
+      <figure class="tela"><a href="../img/29-cadastro.webp" target="_blank" rel="noopener"><img src="../img/29-cadastro.webp" alt="Seite der Wählerregistrierung" loading="lazy"></a>
+        <figcaption>Register: das Wählerverzeichnis. Es weiß, wer erschienen ist, nie wen er gewählt hat, und speichert nicht die Reihenfolge des Erscheinens.</figcaption></figure>
+
+      <h2 id="t-secao">C. Das Wahllokal öffnet, ohne Internet</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/02-urna-instalacao.webp" target="_blank" rel="noopener"><img src="../img/02-urna-instalacao.webp" alt="Gerät im Installationsmodus mit eingetippter Zone 010 und Lokal 0123" loading="lazy"></a>
+          <figcaption>1. Das Technikteam installiert das Gerät über dessen eigene Tastatur: Zone und Wahllokal.</figcaption></figure>
+        <figure class="tela"><a href="../img/03-urna-carga.webp" target="_blank" rel="noopener"><img src="../img/03-urna-carga.webp" alt="Ladebildschirm des Geräts, der CONFIRMA verlangt" loading="lazy"></a>
+          <figcaption>2. Laden: Das Gerät erhält die Wahl und erzeugt in sich seinen eigenen Schlüssel. Nur der öffentliche Teil verlässt es.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/05-mesario-zeresima.webp" target="_blank" rel="noopener"><img src="../img/05-mesario-zeresima.webp" alt="Wahlhelfer-Terminal mit geöffnetem Wahllokal und gedrucktem Nullprotokoll" loading="lazy"></a>
+        <figcaption>3. Wahlhelfer-Terminal: Beim Öffnen druckt das Gerät das <strong>Nullprotokoll</strong> (<em>zerésima</em>) mit null Stimmen und den Schlüsseln von Gerät und Wahlvorstand, damit Beobachter es fotografieren.</figcaption></figure>
+      <figure class="tela"><a href="../img/06-mesario-liberar.webp" target="_blank" rel="noopener"><img src="../img/06-mesario-liberar.webp" alt="Wahlhelfer sucht einen fiktiven Wähler, daneben die Schaltfläche zur Freigabe des Geräts" loading="lazy"></a>
+        <figcaption>4. Der Wahlhelfer sucht den Wähler, prüft den Ausweis und gibt das Gerät frei. Das Gerät erhält nur ein „darf wählen“, nie den Namen.</figcaption></figure>
+
+      <h2 id="t-cabine">D. In der Wahlkabine</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/07-urna-votar.webp" target="_blank" rel="noopener"><img src="../img/07-urna-votar.webp" alt="Gerät bereit zur Eingabe der Nummer" loading="lazy"></a>
+          <figcaption>5. Das freigegebene Gerät wartet auf die Nummer.</figcaption></figure>
+        <figure class="tela"><a href="../img/08-urna-candidato.webp" target="_blank" rel="noopener"><img src="../img/08-urna-candidato.webp" alt="Gerät zeigt Kandidat 25 mit Foto, Name und Partei" loading="lazy"></a>
+          <figcaption>6. 25 eingegeben: Foto, Name und Partei erscheinen.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/09-urna-confira.webp" target="_blank" rel="noopener"><img src="../img/09-urna-confira.webp" alt="Bildschirm „Prüfen Sie Ihre Stimme“ mit zwei Bildern, dem Code und dem Prüfcode" loading="lazy"></a>
+          <figcaption>7. CONFIRMA: Das Gerät versiegelt den Stimmzettel und legt sich fest. Es zeigt 2 Bilder, den Code und den Prüfcode, <em>bevor</em> es weiß, ob der Wähler wählt oder testet.</figcaption></figure>
+        <figure class="tela"><a href="../img/10-urna-teste.webp" target="_blank" rel="noopener"><img src="../img/10-urna-teste.webp" alt="Testbildschirm des Geräts mit dem Kandidaten, den der Stimmzettel enthielt" loading="lazy"></a>
+          <figcaption>8. TESTAR: Der Stimmzettel wird geöffnet und ungültig, und das Gerät zeigt, was es verschlüsselt haben will. Code und Schlüssel kommen auf den Beleg.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/11-urna-de-novo.webp" target="_blank" rel="noopener"><img src="../img/11-urna-de-novo.webp" alt="Bildschirm „Ihre Stimme, noch einmal“ mit neuen Bildern und neuem Code" loading="lazy"></a>
+          <figcaption>9. Erneut CONFIRMA, ohne neu einzugeben: ein neuer Stimmzettel mit neuen Bildern und neuem Code.</figcaption></figure>
+        <figure class="tela"><a href="../img/12-urna-fim.webp" target="_blank" rel="noopener"><img src="../img/12-urna-fim.webp" alt="ENDE-Bildschirm mit den Bildern der Stimme" loading="lazy"></a>
+          <figcaption>10. CONFIRMA: Stimme abgegeben. Der Schlüssel des Stimmzettels wird sofort vernichtet.</figcaption></figure>
+      </div>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/14-comprovante.webp" target="_blank" rel="noopener"><img src="../img/14-comprovante.webp" alt="Gedruckter Beleg mit dem Stimmcode und dem Teil des Gerätetests" loading="lazy"></a>
+          <figcaption>11. Ein einziger Zettel: Stimmcode, Prüfcode und Bilder, direkt darunter der Test mit erklärtem Kandidaten, Code, Schlüssel und Signatur des Geräts.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>Was auf dem Papier steht</h4>
+          <ul>
+            <li><strong>Code Ihrer Stimme</strong>, <strong>Prüfcode</strong> und <strong>Bilder</strong>: um Ihren verschlüsselten Stimmzettel im veröffentlichten BU zu finden.</li>
+            <li><strong>Gerätetest</strong>: was das Gerät gesagt hat, Code und <strong>Schlüssel</strong> des getesteten Stimmzettels und die vom Gerät <strong>signierte Erklärung</strong>.</li>
+            <li>Kein Name, keine Uhrzeit, und er verrät nicht, wen Sie gewählt haben.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="t-fim">E. Ende des Tages</h2>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/16-bu-papel.webp" target="_blank" rel="noopener"><img src="../img/16-bu-papel.webp" alt="Gedrucktes Ergebnisprotokoll mit Stimmen pro Kandidat und dem BU-Code" loading="lazy"></a>
+          <figcaption>12. Das gedruckte BU kommt an die Schultür. Der BU-Code identifiziert genau dieses Dokument.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>Wie das heutige Papier, mit zwei Extras</h4>
+          <ul>
+            <li>Stimmen pro Kandidat, leere, ungültige und Wahlbeteiligung (die Beteiligung stammt vom Zähler des Wahlvorstands).</li>
+            <li><strong>Teststimmzettel</strong>: geöffnet und nicht gezählt.</li>
+            <li><strong>BU-Code</strong>: der erste Teil des Hashs des signierten BU. Das veröffentlichte BU muss denselben Code haben.</li>
+          </ul>
+        </div>
+      </div>
+      <figure class="tela"><a href="../img/17-mesario-transmitida.webp" target="_blank" rel="noopener"><img src="../img/17-mesario-transmitida.webp" alt="Wahlhelfer-Terminal nach Übertragung des Mediums an die Wahlbehörde" loading="lazy"></a>
+        <figcaption>13. Das Medium (Nullprotokoll + BU + verschlüsselte Stimmzettel) geht an die Wahlbehörde, die vor der Veröffentlichung in der Kette die Signatur des Geräts prüft.</figcaption></figure>
+
+      <h2 id="t-casa">F. Zu Hause</h2>
+      <figure class="tela"><a href="../img/21-verificar-voto.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/21-verificar-voto.webp" alt="Stimme prüfen: Der eingegebene Code zeigt dieselben Bilder und denselben Prüfcode" loading="lazy"></div></a>
+        <figcaption>14. Stimme prüfen: Der Code vom Beleg führt zu denselben Bildern und demselben Prüfcode. Die Stimme ist im BU und wurde gezählt.</figcaption></figure>
+      <div class="par">
+        <figure class="tela"><a href="../img/22a-teste-texto-colado.webp" target="_blank" rel="noopener"><img src="../img/22a-teste-texto-colado.webp" alt="Test prüfen: der Text des Belegs im Eingabefeld" loading="lazy"></a>
+          <figcaption>15. Test prüfen: Der Wähler fügt den Testtext ein. Die Felder füllen sich von selbst.</figcaption></figure>
+        <figure class="tela"><a href="../img/23-teste-resultado.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/23-teste-resultado.webp" alt="Ergebnis: Das Gerät des Wahllokals hat den Test bestanden" loading="lazy"></div></a>
+          <figcaption>16. Der Computer verschlüsselt mit dem Schlüssel vom Papier neu. Das Gerät sagte 25, die Rechnung ergab 25, und die Signatur ist gültig: ehrliches Gerät.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/24-verificar-bu.webp" target="_blank" rel="noopener"><img src="../img/24-verificar-bu.webp" alt="Veröffentlichtes Protokoll des Wahllokals mit BU-Code und Vergleich zwischen gedrucktem BU und kryptografischer Auszählung" loading="lazy"></a>
+        <figcaption>17. Protokoll des Wahllokals: Code und Zahlen sind dieselben wie auf dem Papier an der Tür, und das gedruckte BU stimmt mit der kryptografischen Auszählung überein.</figcaption></figure>
+
+      <h2 id="t-apuracao">G. Auszählung und öffentliche Prüfung</h2>
+      <figure class="tela"><a href="../img/20-apuracao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/20-apuracao.webp" alt="Seite der Trustees mit den Entschlüsselungen und dem Ergebnis" loading="lazy"></div></a>
+        <figcaption>18. Trustees: Jeder prüft die Tafel, berechnet die Summen neu und entschlüsselt erst dann seinen Anteil. Keine einzelne Stimme wird geöffnet.</figcaption></figure>
+      <figure class="tela"><a href="../img/25-auditoria.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/25-auditoria.webp" alt="Prüfung: 22 bestandene Prüfungen, neu berechnetes Ergebnis und Blockkette" loading="lazy"></div></a>
+        <figcaption>19. Prüfung: Der Browser lädt nur die öffentliche Kette und wiederholt die 22 Prüfungen. Hier: 22 bestanden, keine fehlgeschlagen. Scrollen Sie im Bild, um alle zu sehen.</figcaption></figure>
+      <figure class="tela"><a href="../img/25b-cadeia.webp" target="_blank" rel="noopener"><img src="../img/25b-cadeia.webp" alt="Öffentliche Blockkette, von Genesis bis zum Ergebnis" loading="lazy"></a>
+        <figcaption>20. Die öffentliche Kette, von Genesis bis zum Ergebnis: Jeder Block verweist auf den vorherigen und ist signiert.</figcaption></figure>
+      <figure class="tela"><a href="../img/27-admin-bancos.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/27-admin-bancos.webp" alt="Admin, Datenbanken: der Inhalt der vier getrennten Datenbanken" loading="lazy"></div></a>
+        <figcaption>21. Admin → Datenbanken: Der Administrator kann alles lesen, und trotzdem verbindet nichts Wähler und Stimme.</figcaption></figure>
+
+      <h2 id="t-laboratorio">H. Labor: manipulierte Geräte</h2>
+      <p>
+        Unter <em>Admin → Angriffslabor</em> installiert eine Schaltfläche sieben Geräte mit manipulierter Software (der begünstigte Kandidat
+        wird ausgelost), eine weitere simuliert in jedem einen testenden Wähler und überträgt die Wahllokale, und „Zu Hause prüfen“ bringt den
+        Beleg dieses Wählers zum Prüfbildschirm.
+      </p>
+      <figure class="tela"><a href="../img/30-laboratorio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/30-laboratorio.webp" alt="Labor mit den sieben übertragenen Beispielgeräten" loading="lazy"></div></a>
+        <figcaption>22. Die sieben Beispielgeräte, bereits übertragen. Alle bestehen die mathematische Prüfung, und jedes wird zu Hause auf eigene Weise ertappt.</figcaption></figure>
+      <figure class="tela"><a href="../img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/31-teste-fraude.webp" alt="Test prüfen mit Urteil BETRUG: Das Gerät sagte 25, die Rechnung ergab 61" loading="lazy"></div></a>
+        <figcaption>23. Das Gerät, das Stimmen umleitet: Auf dem Papier sagte es 25, und der Computer des Wählers reproduzierte 61. Die signierte Erklärung wird zum Beweis.</figcaption></figure>
+      <figure class="tela"><a href="../img/32-verificar-voto-sumiu.webp" target="_blank" rel="noopener"><img src="../img/32-verificar-voto-sumiu.webp" alt="Stimme prüfen: Code im Medium des Wahllokals nicht gefunden" loading="lazy"></a>
+        <figcaption>24. Das Gerät, das einen Code zeigt und einen anderen Stimmzettel speichert: Unter „Stimme prüfen“ ist der Code des Wählers nicht im Medium des Wahllokals.</figcaption></figure>
+
+      <!-- ================================================================== TEIL III -->
+      <div class="parte-titulo">
+        <div class="rotulo">Teil III</div>
+        <h2>Unter der Haube</h2>
+        <p>Architektur, Kryptografie, Garantien, Penetrationstests und Grenzen. Für Fachleute, Prüfer und Forschende.</p>
+      </div>
+
+      <h2 id="arquitetura">7. Architektur</h2>
+      <h3>7.1 Wahllokal offline und öffentliche Tafel</h3>
+      <p>
+        Das System trennt das <strong>Wahllokal</strong>, das den ganzen Tag ohne Netz arbeitet, von der <strong>nationalen öffentlichen
+        Tafel</strong>, die von der Wahlbehörde geführt wird. Sie treffen sich nur zu zwei Zeitpunkten:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Zeitpunkt</th><th>Was geschieht</th><th>Öffentlicher Eintrag</th></tr></thead>
+          <tbody>
+            <tr><td>Vor der Wahl: <strong>Laden</strong></td><td>Das Gerät erzeugt in sich sein eigenes Ed25519-Schlüsselpaar; das Terminal des Wahlvorstands erzeugt den RSA-Schlüssel für die Berechtigungsnachweise. Nur die öffentlichen Schlüssel verlassen sie.</td><td>Block <code>CARGA</code></td></tr>
+            <tr><td>Nach der Schließung: <strong>Medium</strong></td><td>Nullprotokoll und Ergebnisprotokoll, vom Gerät signiert, mit allen verschlüsselten Stimmzetteln des Lokals. Die Tafel prüft alles gegen das Laden, bevor sie veröffentlicht.</td><td>Block <code>SECAO</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="mermaid">
+flowchart LR
+  subgraph S["Wahllokal (ohne Netz)"]
+    M["Wahlhelfer-Terminal<br/>Verzeichnis · Schlüssel des Vorstands"] -- gibt frei --> U["Wahlgerät<br/>eigener Schlüssel · Speicher"]
+    U -- "Nullprotokoll / BU" --> P["Gedruckte Papiere<br/>BU an der Schultür"]
+  end
+  Q["Öffentliche Tafel<br/>signierte Blockkette"]
+  Q -- "Laden (vorher)" --> U
+  U -- "Medium (nachher)" --> Q
+  Q --> T["3 Trustees<br/>entschlüsseln Summen pro Lokal"]
+  Q --> E["Wähler und Prüfer<br/>prüfen zu Hause, offline"]
+      </pre>
+
+      <h3>7.2 Datentrennung</h3>
+      <p>Vier physisch getrennte Datenbanken. Kein Fremdschlüssel verbindet Wähler und Stimmzettel.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Datenbank</th><th>Rolle</th><th>Weiß</th><th>Weiß nicht</th></tr></thead>
+          <tbody>
+            <tr><td><code>registro.db</code></td><td>Verzeichnis des Wahllokals</td><td>Wer Wähler ist und wer erschienen ist</td><td>Nichts über die Stimme; nicht einmal die Reihenfolge des Erscheinens</td></tr>
+            <tr><td><code>autoridade.db</code></td><td>Terminal des Wahlvorstands</td><td>Den RSA-Schlüssel des Lokals und wie viele Nachweise es signiert hat</td><td>Welcher Nachweis zu wem gehört</td></tr>
+            <tr><td><code>urnas.db</code></td><td>Speicher des Geräts</td><td>Geräteschlüssel, verschlüsselte Stimmzettel, Zähler pro Option</td><td>Identität, Uhrzeit, Reihenfolge, Schlüssel der abgegebenen Stimmzettel</td></tr>
+            <tr><td><code>boletim.db</code></td><td>Öffentliche Tafel</td><td>Ladevorgänge und Medien der Wahllokale</td><td>Identität; nichts über die Wahl, bevor das Medium eintrifft</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Phasen</h3>
+      <div class="formula">GENESE → CHAVE_TRUSTEE ×3 → ABERTURA → (CARGA | SECAO)* → ENCERRAMENTO → DECRIPTACAO_PARCIAL ×3 → RESULTADO</div>
+      <p>
+        Jeder Block enthält den Hash des vorherigen und ist mit dem Ed25519-Schlüssel der Tafel signiert, der im Genesis-Block veröffentlicht
+        wird. Genesis veröffentlicht auch die Optionen (mit dem SHA-256 jedes Fotos) und den Hash der im Wahllokal laufenden Software.
+      </p>
+
+      <h2 id="cripto">8. Kryptografie</h2>
+      <h3>8.1 Bausteine</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Funktion</th><th>Wahl</th></tr></thead>
+          <tbody>
+            <tr><td>Gruppe</td><td>ristretto255 (RFC 9496), Primordnung ≈ 2<sup>252</sup>, etwa 128 Bit Sicherheit</td></tr>
+            <tr><td>Verschlüsselung der Stimme</td><td>Exponentielles ElGamal, additiv homomorph</td></tr>
+            <tr><td>Beweise</td><td>0-oder-1-Disjunktion (Cramer-Damgård-Schoenmakers), Chaum-Pedersen, Schnorr; starkes Fiat-Shamir mit SHA-512</td></tr>
+            <tr><td>Anonymer Berechtigungsnachweis</td><td>Blinde RSA-2048-Signatur mit Full-Domain-Hash (Chaum)</td></tr>
+            <tr><td>Signaturen</td><td>Ed25519 (RFC 8032) für Stimmzettel, Gerät und Tafel</td></tr>
+            <tr><td>Hashes</td><td>SHA-256 (Kennungen) und SHA-512 (Herausforderungen)</td></tr>
+            <tr><td>Zufall</td><td>CSPRNG des Betriebssystems; nicht-kryptografische Generatoren sind per statischer Analyseregel verboten</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 Der Stimmzettel</h3>
+      <p>Bei <em>k</em> Optionen (Kandidaten, leer und ungültig) verschlüsselt der Stimmzettel einen Vektor mit 1 bei der gewählten Option und 0 bei den übrigen. Für jede Option <em>i</em>:</p>
+      <div class="formula">a_i = g^(r_i)        b_i = g^(m_i) · h^(r_i)        m_i ∈ {0, 1},   Σ m_i = 1</div>
+      <p>
+        <em>h</em> ist der gemeinsame öffentliche Schlüssel der drei Trustees. Jedes Paar (a<sub>i</sub>, b<sub>i</sub>) trägt einen Beweis, dass
+        es 0 oder 1 verschlüsselt, und der Stimmzettel trägt einen Beweis, dass die Summe genau 1 verschlüsselt — ohne zu verraten, welche
+        Option. Der <strong>Tracker</strong> des Stimmzettels ist der SHA-256 aller Geheimtexte.
+      </p>
+      <h4>Der Schlüssel des Stimmzettels</h4>
+      <p>Jeder Stimmzettel hat einen 128-Bit-Seed aus dem CSPRNG des Geräts, und aller Zufall wird daraus abgeleitet:</p>
+      <div class="formula">r_i = H("T-VOTE/aleatoriedade/v1", [Seed, Wahl_Hash, i])  mod L</div>
+      <p>
+        Beim abgegebenen Stimmzettel wird der Seed im Moment der Abgabe vernichtet. Beim Teststimmzettel wird er offengelegt, im BU
+        veröffentlicht und auf den Beleg gedruckt: Damit rechnet jeder Computer die Geheimtexte jeder möglichen Option nach und findet heraus,
+        welche verschlüsselt wurde.
+      </p>
+
+      <h3>8.3 Anonymer Berechtigungsnachweis</h3>
+      <p>
+        Nach der Freigabe durch den Wahlhelfer erzeugt das Gerät ein flüchtiges Ed25519-Paar und bittet das Terminal des Wahlvorstands um eine
+        <em>blinde</em> Signatur über den öffentlichen Schlüssel. Der Vorstand signiert, ohne zu sehen, was er signiert, und erhöht nur seinen
+        Zähler, der als Wahlbeteiligung ins BU gedruckt wird. Der Stimmzettel wird mit diesem Nachweis signiert, und der
+        <strong>Nullifier</strong> (SHA-256 des Nachweisschlüssels) verhindert, dass derselbe Nachweis zweimal wählt. Weder Vorstand noch
+        Verzeichnis können einen Nachweis einem Wähler zuordnen.
+      </p>
+
+      <h3>8.4 Siegel, Code, Bilder und Prüfcode</h3>
+      <p>Sobald der Stimmzettel verschlossen ist, versiegelt das Gerät ihn mit seinem eigenen Schlüssel. Das Siegel ist deterministisch (Ed25519):</p>
+      <div class="formula">Siegel   = Ed25519(Geräteschlüssel, SHA-256("T-VOTE/selo/v1|" ‖ {Wahl, Tracker, Lokal}))
+v        = SHA-256("T-VOTE/verificacao/v1|" ‖ Siegel)
+
+Bilder   = BILDER[v[0]], BILDER[v[1]]                       16 Bit (256 Bilder)
+Code     = Zone ‖ Lokal ‖ base32(25 Bit von v[2..6])         25 Zufallsbits
+Prüfcode = base32(40 Bit von v[6..11])                       40 Bit</div>
+      <p>
+        Der Code nutzt Crockford-Base32 (ohne I, L, O und U); beim Lesen wird O zu 0 und I/L zu 1. Er ist im Wahllokal eindeutig, und das
+        Lokal im Präfix macht ihn in der Wahl eindeutig. Die 256 Bilder wurden so gewählt, dass sie zeichenbar sind, keine Paare sich nur in
+        einem Buchstaben unterscheiden und es keine politischen, religiösen oder Waffen-Inhalte gibt.
+      </p>
+      <div class="aviso alerta">
+        <p>
+          <strong>Warum es den Prüfcode gibt.</strong> Die 2 Bilder allein haben 16 Bit: In einem Versuch fand ein manipuliertes Gerät in weniger
+          als tausend Verschlüsselungen zwei Stimmzettel (je einen pro Kandidat) mit denselben Bildern — und hätte einen im Test öffnen und den
+          anderen abgeben können. Mit Code und Bildern (41 Bit) bräuchte dasselbe Paar etwa 2<sup>20</sup> Verschlüsselungen, noch immer in
+          Reichweite eines vorbereiteten Geräts. Der vor der Entscheidung gedruckte Prüfcode hebt die Festlegung auf 81 Bit: Derselbe Angriff
+          bräuchte dann etwa 2<sup>40</sup> Verschlüsselungen in Echtzeit, was nicht machbar ist.
+        </p>
+      </div>
+
+      <h3>8.5 Gerätetest (Benaloh-Challenge)</h3>
+      <p>
+        Nachdem der Wähler die Festlegung gesehen hat, kann er TESTAR drücken. Das Gerät legt den Seed offen, bewahrt den geöffneten Stimmzettel
+        für das BU auf und <strong>signiert eine Erklärung</strong> mit dem Kandidaten, den es gefunden haben will, und dem gedruckten Schlüssel:
+      </p>
+      <div class="formula">Erklärung = Ed25519(Geräteschlüssel, SHA-256("T-VOTE/declaracao-teste/v2|" ‖ {Wahl, Lokal, Tracker, Option, Seed}))</div>
+      <p>
+        Zu Hause verschlüsselt der Validator jede Option mit dem Seed vom Papier neu und sucht die einzige, die die unter diesem Code
+        versiegelten Geheimtexte exakt reproduziert. Ist es nicht die erklärte, hat das Gerät gelogen, und die Signatur macht daraus einen
+        übertragbaren Beweis. Ändert jemand das Papier, passt die Signatur nicht mehr — ein gefälschtes Papier belastet kein ehrliches Gerät.
+      </p>
+
+      <h3>8.6 Nullprotokoll und Ergebnisprotokoll</h3>
+      <p>Beide sind kanonische JSON-Dokumente, vom Gerät signiert:</p>
+      <ul>
+        <li><strong>Nullprotokoll:</strong> Wahl, Wahllokal, Geräteschlüssel, Vorstandsschlüssel, Software-Hash, Zahl der Stimmzettel im Speicher (null) und Eröffnungszeit.</li>
+        <li><strong>BU:</strong> verweist auf den Hash des Nullprotokolls und enthält die Wahlbeteiligung (Zähler des Vorstands), alle Stimmzettel und Teststimmzettel in Tracker-Reihenfolge, die Klartextzählung pro Option (was gedruckt wird) und das homomorphe Aggregat der Geheimtexte.</li>
+      </ul>
+      <p>Der auf das Papier gedruckte <strong>BU-Code</strong> sind die ersten 16 Hexadezimalzeichen des Dokument-Hashs.</p>
+
+      <h3>8.7 Auszählung pro Wahllokal</h3>
+      <p>Der Wahlschlüssel ist das Produkt der Schlüssel der drei Trustees. Für jedes Wahllokal <em>s</em> und jede Option <em>j</em> mit Aggregat (A<sub>sj</sub>, B<sub>sj</sub>):</p>
+      <div class="formula">D_sj,t = A_sj^(x_t)                          (mit Chaum-Pedersen-Beweis; Kontext enthält das Lokal)
+g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj durch Suche in [0, Zahl der Stimmzettel]</div>
+      <p>
+        Vor dem Entschlüsseln prüft jeder Trustee das Paket und berechnet das Aggregat neu; er weigert sich, etwas anderes zu entschlüsseln als
+        die selbst neu berechnete Summe. Die Entschlüsselung Lokal für Lokal erlaubt es, jedes gedruckte BU mit der kryptografischen Auszählung
+        zu vergleichen.
+      </p>
+
+      <h2 id="verificador">9. Was der Validator des Wählers prüft</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Eingabe</th><th>Prüfungen</th></tr></thead>
+          <tbody>
+            <tr><td>Stimmcode</td><td>Stimmzettel im Medium des Lokals vorhanden · Kette intakt und signiert · Medium vom geladenen Gerät signiert · Siegel, Code und Bilder aus dem Siegel abgeleitet · gültiger blinder Nachweis des Vorstands · Signatur des Stimmzettels · Zero-Knowledge-Beweise · eindeutiger Nullifier · im Aggregat enthalten · Entschlüsselung des Lokals mit Beweisen</td></tr>
+            <tr><td>Testcode + Schlüssel (+ Erklärung)</td><td>Lokal übertragen · Teststimmzettel im BU · der Seed reproduziert genau eine Option · diese Option ist die erklärte · Signatur des Geräts über die Erklärung · Tracker und Siegel stimmen</td></tr>
+            <tr><td>Zone und Lokal</td><td>Veröffentlichtes BU vom Gerät signiert · Summe der Stimmzettel = Aggregat · gedruckte Zählung = Entschlüsselung · BU-Code zum Vergleich mit dem Papier</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Testurteile: <span class="chip ok">ehrliches Gerät</span> <span class="chip falha">Betrug</span> <span class="chip alerta">nicht eindeutig</span> (zum Beispiel, wenn das Lokal noch nicht übertragen hat oder die eingegebene Signatur nicht zum angegebenen Kandidaten passt).</p>
+
+      <h2 id="e2e">10. Ende-zu-Ende-Verifizierbarkeit</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Eigenschaft</th><th>Mechanismus</th><th>Wer prüft</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Wie beabsichtigt verschlüsselt</strong> (die verschlüsselte Stimme ist die gewählte)</td><td>81-Bit-Festlegung vor der Entscheidung + Test mit gedrucktem Schlüssel und signierter Erklärung</td><td>Der testende Wähler, außerhalb des Geräts</td></tr>
+            <tr><td><strong>Wie abgegeben erfasst</strong> (der Stimmzettel ist im öffentlichen Register)</td><td>Code, Bilder und Prüfcode im BU gespeichert und aus dem Siegel des Geräts abgeleitet; BU vom Gerät signiert und im Papier an der Schultür verankert</td><td>Jeder Wähler mit Beleg</td></tr>
+            <tr><td><strong>Wie erfasst gezählt</strong> (das Ergebnis ist die richtige Summe)</td><td>Nachrechenbares homomorphes Aggregat, Entschlüsselung mit Chaum-Pedersen-Beweisen, gedrucktes BU = Entschlüsselung</td><td>Jeder, mit dem öffentlichen Paket</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Stärke des Tests</h3>
+      <p>
+        Da das Gerät nicht weiß, wer testet, wird ein Gerät, das <em>k</em> Stimmen verändert, ertappt, wenn mindestens ein Wähler einen der
+        veränderten Stimmzettel testet. Testet jeder Wähler mit Wahrscheinlichkeit <em>p</em>, beträgt die Entdeckungswahrscheinlichkeit
+        1 − (1 − p)<sup>k</sup>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th class="num">Veränderte Stimmen</th><th class="num">5 % testen</th><th class="num">10 % testen</th><th class="num">20 % testen</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">5,0 %</td><td class="num">10,0 %</td><td class="num">20,0 %</td></tr>
+            <tr><td class="num">10</td><td class="num">40,1 %</td><td class="num">65,1 %</td><td class="num">89,3 %</td></tr>
+            <tr><td class="num">50</td><td class="num">92,3 %</td><td class="num">99,5 %</td><td class="num">99,9986 %</td></tr>
+            <tr><td class="num">100</td><td class="num">99,4 %</td><td class="num">99,9973 %</td><td class="num">&gt; 99,9999 %</td></tr>
+            <tr><td class="num">300</td><td class="num">&gt; 99,9999 %</td><td class="num">&gt; 99,9999 %</td><td class="num">&gt; 99,9999 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="auditoria">11. Universelle Prüfung</h2>
+      <p>Der Prüfer erhält nur das öffentliche Paket (die Blockkette) und wiederholt 22 Prüfungen:</p>
+      <ol>
+        <li>Integrität der Kette (Hash und Verkettung jedes Blocks)</li>
+        <li>Signatur der Tafel auf jedem Block</li>
+        <li>Wahlmanifest (Genesis) und Protokollversion</li>
+        <li>Reihenfolge der Phasen</li>
+        <li>Trustee-Schlüssel mit Schnorr-Beweis</li>
+        <li>Nationales Nullprotokoll und gemeinsamer Schlüssel</li>
+        <li>Laden der Geräte: eigener Schlüssel, keiner wiederholt, Software gleich Genesis, kein Laden nach dem Medium</li>
+        <li>Medien vom geladenen Gerät signiert, Nullprotokoll auf null, ein Medium pro Lokal</li>
+        <li>Stimmzettel ohne Eingangsreihenfolge und ohne Uhrzeit (exakte Felder, Tracker-Reihenfolge)</li>
+        <li>Gültige anonyme Nachweise des Vorstands des Lokals</li>
+        <li>Signatur jedes Stimmzettels</li>
+        <li>Zero-Knowledge-Beweise</li>
+        <li>Tracker und Nullifier neu berechnet</li>
+        <li>Code, Bilder und Prüfcode aus dem Siegel abgeleitet; eindeutige Codes</li>
+        <li>Ein Nachweis, eine Stimme</li>
+        <li>Teststimmzettel stimmen mit dem offengelegten Seed überein</li>
+        <li>Stimmzettel ≤ Beteiligung; die BU-Zählung ergibt die Zahl der Stimmzettel</li>
+        <li>Homomorphe Summe pro Lokal</li>
+        <li>Die Schließung listet genau die empfangenen Lokale und die ohne Medium</li>
+        <li>Teilentschlüsselung jedes Trustees, Lokal für Lokal, mit Beweis</li>
+        <li>Gedrucktes BU = kryptografische Auszählung</li>
+        <li>Veröffentlichtes Ergebnis = neu berechnet, pro Lokal und insgesamt</li>
+      </ol>
+
+      <h2 id="ameacas">12. Bedrohungsmodell und Penetrationstests</h2>
+      <p>Es wurden Angreifer mit wachsender Macht betrachtet, und jeder Angriff wurde gegen die echten Module des Systems ausgeführt:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Angriff</th><th>Angreifer</th><th>Wer ihn entdeckte</th></tr></thead>
+          <tbody>
+            <tr><td>Eine Stimme direkt in der Datenbank ändern</td><td>Datenbankzugriff, keine Schlüssel</td><td><span class="chip ok">Prüfer</span> und Wähler</td></tr>
+            <tr><td>Eine Stimme ändern und die Hashes neu berechnen</td><td>Datenbankzugriff, keine Schlüssel</td><td><span class="chip ok">Prüfer</span> (Signatur der Tafel)</td></tr>
+            <tr><td>Einen Stimmzettel bei der Summierung entfernen</td><td>Wahlbehörde (Tafelschlüssel)</td><td><span class="chip ok">Prüfer</span> (Signatur des Geräts) und Wähler</td></tr>
+            <tr><td>Das veröffentlichte Ergebnis ändern</td><td>Wahlbehörde</td><td><span class="chip ok">Prüfer</span></td></tr>
+            <tr><td>Gedrucktes BU mit falschen Zahlen</td><td>Insider mit dem Geräteschlüssel</td><td><span class="chip ok">Prüfer</span> (BU ≠ Auszählung) und Papier</td></tr>
+            <tr><td>Eingangsreihenfolge mit Uhrzeit speichern</td><td>Insider mit dem Geräteschlüssel</td><td><span class="chip ok">Prüfer</span> (Wahlgeheimnis)</td></tr>
+            <tr><td>Zusätzlicher Stimmzettel mit legitimem Nachweis</td><td>Insider mit Vorstands- und Geräteschlüssel</td><td><span class="chip ok">Prüfer</span> (Beteiligung) und Papier</td></tr>
+            <tr><td>Gespeicherte Bilder und Codes vertauschen</td><td>Insider mit dem Geräteschlüssel</td><td><span class="chip ok">Prüfer</span>, Wähler und Papier</td></tr>
+            <tr><td>Ein ganzes Wahllokal neu schreiben</td><td>Insider mit Tafel-, Geräte- und Vorstandsschlüssel</td><td><span class="chip alerta">Prüfer sieht es nicht</span> · Wähler (Codes verschwinden) und Papier-BU</td></tr>
+            <tr><td>Ein ganzes Wahllokal verschwinden lassen</td><td>Wahlbehörde</td><td><span class="chip alerta">Prüfer warnt nur</span> · Papier-BU und Wähler</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Geräte mit manipulierter Software</h3>
+      <p>
+        Sieben Laborgeräte simulieren vor dem Laden ausgetauschte Programme. Alle zeigen dem Wähler, was er eingegeben hat, alle behaupten, die
+        Software stimme, und das BU aller besteht die mathematische Prüfung — weil das Gerät im BU zählt, was es tatsächlich verschlüsselt hat.
+        In jedem Fall wurde der Betrug zu Hause entdeckt:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Manipulierte Software</th><th>Ergebnis zu Hause</th></tr></thead>
+          <tbody>
+            <tr><td>Leitet alle Stimmen um und lügt im Test</td><td>Papier sagte 29; der Schlüssel reproduzierte 21 → <span class="chip falha">Betrug</span>, mit gültiger Signatur</td></tr>
+            <tr><td>Leitet die Hälfte der Stimmen um</td><td>2 von 3 Tests entdeckten die Umleitung → <span class="chip falha">Betrug</span></td></tr>
+            <tr><td>Leitet nur die Stimmen eines Kandidaten um</td><td>Der Opfer-Kandidat wurde getestet; der Schlüssel reproduzierte einen anderen → <span class="chip falha">Betrug</span></td></tr>
+            <tr><td>Macht Stimmen ungültig</td><td>Der Teststimmzettel war ungültig → <span class="chip falha">Betrug</span></td></tr>
+            <tr><td>Druckt im Test einen falschen Schlüssel</td><td>Der Schlüssel öffnet den versiegelten Stimmzettel nicht → <span class="chip falha">Betrug</span></td></tr>
+            <tr><td>Lässt den Teststimmzettel verschwinden</td><td>Der Test fehlt im veröffentlichten BU → <span class="chip falha">Betrug</span></td></tr>
+            <tr><td>Zeigt Ihren Code und speichert einen anderen Stimmzettel (im Test ehrlich)</td><td>Der Stimmcode existiert im BU nicht → <span class="chip falha">Betrug</span> (entdeckt unter „Meine Stimme“)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Mathematik sieht keine Absicht.</strong> Ein Gerät, das den falschen Kandidaten verschlüsselt, erzeugt einen vollkommen gültigen
+          Stimmzettel. Nur der Wähler weiß, was er eingegeben hat — deshalb ist der außerhalb des Geräts geprüfte Test unverzichtbar, und deshalb
+          verbindet das System die mathematische Prüfung mit dem Papier und dem Wähler.
+        </p>
+      </div>
+
+      <h2 id="sigilo">13. Wahlgeheimnis und die Lehre aus dem TPS 2012</h2>
+      <p>
+        Beim öffentlichen Sicherheitstest (TPS) 2012 des brasilianischen Wahlgeräts zeigten Forschende, dass sich die Reihenfolge der vom
+        damaligen Gerät gespeicherten Stimmen rekonstruieren ließ, weil das Mischen einen nicht-kryptografischen Generator nutzte, der mit der
+        Uhrzeit initialisiert wurde. T-VOTE antwortet auf mehreren Ebenen:
+      </p>
+      <ul>
+        <li>Es gibt kein Mischen, das initialisiert werden müsste: Das BU listet die Stimmzettel in Tracker-Reihenfolge, also nach dem Hash zufälliger Geheimtexte.</li>
+        <li>Der Speicher des Geräts ist eine Tabelle ohne fortlaufende Kennung, indiziert nach (Gerät, Tracker): Die gespeicherte Reihenfolge ist die des Hashs, nicht die des Eingangs.</li>
+        <li>Kein Eintrag pro Stimme mit Uhrzeit; das SQLite-Journal im DELETE-Modus und <code>secure_delete</code> löschen, was übrig bleiben könnte.</li>
+        <li>Das Verzeichnis speichert nicht die Reihenfolge des Erscheinens, und der Vorstand signiert blind.</li>
+        <li>Der Schlüssel jedes abgegebenen Stimmzettels existiert nach der Abgabe nicht mehr.</li>
+      </ul>
+      <p>
+        In einem statistischen Test mit 160 Stimmzetteln pro Kandidat war das erste Bild bei 49 % der Stimmzettel des einen Kandidaten und
+        50 % des anderen „ungerade“ — wie bei von der Stimme unabhängigen Werten zu erwarten.
+      </p>
+
+      <h2 id="limites">14. Grenzen und künftige Arbeit</h2>
+      <p>Zu sagen, was nicht gelöst ist, gehört zur Sicherheit.</p>
+      <ul>
+        <li><strong>Wahlgeheimnis gegenüber einem manipulierten Gerät.</strong> Das Gerät sieht die Stimme, wie das heutige. Manipuliert, kann es den
+          Zufall so wählen, dass die Bilder den Kandidaten „kodieren“ — ein im Labor demonstrierter verdeckter Kanal (20 von 20 Stimmen offengelegt
+          mit höchstens einigen Dutzend Verschlüsselungen pro Stimme). Die Integrität hängt nicht vom Vertrauen in das Gerät ab; das Wahlgeheimnis
+          ihm gegenüber schon. Künftig: Zufall aus einem zweiten, unabhängigen Gerät mit Neuverschlüsselung vor dem Siegel.</li>
+        <li><strong>Ein Insider mit Geräte- und Vorstandsschlüssel</strong> kann ein mathematisch perfektes Wahllokal fabrizieren. Ertappt wird er
+          durch die Wähler und das Papier-BU; deshalb bleiben Papier und die Fotos der Beobachter unverzichtbar.</li>
+        <li><strong>Clash-Angriff zwischen Wählern</strong>: Ein manipuliertes Gerät könnte zwei Wählern denselben Stimmzettel zeigen. Jeder findet
+          für sich „seinen“ Code; entdeckt wird das nur durch den Vergleich von Belegen.</li>
+        <li><strong>Der Test ist probabilistisch</strong> und hängt davon ab, wie viele Wähler testen.</li>
+        <li><strong>Drei von drei Trustees.</strong> Im Produktivbetrieb: Schwelle <em>t</em>-aus-<em>n</em> mit verteilter Schlüsselerzeugung.</li>
+        <li><strong>RSA-FDH</strong> bei den Nachweisen. Im Produktivbetrieb: standardisierte blinde Signaturen (RFC 9474).</li>
+        <li><strong>Schlüssel in Software.</strong> Im Produktivbetrieb: Hardwaremodule (HSM/TPM), Measured Boot und reproduzierbare Builds.</li>
+        <li><strong>Zwang vor Ort</strong> (jemand in der Kabine, ein Foto des Bildschirms) liegt außerhalb der Reichweite der Kryptografie.</li>
+        <li><strong>Code nicht von Dritten geprüft.</strong></li>
+      </ul>
+
+      <h2 id="qrcode">15. Einführung ohne Drucker: Beleg per QR-Code</h2>
+      <p>
+        Ein Thermodrucker in jedem Gerät (dazu Papier, Wartung und Logistik) ist der teuerste Posten dieses Entwurfs. Um ohne diese Kosten zu
+        beginnen, kann der Beleg digital ausgegeben werden, <strong>am Wahlhelfer-Terminal, nach der Stimmabgabe</strong>:
+      </p>
+      <ol>
+        <li>Der Wähler wählt (und testet, wenn er möchte) am Gerät wie oben beschrieben. Das Gerät zeigt wie immer Bilder, Code und Prüfcode auf dem eigenen Bildschirm.</li>
+        <li>Wenn der Wähler bestätigt, sendet das Gerät den Beleg über denselben lokalen Kanal, den es schon für die Freigabe nutzt, ohne Internet an das Wahlhelfer-Terminal.</li>
+        <li>Der Wähler verlässt die Kabine, und das Terminal zeigt einen <strong>QR-Code</strong> mit dem Beleg in einem ihm zugewandten Bereich des Bildschirms. Er fotografiert den Code mit dem Handy, und der Bildschirm wird geleert, sobald der nächste Wähler freigegeben wird.</li>
+        <li>Zu Hause liest die Prüfseite oder der Offline-Validator den QR-Code und führt dieselben Prüfungen wie beim Papier durch: Stimme, Test und BU.</li>
+      </ol>
+      <h3>Was im QR-Code steht</h3>
+      <p>
+        Genau das, was auf dem Papier steht: Stimmcode, Prüfcode, Namen der Bilder und die Signatur des Geräts über den Beleg. Für jeden Test der
+        erklärte Kandidat, der Code, der Schlüssel des Teststimmzettels und die signierte Erklärung. Mit ein oder zwei Teststimmzetteln sind das
+        einige hundert Zeichen, die in einen mittelgroßen QR-Code passen, der sich leicht vom Bildschirm lesen lässt. Ist der Code eine Adresse
+        der Prüfseite, müssen die Daten hinter das <code>#</code> (das URL-Fragment), das der Browser nicht an den Server sendet:
+      </p>
+      <pre>https://&lt;Prüfseite&gt;/verificar#v=1&amp;c=0100123WGFTT&amp;k=9RD2RJJP&amp;s=…&amp;t=…</pre>
+      <h3>Warum am Wahlhelfer-Terminal und nicht in der Kabine</h3>
+      <ul>
+        <li><strong>Das Gesetz verbietet Handys in der Kabine.</strong> Das brasilianische Gesetz 9.504/1997, Art. 91-A, einziger Absatz, verbietet das Mitführen von Handys und Fotokameras in die Wahlkabine. Mit dem QR-Code am Terminal benutzt der Wähler das Handy erst nach dem Verlassen.</li>
+        <li><strong>Das Terminal existiert bereits.</strong> Keine neue Hardware, nur Software. Die Einführungskosten liegen nahe null.</li>
+        <li><strong>Papier bleibt möglich.</strong> Beide Formen können nebeneinander bestehen: QR-Code als Standard und Papier für alle, die es verlangen oder kein Handy haben. Das erlaubt einen schrittweisen Übergang, Lokal für Lokal.</li>
+      </ul>
+      <h3>Was sich für die Sicherheit ändert</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Punkt</th><th>Analyse</th></tr></thead>
+          <tbody>
+            <tr><td>Könnte das Wahlhelfer-Terminal einen falschen QR-Code zeigen?</td><td>Nicht unbemerkt. Beleg und Testerklärung sind vom Gerät signiert, mit dem beim Laden veröffentlichten Schlüssel, und der Validator prüft diese Signaturen. Ein veränderter oder vertauschter Code passt nicht: Die Bilder weichen von denen ab, die das Gerät auf seinem Bildschirm zeigte, oder die Signatur schlägt fehl.</td></tr>
+            <tr><td>Sieht der Wahlhelfer den Beleg?</td><td>Möglicherweise, und das verrät die Stimme nicht: Code und Bilder hängen nicht vom Kandidaten ab. Der Testteil zeigt den <em>getesteten</em> Kandidaten, der zu einem ungültigen Stimmzettel gehört. Aus Diskretion erscheint der QR-Code in einem dem Wähler zugewandten Bereich und verschwindet mit der nächsten Freigabe.</td></tr>
+            <tr><td>Und wenn das Terminal den QR-Code nicht zeigt?</td><td>Der Wähler verliert nur die spätere Prüfung. Die Stimme ist bereits abgegeben und gezählt. Eine systematische Verweigerung von Belegen ist sichtbar und kann von Beobachtern festgehalten werden.</td></tr>
+            <tr><td>Anker gegen ein manipuliertes Gerät</td><td>Bleibt das, was das Gerät vor der Entscheidung auf dem eigenen Bildschirm gezeigt hat: die 2 Bilder, der Code und der Prüfcode. Der Wähler prüft, dass der QR-Code dieselben Werte enthält. So bleibt die 81-Bit-Festlegung aus Abschnitt 8.4 erhalten.</td></tr>
+            <tr><td>Stimmenkauf</td><td>Wie beim Papier: Der QR-Code beweist nicht, wen die Person gewählt hat.</td></tr>
+            <tr><td>Inklusion</td><td>Nicht jeder Wähler hat ein Handy mit Kamera. Deshalb sollte Druck auf Anfrage verfügbar bleiben, auch wenn es nur wenige Drucker pro Wahlort gibt.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Noch nicht im Prototyp.</strong> Heute druckt der Prototyp den Beleg auf Papier (auf dem Bildschirm simuliert). Der QR-Code am
+          Wahlhelfer-Terminal ist der Vorschlag für die erste Einführungsphase. Die Kryptografie ändert sich nicht: Nur der Weg, auf dem der Beleg
+          übergeben wird, ändert sich.
+        </p>
+      </div>
+
+      <h2 id="reproduzir">16. Nachvollziehen</h2>
+      <p>Der Prototyp läuft auf einem einzigen Computer, ohne Internetzugang während der Ausführung. Code: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
+      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev               # http://127.0.0.1:3000
+npm run teste             # Protokoll im Speicher: Prüfer, zu Hause wiederholter Test und 14 Angriffe
+npm run teste:invasao     # vollständige Wahl über die echten Module + Penetrationsbericht
+npm run validador         # erzeugt den Offline-Validator (eine einzelne HTML-Datei)
+npm run auditar -- pacote.json
+npm run verificar -- pacote.json &lt;Code&gt; ["Testschlüssel"]
+npm run verificar -- pacote.json --bu 010-0123</pre>
+      <h3>Ablauf der Demo</h3>
+      <ol>
+        <li><strong>Admin → Wahl:</strong> Legen Sie die Wahl an (Kandidaten lassen sich bearbeiten).</li>
+        <li><strong>Trustees:</strong> Erzeugen Sie die drei Schlüssel; danach in Admin <em>Wahl eröffnen</em>.</li>
+        <li><strong>Register:</strong> Erzeugen Sie fiktive Wähler.</li>
+        <li><strong>Wahlhelfer:</strong> Öffnen Sie Terminal und Gerät in getrennten Fenstern. Am Gerät über die Tastatur installieren (Zone und Lokal) und CONFIRMA zum Laden drücken. Am Terminal das Wahllokal öffnen.</li>
+        <li><strong>Wählen:</strong> Einen Wähler freigeben, eine Nummer eingeben, TESTAR und dann CONFIRMA drücken; den Beleg aufbewahren.</li>
+        <li><strong>Schließen:</strong> Das Lokal schließen (BU) und das Medium übertragen; in Admin die Annahme beenden; in Trustees entschlüsseln.</li>
+        <li><strong>Zu Hause:</strong> Stimme prüfen (Code), Test prüfen (Beleg einfügen), Protokoll des Wahllokals und Prüfung.</li>
+        <li><strong>Betrug:</strong> Admin → Angriffslabor → <em>Die 7 Beispielgeräte anlegen</em> → <em>Alles simulieren und übertragen</em> → <em>Zu Hause prüfen</em>.</li>
+      </ol>
+      <p>
+        Um nicht von der heruntergeladenen Validator-Datei abzuhängen, erzeugen Sie sie aus dem Quellcode neu und vergleichen den SHA-256: Der
+        Build ist deterministisch. Die vollständige Spezifikation — Formate, Hash-Domänen, Prüfungen und API — liegt dem Code bei, und eine
+        unabhängige Implementierung (zum Beispiel in Python) muss die Pakete des Prototyps akzeptieren und dieselben Manipulationen ablehnen.
+      </p>
+
+      <h2 id="fontes">Quellen</h2>
+      <div class="refs">
+        <div class="grupo">Reale Schwachstellen in Wahlsystemen</div>
+        <ol>
+          <li>Aranha, D. F.; Karam, M. M.; Miranda, A.; Scarel, F. <em>Vulnerabilidades no software da urna eletrônica brasileira</em> [Schwachstellen in der Software des brasilianischen Wahlgeräts]. Technischer Bericht zum öffentlichen Sicherheitstest, 2012. Englische Fassung: „Software vulnerabilities in the Brazilian voting machine“, in <em>Design, Development, and Use of Secure Electronic Voting Systems</em>, IGI Global, 2014.</li>
+          <li>Aranha, D. F.; Barbosa, P. Y. S.; Cardoso, T. N. C.; Araújo, C. L.; Matias, P. „The return of software vulnerabilities in the Brazilian voting machine“. <em>Computers &amp; Security</em>, Bd. 86, 2019.</li>
+          <li>Tribunal Superior Eleitoral (Oberstes Wahlgericht Brasiliens). Öffentliche Sicherheitstests des elektronischen Wahlsystems — Dokumentation und Berichte. justicaeleitoral.jus.br.</li>
+          <li>Hursti, H. <em>Critical Security Issues with Diebold Optical Scan Design.</em> Black Box Voting Project, 2005.</li>
+          <li>Wolchok, S.; Wustrow, E.; Isabel, D.; Halderman, J. A. „Attacking the Washington, D.C. Internet Voting System“. <em>Financial Cryptography and Data Security</em>, 2012.</li>
+          <li>Gaudry, P.; Golovnev, A. „Breaking the Encryption Scheme of the Moscow Internet Voting System“. <em>Financial Cryptography and Data Security</em>, 2020.</li>
+          <li>Lewis, S. J.; Pereira, O.; Teague, V. „Ceci n'est pas une preuve: the use of trapdoor commitments in Bayer-Groth proofs and the implications for the verifiability of the Scytl-SwissPost Internet voting system“, 2019.</li>
+          <li>Bernhard, D.; Pereira, O.; Warinschi, B. „How Not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic and Applications to Helios“. <em>ASIACRYPT</em>, 2012.</li>
+        </ol>
+
+        <div class="grupo">Ende-zu-Ende-verifizierbare Wahlen</div>
+        <ol start="9">
+          <li>Benaloh, J. „Simple Verifiable Elections“. <em>USENIX/ACCURATE Electronic Voting Technology Workshop (EVT)</em>, 2006.</li>
+          <li>Benaloh, J. „Ballot Casting Assurance via Voter-Initiated Poll Station Auditing“. <em>EVT</em>, 2007.</li>
+          <li>Adida, B. „Helios: Web-based Open-Audit Voting“. <em>USENIX Security Symposium</em>, 2008.</li>
+          <li>Bell, S.; Benaloh, J.; Byrne, M. D.; DeBeauvoir, D.; Eakin, B.; Fisher, G.; Kortum, P.; McBurnett, N.; Montoya, J.; Parker, M.; Pereira, O.; Stark, P. B.; Wallach, D. S.; Winn, M. „STAR-Vote: A Secure, Transparent, Auditable, and Reliable Voting System“. <em>USENIX Journal of Election Technology and Systems (JETS)</em>, 2013.</li>
+          <li>Benaloh, J.; Naehrig, M. <em>ElectionGuard Design Specification</em>, Version 2.0. Microsoft, 2023. electionguard.vote.</li>
+          <li>Cramer, R.; Gennaro, R.; Schoenmakers, B. „A Secure and Optimally Efficient Multi-Authority Election Scheme“. <em>EUROCRYPT</em>, 1997.</li>
+          <li>Küsters, R.; Truderung, T.; Vogt, A. „Clash Attacks on the Verifiability of E-Voting Systems“. <em>IEEE Symposium on Security and Privacy</em>, 2012.</li>
+          <li>Rivest, R. L. „On the notion of 'software independence' in voting systems“. <em>Philosophical Transactions of the Royal Society A</em>, Bd. 366, 2008.</li>
+          <li>Stark, P. B.; Wagner, D. „Evidence-Based Elections“. <em>IEEE Security &amp; Privacy</em>, Bd. 10, Nr. 5, 2012.</li>
+          <li>Bernhard, M.; Benaloh, J.; Halderman, J. A.; Rivest, R. L.; Ryan, P. Y. A.; Stark, P. B.; Teague, V.; Vora, P. L.; Wallach, D. S. „Public Evidence from Secret Ballots“. <em>E-Vote-ID</em>, 2017.</li>
+          <li>National Institute of Standards and Technology. <em>Voluntary Voting System Guidelines (VVSG) 2.0</em>, 2021.</li>
+        </ol>
+
+        <div class="grupo">Kryptografische Bausteine</div>
+        <ol start="20">
+          <li>ElGamal, T. „A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms“. <em>IEEE Transactions on Information Theory</em>, Bd. 31, Nr. 4, 1985.</li>
+          <li>Chaum, D. „Blind Signatures for Untraceable Payments“. <em>CRYPTO '82</em>, 1983.</li>
+          <li>Chaum, D.; Pedersen, T. P. „Wallet Databases with Observers“. <em>CRYPTO '92</em>, 1993.</li>
+          <li>Cramer, R.; Damgård, I.; Schoenmakers, B. „Proofs of Partial Knowledge and Simplified Design of Witness Hiding Protocols“. <em>CRYPTO '94</em>, 1994.</li>
+          <li>Schnorr, C. P. „Efficient Signature Generation by Smart Cards“. <em>Journal of Cryptology</em>, Bd. 4, 1991.</li>
+          <li>Fiat, A.; Shamir, A. „How to Prove Yourself: Practical Solutions to Identification and Signature Problems“. <em>CRYPTO '86</em>, 1987.</li>
+          <li>Pedersen, T. P. „A Threshold Cryptosystem without a Trusted Party“. <em>EUROCRYPT '91</em>, 1991.</li>
+          <li>IETF RFC 8032 — <em>Edwards-Curve Digital Signature Algorithm (EdDSA)</em>, 2017.</li>
+          <li>IETF RFC 9496 — <em>The ristretto255 and decaf448 Groups</em>, 2023.</li>
+          <li>IETF RFC 9474 — <em>RSA Blind Signatures</em>, 2023.</li>
+          <li>NIST FIPS 180-4 — <em>Secure Hash Standard (SHS)</em>, 2015.</li>
+          <li>Crockford, D. <em>Base 32</em> (Alphabet ohne mehrdeutige Zeichen). crockford.com/base32.html.</li>
+        </ol>
+
+        <div class="grupo">Gesetze und Normen</div>
+        <ol start="32">
+          <li>Brasilien. Gesetz Nr. 9.504 vom 30. September 1997 (Wahlgesetz), Art. 91-A, einziger Absatz, eingefügt durch Gesetz Nr. 12.034/2009: Verbot, Handys, Fotokameras und Videokameras in die Wahlkabine mitzunehmen. planalto.gov.br.</li>
+          <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
+        </ol>
+
+        <div class="grupo">Im Prototyp verwendete Software und Daten</div>
+        <ol start="34">
+          <li>Miller, P. <em>noble-curves</em> und <em>noble-hashes</em>: geprüfte Bibliotheken für elliptische Kurven und Hashes in JavaScript. github.com/paulmillr.</li>
+          <li>Tribunal Superior Eleitoral. Open-Data-Portal: Wahlkampffotos der Kandidaten (Lizenz CC BY). dadosabertos.tse.jus.br.</li>
+          <li>Projekt T-VOTE. Quellcode, Protokollspezifikation (<code>docs/PROTOCOLO.md</code>) und Bericht der Penetrationstests (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, sans-serif" });
+</script>
+</body>
+</html>

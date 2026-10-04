@@ -4,9 +4,9 @@
 // resposta até a mesa mexer na urna (ou 25 s). Assim a urna reage na hora,
 // mesmo numa aba em segundo plano — onde o navegador congela timers, mas não
 // respostas de rede.
-type Memoria = { __taiVoteEspera?: Map<string, Set<() => void>> };
+type Memoria = { __tVoteEspera?: Map<string, Set<() => void>> };
 const memoria = globalThis as unknown as Memoria;
-const espera = (memoria.__taiVoteEspera ??= new Map());
+const espera = (memoria.__tVoteEspera ??= new Map());
 
 /** Acorda quem espera por esta urna. */
 export function notificarUrna(urnaId: string) {

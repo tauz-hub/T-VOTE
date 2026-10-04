@@ -1,4 +1,4 @@
-# TAI-VOTE — urna eletrônica que o eleitor confere em casa
+# T-VOTE — urna eletrônica que o eleitor confere em casa
 
 protótipo(Next.js + SQLite) de uma urna eletrônica **verificável de ponta a ponta**, desenhada para
 funcionar como a urna brasileira de hoje — seção sem rede, mesário liberando a urna, zerésima de manhã, boletim de
@@ -12,7 +12,7 @@ urna (BU) colado na porta da escola à tarde — com uma diferença:
 
 ## Por que isto é diferente da urna de hoje
 
-| | Urna atual | TAI-VOTE |
+| | Urna atual | T-VOTE |
 |---|---|---|
 | Seção funciona sem internet | ✓ | ✓ (urna e mesário só falam entre si) |
 | Zerésima e BU impressos na seção | ✓ | ✓ — e assinados pela chave da própria urna |
@@ -155,7 +155,7 @@ npm run verificar -- pacote.json <código> ["chave"]  # validador do eleitor
 npm run verificar -- pacote.json --bu 010-0123       # BU publicado de uma seção
 ```
 
-Requer Node 20+. Dados em `data/` (`TAI_VOTE_DADOS=<pasta>` usa outra pasta). Fotos padrão dos candidatos: divulgação
+Requer Node 20+. Dados em `data/` (`T_VOTE_DADOS=<pasta>` usa outra pasta). Fotos padrão dos candidatos: divulgação
 do TSE (CC BY, `public/candidatos/CREDITOS.md`); em execução nada é buscado na internet.
 
 ### Roteiro de teste

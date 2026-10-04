@@ -1,185 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>White Paper TAI-VOTE</title>
+<title>White Paper T-VOTE</title>
+<meta name="description" content="T-VOTE: uma urna eletrônica que o eleitor confere em casa. Validação pelo eleitor, o sistema tela por tela, protocolo criptográfico, testes de invasão e fontes.">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
-<style>
-/* Layout: documento longo em uma coluna de leitura (~68ch), com sumário fixo à esquerda em telas largas.
-   Parte I usa "cartões de urna" para o caminho do eleitor; Parte II é densa, com tabelas e blocos de fórmula. */
-:root {
-  --fundo: #f6f7f9;
-  --papel: #ffffff;
-  --tinta: #1b2330;
-  --suave: #5b6576;
-  --linha: #dde1e8;
-  --acento: #1f4e8c;      /* azul-tinta de cédula */
-  --acento-fundo: #e8eef8;
-  --ok: #1f7a4d;
-  --ok-fundo: #e5f4ec;
-  --alerta: #b45309;
-  --alerta-fundo: #fdf1e2;
-  --falha: #b42318;
-  --falha-fundo: #fbe9e7;
-  --urna: #c9c4b6;        /* gabinete da urna */
-  --tela: #f3f1e7;        /* tela da urna */
-  --codigo-fundo: #eef1f5;
-  --f-display: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --f-texto: "Literata", Georgia, "Times New Roman", serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
-    --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
-    --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
-    --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --fundo: #0f141b; --papel: #161d27; --tinta: #e4e8ef; --suave: #9aa4b5; --linha: #2a3442;
-  --acento: #8fb4ee; --acento-fundo: #1b2a40; --ok: #5fd39a; --ok-fundo: #12291f;
-  --alerta: #f2b26b; --alerta-fundo: #2e2112; --falha: #ff8a7a; --falha-fundo: #33171a;
-  --urna: #4a4740; --tela: #232a22; --codigo-fundo: #1d2532; color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-body { background: var(--fundo); color: var(--tinta); font-family: var(--f-texto); font-size: 17px; line-height: 1.65; }
-.pagina { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2.5rem; max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 2.5rem 5rem; }
-@media (min-width: 1040px) { .pagina { grid-template-columns: 15rem minmax(0, 1fr); } }
-
-/* sumário */
-nav.sumario { font-family: var(--f-display); font-size: 0.86rem; }
-@media (min-width: 1040px) { nav.sumario { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); align-self: start; max-height: calc(100vh - 3rem); overflow-y: auto; } }
-nav.sumario h2 { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--suave); margin: 0 0 0.6rem; }
-nav.sumario ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.15rem; }
-nav.sumario a { color: var(--tinta); text-decoration: none; display: block; padding: 0.2rem 0.5rem; border-radius: 6px; }
-nav.sumario a:hover, nav.sumario a:focus-visible { background: var(--acento-fundo); color: var(--acento); outline: none; }
-nav.sumario .parte { margin-top: 0.8rem; color: var(--suave); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding-left: 0.5rem; }
-
-article { min-width: 0; }
-.coluna { max-width: 68ch; }
-h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.2; text-wrap: balance; color: var(--tinta); }
-h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin: 0.4rem 0 1rem; letter-spacing: -0.01em; }
-h2 { font-size: 1.65rem; font-weight: 700; margin: 3.2rem 0 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--linha); scroll-margin-top: 1rem; }
-h3 { font-size: 1.2rem; font-weight: 600; margin: 2rem 0 0.5rem; scroll-margin-top: 1rem; }
-h4 { font-size: 1rem; font-weight: 600; margin: 1.4rem 0 0.4rem; }
-p { margin: 0 0 1rem; }
-a { color: var(--acento); }
-.rotulo { font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--acento); }
-.lead { font-size: 1.2rem; line-height: 1.55; color: var(--tinta); }
-.meta { font-family: var(--f-display); font-size: 0.85rem; color: var(--suave); display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
-.parte-titulo { margin-top: 4rem; padding: 1.4rem 1.6rem; background: var(--acento-fundo); border-radius: 12px; }
-.parte-titulo h2 { border: 0; margin: 0.2rem 0 0.4rem; padding: 0; }
-.parte-titulo p { margin: 0; color: var(--suave); font-family: var(--f-display); font-size: 0.95rem; }
-
-ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
-li { margin: 0.25rem 0; }
-strong { font-weight: 600; }
-code, .mono { font-family: var(--f-mono); font-size: 0.86em; }
-code { background: var(--codigo-fundo); padding: 0.08em 0.35em; border-radius: 4px; }
-pre { font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.55; background: var(--codigo-fundo); padding: 1rem 1.1rem; border-radius: 8px; overflow-x: auto; margin: 0 0 1.2rem; }
-
-.aviso { border-radius: 10px; padding: 0.9rem 1.1rem; margin: 1.2rem 0; font-family: var(--f-display); font-size: 0.93rem; line-height: 1.55; }
-.aviso p:last-child { margin: 0; }
-.aviso.info { background: var(--acento-fundo); }
-.aviso.ok { background: var(--ok-fundo); }
-.aviso.alerta { background: var(--alerta-fundo); }
-.aviso.falha { background: var(--falha-fundo); }
-.aviso strong { color: var(--tinta); }
-
-/* tabelas */
-.tabela { overflow-x: auto; margin: 0 0 1.4rem; }
-table { border-collapse: collapse; width: 100%; font-family: var(--f-display); font-size: 0.88rem; line-height: 1.45; }
-th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--linha); vertical-align: top; }
-th { font-weight: 600; color: var(--suave); font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-.chip { display: inline-block; font-family: var(--f-display); font-size: 0.75rem; font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 999px; white-space: nowrap; }
-.chip.ok { background: var(--ok-fundo); color: var(--ok); }
-.chip.falha { background: var(--falha-fundo); color: var(--falha); }
-.chip.alerta { background: var(--alerta-fundo); color: var(--alerta); }
-
-/* passos do eleitor */
-.passos { list-style: none; padding: 0; margin: 1.4rem 0; display: grid; gap: 1rem; counter-reset: passo; }
-.passos > li { counter-increment: passo; display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0.9rem; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; margin: 0; }
-.passos > li::before { content: counter(passo); font-family: var(--f-display); font-weight: 700; font-size: 1.1rem; width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; background: var(--acento); color: var(--papel); }
-.passos h4 { margin: 0.2rem 0 0.3rem; }
-.passos p { margin: 0; font-size: 0.98rem; }
-
-/* tela da urna e comprovante de exemplo */
-.lado-a-lado { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; margin: 1.4rem 0; align-items: start; }
-@media (min-width: 760px) { .lado-a-lado { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
-.urna { background: var(--urna); border-radius: 14px; padding: 0.9rem; }
-.urna .tela { background: var(--tela); border: 4px solid color-mix(in srgb, var(--urna) 70%, #000 30%); border-radius: 8px; padding: 1rem; font-family: var(--f-mono); font-size: 0.82rem; color: var(--tinta); }
-.urna .tela .t { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--suave); }
-.figuras { display: flex; gap: 0.7rem; justify-content: center; margin: 0.7rem 0; }
-.figura { display: grid; justify-items: center; background: var(--papel); border: 2px solid var(--linha); border-radius: 10px; padding: 0.35rem 0.8rem; font-family: var(--f-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.05em; }
-.figura span { font-size: 2.2rem; line-height: 1.2; }
-.codigo-urna { display: flex; justify-content: center; gap: 1rem; font-family: var(--f-mono); font-weight: 600; font-size: 1.25rem; text-align: center; }
-.codigo-urna small { display: block; font-size: 0.6rem; font-weight: 400; letter-spacing: 0.08em; color: var(--suave); }
-.teclas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; margin-top: 0.7rem; font-family: var(--f-display); font-size: 0.7rem; font-weight: 700; text-align: center; }
-.teclas span { border-radius: 5px; padding: 0.45rem 0.2rem; color: #1b2330; }
-.k-branco { background: #ffffff; } .k-corrige { background: #f28b2c; } .k-confirma { background: #3db37a; } .k-testar { background: #7cc3ef; }
-.papel { background: #ffffff; color: #111; font-family: var(--f-mono); font-size: 0.74rem; line-height: 1.45; padding: 1rem 1.1rem; border-radius: 2px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.18); max-width: 22rem; margin-inline: auto; }
-.papel .c { text-align: center; }
-.papel .b { font-weight: 600; }
-.papel hr { border: 0; border-top: 1px dashed #111; margin: 0.55rem 0; }
-.papel .grande { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.08em; }
-.papel .miudo { font-size: 0.56rem; word-break: break-all; color: #333; }
-.legenda { font-family: var(--f-display); font-size: 0.8rem; color: var(--suave); text-align: center; margin-top: 0.5rem; }
-
-/* três conferências */
-.tres { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 1.2rem 0 1.6rem; }
-@media (min-width: 760px) { .tres { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-.tres > div { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 1rem 1.1rem; font-family: var(--f-display); font-size: 0.9rem; line-height: 1.5; }
-.tres h4 { margin: 0 0 0.4rem; font-size: 1rem; }
-.tres p { margin: 0 0 0.5rem; }
-.tres .usa { color: var(--suave); font-size: 0.8rem; }
-
-.formula { font-family: var(--f-mono); font-size: 0.85rem; background: var(--codigo-fundo); border-radius: 8px; padding: 0.8rem 1rem; margin: 0 0 1.2rem; overflow-x: auto; white-space: pre; line-height: 1.6; }
-pre.mermaid { background: var(--papel); border: 1px solid var(--linha); text-align: center; }
-
-.faq details { border-bottom: 1px solid var(--linha); padding: 0.7rem 0; }
-.faq summary { font-family: var(--f-display); font-weight: 600; cursor: pointer; }
-.faq details p { margin: 0.6rem 0 0.2rem; }
-
-.refs ol { font-family: var(--f-display); font-size: 0.86rem; line-height: 1.5; padding-left: 1.6rem; }
-.refs li { margin: 0.45rem 0; }
-.refs .grupo { margin-top: 1.6rem; font-family: var(--f-display); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--suave); }
-
-:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-html { scroll-behavior: smooth; }
-
-/* projeto e download */
-.projeto { margin: 1.6rem 0 0.4rem; padding: 1.1rem 1.2rem; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; font-family: var(--f-display); }
-.projeto h2 { margin: 0 0 0.3rem; padding: 0; border: 0; font-size: 1.15rem; }
-.projeto p { font-size: 0.92rem; color: var(--suave); margin: 0 0 0.8rem; }
-.botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
-.botoes a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 8px; border: 1px solid var(--linha); color: var(--tinta); text-decoration: none; font-size: 0.88rem; font-weight: 500; background: var(--fundo); }
-.botoes a:hover, .botoes a:focus-visible { border-color: var(--acento); color: var(--acento); }
-.botoes a.principal { background: var(--acento); border-color: var(--acento); color: var(--papel); }
-.botoes a.principal:hover { color: var(--papel); filter: brightness(1.08); }
-.projeto pre { margin: 0; font-size: 0.8rem; }
-.projeto .lista-docs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem 1.2rem; font-size: 0.88rem; margin: 0.9rem 0 0; padding: 0; list-style: none; }
-@media (min-width: 640px) { .projeto .lista-docs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-
-/* capturas de tela */
-.coluna { max-width: 920px; }
-.coluna > p, .coluna > ul, .coluna > ol, .coluna > .lead, .coluna > h1, .coluna > .formula, .coluna > pre { max-width: 68ch; }
-figure.tela { margin: 1rem 0 1.6rem; }
-figure.tela a { display: block; border-radius: 10px; overflow: hidden; border: 1px solid var(--linha); background: var(--papel); }
-figure.tela img { display: block; width: 100%; height: auto; }
-figure.tela .rolagem { max-height: 620px; overflow: auto; }
-figure.tela figcaption { font-family: var(--f-display); font-size: 0.85rem; line-height: 1.5; color: var(--suave); margin-top: 0.5rem; }
-figure.papel-foto a { max-width: 340px; margin-inline: auto; }
-.par { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 1.2rem; }
-@media (min-width: 760px) { .par { grid-template-columns: repeat(2, minmax(0, 1fr)); } .par.estreito { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); align-items: start; } }
-.nota-lado { font-family: var(--f-display); font-size: 0.92rem; line-height: 1.55; background: var(--acento-fundo); border-radius: 12px; padding: 1rem 1.1rem; margin: 1rem 0; }
-.nota-lado h4 { margin: 0 0 0.4rem; }
-.nota-lado ul { margin: 0; }
-</style>
-
+<link rel="stylesheet" href="assets/whitepaper.css">
+</head>
+<body>
+<nav class="idiomas" aria-label="Idioma">
+  <span class="globo" aria-hidden="true">🌐</span>
+  <a href="index.html" lang="pt-BR" hreflang="pt-BR" aria-current="page">Português</a>
+  <a href="en/index.html" lang="en" hreflang="en">English</a>
+  <a href="es/index.html" lang="es" hreflang="es">Español</a>
+  <a href="de/index.html" lang="de" hreflang="de">Deutsch</a>
+  <a href="ru/index.html" lang="ru" hreflang="ru">Русский</a>
+  <a href="zh/index.html" lang="zh-CN" hreflang="zh-CN">中文</a>
+</nav>
 <div class="pagina">
   <nav class="sumario" aria-label="Sumário">
     <h2>Sumário</h2>
@@ -211,7 +58,8 @@ figure.papel-foto a { max-width: 340px; margin-inline: auto; }
       <li><a href="#ameacas">12. Ameaças e testes de invasão</a></li>
       <li><a href="#sigilo">13. Sigilo e a lição do TPS 2012</a></li>
       <li><a href="#limites">14. Limites e trabalho futuro</a></li>
-      <li><a href="#reproduzir">15. Como reproduzir</a></li>
+      <li><a href="#qrcode">15. Implantação sem impressora: QR code</a></li>
+      <li><a href="#reproduzir">16. Como reproduzir</a></li>
       <li><a href="#fontes">Fontes</a></li>
     </ol>
   </nav>
@@ -219,7 +67,7 @@ figure.papel-foto a { max-width: 340px; margin-inline: auto; }
   <article>
     <div class="coluna">
       <div class="rotulo">White paper · versão 1 · outubro de 2026</div>
-      <h1>TAI-VOTE: uma urna eletrônica que o eleitor confere em casa</h1>
+      <h1>T-VOTE: uma urna eletrônica que o eleitor confere em casa</h1>
       <p class="lead">
         Como votar numa urna que funciona como a de hoje — seção sem internet, mesário, zerésima, boletim de urna na porta da escola — e,
         depois, conferir no próprio computador que o seu voto foi registrado e contado como você votou, sem precisar confiar na urna, no
@@ -265,7 +113,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
 
       <h2 id="resumo">Resumo</h2>
       <p>
-        O TAI-VOTE é um desenho de votação eletrônica <strong>verificável de ponta a ponta</strong> (em inglês, <em>end-to-end
+        O T-VOTE é um desenho de votação eletrônica <strong>verificável de ponta a ponta</strong> (em inglês, <em>end-to-end
         verifiable</em>, ou E2E-V). Ele mantém o fluxo que o eleitor brasileiro já conhece e acrescenta três conferências que qualquer
         pessoa pode fazer em casa, com um programa de código aberto e uma cópia pública da eleição:
       </p>
@@ -299,7 +147,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
         próprio voto.
       </p>
       <p>
-        No TAI-VOTE, a urna continua no canto da sala, sem internet, e você continua apertando os mesmos botões. A diferença é que ela
+        No T-VOTE, a urna continua no canto da sala, sem internet, e você continua apertando os mesmos botões. A diferença é que ela
         <strong>se compromete</strong> com o que gravou antes de saber o que você vai fazer, e depois deixa rastros que você confere em
         casa. Se ela trapacear, a trapaça aparece. Se o órgão que soma os votos trapacear, também aparece. E, mesmo assim, ninguém —
         nem você — consegue provar a outra pessoa em quem você votou. É isso que impede a compra de votos.
@@ -336,6 +184,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
           <div>
             <h4>Sai um papel só</h4>
             <p>O comprovante tem o código do voto, uma “conferência” de 8 caracteres e o nome das duas figuras. Se você testou, o mesmo papel traz o teste: o candidato que a urna disse ter encontrado, o código do teste e a chave daquela cédula de teste.</p>
+            <p style="margin-top:.4rem">Numa primeira fase, sem impressora, o comprovante pode sair como um <strong>QR code na tela do terminal do mesário</strong>: o eleitor sai da cabine e fotografa o código com o celular (<a href="#qrcode">seção 15</a>).</p>
           </div>
         </li>
       </ol>
@@ -489,6 +338,10 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
           <p>Não. É um registro público em que cada página aponta para a anterior e é assinada pelo órgão eleitoral. Não há mineração nem moeda: é só um jeito de qualquer pessoa conferir que ninguém mudou o que foi publicado.</p>
         </details>
         <details>
+          <summary>E se a seção não tiver impressora?</summary>
+          <p>O comprovante pode ser entregue como um QR code na tela do terminal do mesário, depois do voto. O eleitor, já fora da cabine, fotografa o código com o celular. O conteúdo é o mesmo do papel e vem assinado pela urna, então o terminal não consegue alterá-lo sem ser pego. Quem não tiver celular pode pedir a versão impressa.</p>
+        </details>
+        <details>
           <summary>Testar a urna atrasa a fila?</summary>
           <p>Poucos segundos. A cédula de teste é aberta na hora, e para votar de verdade basta apertar CONFIRMA de novo — sem redigitar o número.</p>
         </details>
@@ -527,7 +380,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
           </tbody>
         </table>
       </div>
-      <figure class="tela"><a href="img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="img/00-inicio.webp" alt="Página inicial do TAI-VOTE com o menu de abas e o resumo do fluxo" loading="lazy"></div></a>
+      <figure class="tela"><a href="img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="img/00-inicio.webp" alt="Página inicial do T-VOTE com o menu de abas e o resumo do fluxo" loading="lazy"></div></a>
         <figcaption>Página inicial: o menu no topo leva a cada ator do sistema.</figcaption></figure>
 
       <h2 id="t-preparo">B. Antes da eleição</h2>
@@ -631,8 +484,8 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
       </p>
       <figure class="tela"><a href="img/30-laboratorio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="img/30-laboratorio.webp" alt="Laboratório com as sete urnas de exemplo transmitidas" loading="lazy"></div></a>
         <figcaption>22. As sete urnas de exemplo, já transmitidas. Todas passam na auditoria matemática, e cada uma é pega em casa de um jeito.</figcaption></figure>
-      <figure class="tela"><a href="img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="img/31-teste-fraude.webp" alt="Conferir teste com veredito FRAUDE: a urna disse 12 e a conta deu 38" loading="lazy"></div></a>
-        <figcaption>23. A urna que desvia votos: no papel ela disse 12, e o computador do eleitor reproduziu 38. A declaração assinada vira prova.</figcaption></figure>
+      <figure class="tela"><a href="img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="img/31-teste-fraude.webp" alt="Conferir teste com veredito FRAUDE: a urna disse 25 e a conta deu 61" loading="lazy"></div></a>
+        <figcaption>23. A urna que desvia votos: no papel ela disse 25, e o computador do eleitor reproduziu 61. A declaração assinada vira prova.</figcaption></figure>
       <figure class="tela"><a href="img/32-verificar-voto-sumiu.webp" target="_blank" rel="noopener"><img src="img/32-verificar-voto-sumiu.webp" alt="Verificar voto: código não encontrado na mídia da seção" loading="lazy"></a>
         <figcaption>24. A urna que mostra um código e grava outra cédula: em Verificar voto, o código do eleitor não está na mídia da seção.</figcaption></figure>
 
@@ -719,7 +572,7 @@ flowchart LR
       </p>
       <h4>A chave da cédula</h4>
       <p>Cada cédula tem uma semente de 128 bits do CSPRNG da urna, e toda a aleatoriedade sai dela:</p>
-      <div class="formula">r_i = H("TAI-VOTE/aleatoriedade/v1", [semente, hash_eleição, i])  mod L</div>
+      <div class="formula">r_i = H("T-VOTE/aleatoriedade/v1", [semente, hash_eleição, i])  mod L</div>
       <p>
         Na cédula depositada, a semente é destruída no momento do depósito. Na cédula de teste, ela é revelada, publicada no BU e impressa
         no comprovante: com ela, qualquer computador refaz as cifras de cada opção possível e descobre qual delas foi cifrada.
@@ -735,8 +588,8 @@ flowchart LR
 
       <h3>8.4 Selo, código, figuras e conferência</h3>
       <p>Assim que a cédula é lacrada, a urna a sela com a própria chave. O selo é determinístico (Ed25519):</p>
-      <div class="formula">selo = Ed25519(chave_urna, SHA-256("TAI-VOTE/selo/v1|" ‖ {eleição, rastreador, seção}))
-v    = SHA-256("TAI-VOTE/verificacao/v1|" ‖ selo)
+      <div class="formula">selo = Ed25519(chave_urna, SHA-256("T-VOTE/selo/v1|" ‖ {eleição, rastreador, seção}))
+v    = SHA-256("T-VOTE/verificacao/v1|" ‖ selo)
 
 figuras     = FIGURAS[v[0]], FIGURAS[v[1]]                     16 bits (256 figuras)
 código      = zona ‖ seção ‖ base32(25 bits de v[2..6])          25 bits aleatórios
@@ -760,7 +613,7 @@ conferência = base32(40 bits de v[6..11])                        40 bits</div>
         Depois de ver o compromisso, o eleitor pode apertar TESTAR. A urna revela a semente, guarda a cédula aberta para o BU e
         <strong>assina uma declaração</strong> com o candidato que ela diz ter encontrado e a chave impressa:
       </p>
-      <div class="formula">declaração = Ed25519(chave_urna, SHA-256("TAI-VOTE/declaracao-teste/v2|" ‖ {eleição, seção, rastreador, opção, semente}))</div>
+      <div class="formula">declaração = Ed25519(chave_urna, SHA-256("T-VOTE/declaracao-teste/v2|" ‖ {eleição, seção, rastreador, opção, semente}))</div>
       <p>
         Em casa, o validador recifra cada opção com a semente do papel e procura a única que reproduz exatamente as cifras seladas sob
         aquele código. Se ela não for a declarada, a urna mentiu, e a assinatura transforma isso em prova transferível. Se alguém alterar o
@@ -903,7 +756,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
       <h2 id="sigilo">13. Sigilo e a lição do TPS 2012</h2>
       <p>
         No Teste Público de Segurança de 2012, pesquisadores mostraram que a ordem dos votos gravados pela urna brasileira da época podia ser
-        reconstruída, porque o embaralhamento usava um gerador não criptográfico semeado com o horário. O TAI-VOTE responde em várias camadas:
+        reconstruída, porque o embaralhamento usava um gerador não criptográfico semeado com o horário. O T-VOTE responde em várias camadas:
       </p>
       <ul>
         <li>Não há embaralhamento a semear: o BU traz as cédulas na ordem do rastreador, que é o hash de cifras aleatórias.</li>
@@ -936,7 +789,54 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
         <li><strong>Código não auditado por terceiros.</strong></li>
       </ul>
 
-      <h2 id="reproduzir">15. Como reproduzir</h2>
+      <h2 id="qrcode">15. Implantação sem impressora: comprovante por QR code</h2>
+      <p>
+        Uma impressora térmica em cada urna (e o papel, a manutenção e a logística dele) é o item mais caro deste desenho. Para começar
+        sem esse custo, o comprovante pode ser entregue de forma digital, <strong>no terminal do mesário, depois da votação</strong>:
+      </p>
+      <ol>
+        <li>O eleitor vota (e, se quiser, testa) na urna, como descrito acima. A urna mostra as figuras, o código e a conferência na própria tela, como sempre.</li>
+        <li>Quando o eleitor confirma, a urna envia o comprovante ao terminal do mesário pelo mesmo canal local que já usa para a liberação, sem internet.</li>
+        <li>O eleitor sai da cabine e o terminal mostra um <strong>QR code</strong> com o comprovante, numa área da tela voltada para ele. Ele fotografa o código com o celular, e a tela é limpa assim que o próximo eleitor é liberado.</li>
+        <li>Em casa, a página de verificação ou o validador offline lê o QR code e faz as mesmas conferências do papel: voto, teste e BU.</li>
+      </ol>
+      <h3>O que vai dentro do QR code</h3>
+      <p>
+        Exatamente o que o papel traz: código do voto, conferência, nomes das figuras e assinatura da urna sobre o recibo. Para cada teste,
+        vão o candidato declarado, o código, a chave da cédula de teste e a declaração assinada. Com uma ou duas cédulas de teste são algumas
+        centenas de caracteres, o que cabe num QR code de tamanho médio, fácil de ler numa tela. Se o código for um endereço da página de
+        verificação, os dados devem ir depois do <code>#</code> (o fragmento do endereço), que o navegador não envia ao servidor:
+      </p>
+      <pre>https://&lt;página de verificação&gt;/verificar#v=1&amp;c=0100123WGFTT&amp;k=9RD2RJJP&amp;s=…&amp;t=…</pre>
+      <h3>Por que no terminal do mesário, e não na cabine</h3>
+      <ul>
+        <li><strong>A lei proíbe celular na cabine.</strong> A Lei 9.504/1997, art. 91-A, parágrafo único, veda portar celular e máquina fotográfica na cabine de votação. Com o QR code no terminal, o eleitor só usa o celular depois de sair.</li>
+        <li><strong>O terminal já existe.</strong> Não há hardware novo, só software. O custo de implantação fica perto de zero.</li>
+        <li><strong>O papel continua possível.</strong> As duas formas podem conviver: QR code por padrão e papel para quem pedir ou não tiver celular. Isso permite uma transição gradual, seção por seção.</li>
+      </ul>
+      <h3>O que muda na segurança</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Ponto</th><th>Análise</th></tr></thead>
+          <tbody>
+            <tr><td>O terminal do mesário poderia mostrar um QR code falso?</td><td>Não sem ser pego. O recibo e a declaração do teste são assinados pela urna, com a chave publicada na carga, e o validador confere essas assinaturas. Um código alterado ou trocado não confere: as figuras não batem com as que a urna mostrou na tela, ou a assinatura falha.</td></tr>
+            <tr><td>O mesário vê o comprovante?</td><td>Pode ver, e isso não revela o voto: o código e as figuras não dependem do candidato. A parte do teste mostra o candidato <em>testado</em>, que é de uma cédula anulada. Por discrição, o QR code fica numa área voltada ao eleitor e some com a próxima liberação.</td></tr>
+            <tr><td>Se o terminal não mostrar o QR code?</td><td>O eleitor perde só a conferência posterior. O voto já foi depositado e contado. A recusa sistemática de entregar comprovantes é visível e pode ser registrada pelos fiscais.</td></tr>
+            <tr><td>Âncora contra uma urna adulterada</td><td>Continua sendo o que a urna mostrou na própria tela, antes da decisão: as 2 figuras, o código e a conferência. O eleitor confere que o QR code traz os mesmos valores. Isso mantém o compromisso de 81 bits da seção 8.4.</td></tr>
+            <tr><td>Venda de voto</td><td>Igual ao papel: o QR code não prova em quem a pessoa votou.</td></tr>
+            <tr><td>Inclusão</td><td>Nem todo eleitor tem celular com câmera. Por isso a impressão sob demanda deve continuar disponível, mesmo que em poucas impressoras por local de votação.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Ainda não está no protótipo.</strong> Hoje o protótipo imprime o comprovante em papel (simulado na tela). O QR code no
+          terminal do mesário é a proposta para a primeira fase de implantação. A parte criptográfica não muda: muda só o meio de entrega
+          do comprovante.
+        </p>
+      </div>
+
+      <h2 id="reproduzir">16. Como reproduzir</h2>
       <p>O protótipo roda num único computador, sem acesso à internet durante a execução. Código: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
       <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
 cd TAI-VOTE
@@ -1010,11 +910,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>Crockford, D. <em>Base 32</em> (alfabeto sem caracteres ambíguos). crockford.com/base32.html.</li>
         </ol>
 
-        <div class="grupo">Software e dados usados no protótipo</div>
+        <div class="grupo">Legislação e normas</div>
         <ol start="32">
+          <li>Brasil. Lei nº 9.504, de 30 de setembro de 1997 (Lei das Eleições), art. 91-A, parágrafo único, incluído pela Lei nº 12.034/2009: proibição de portar celular, máquina fotográfica e filmadora na cabine de votação. planalto.gov.br.</li>
+          <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
+        </ol>
+
+        <div class="grupo">Software e dados usados no protótipo</div>
+        <ol start="34">
           <li>Miller, P. <em>noble-curves</em> e <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas e hashes em JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Portal de Dados Abertos: fotos de divulgação de candidatos (licença CC BY). dadosabertos.tse.jus.br.</li>
-          <li>Projeto TAI-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+          <li>Projeto T-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
         </ol>
       </div>
     </div>
@@ -1025,3 +931,5 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
   const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
   mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, sans-serif" });
 </script>
+</body>
+</html>

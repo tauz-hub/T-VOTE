@@ -18,7 +18,7 @@ export function digital(valor: string): string {
   return (valor.slice(0, 16).match(/.{4}/g) ?? []).join(" ");
 }
 
-export const digitalRSA = (n: string) => digital(sha256Hex(`TAI-VOTE/digital-rsa/v1|${n}`));
+export const digitalRSA = (n: string) => digital(sha256Hex(`T-VOTE/digital-rsa/v1|${n}`));
 
 const dataHora = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
@@ -38,7 +38,7 @@ function Cabecalho({ titulo, eleicao, secao, urna, quando }: { titulo: string; e
   const [z, s] = secao.split("-");
   return (
     <>
-      <div className="text-center font-bold">TAI-VOTE · DEMONSTRAÇÃO</div>
+      <div className="text-center font-bold">T-VOTE · DEMONSTRAÇÃO</div>
       <div className="text-center text-[14px] font-bold">{titulo}</div>
       <div className="mt-1 text-center">{eleicao}</div>
       <div className="text-center font-bold">

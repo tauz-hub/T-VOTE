@@ -48,13 +48,13 @@ export type BoletimUrna = {
 
 export type DocumentoUrna<T> = { conteudo: T; hash: string; assinatura: string };
 
-export type MidiaSecao = { formato: "tai-vote/midia-secao/v1"; zeresima: DocumentoUrna<ZeresimaSecao>; bu: DocumentoUrna<BoletimUrna> };
+export type MidiaSecao = { formato: "t-vote/midia-secao/v1"; zeresima: DocumentoUrna<ZeresimaSecao>; bu: DocumentoUrna<BoletimUrna> };
 
 export const CHAVES_ZERESIMA = ["tipo", "eleicao", "secao", "urna", "chave_urna", "autoridade_secao", "software", "cedulas", "aberta_em"];
 export const CHAVES_BU = ["tipo", "eleicao", "secao", "zeresima", "comparecimento", "cedulas", "desafiadas", "contagem", "agregado", "encerrada_em"];
 
 export function hashDocumentoUrna(conteudo: ZeresimaSecao | BoletimUrna): string {
-  return sha256Hex("TAI-VOTE/documento-urna/v1|" + jsonCanonico(conteudo));
+  return sha256Hex("T-VOTE/documento-urna/v1|" + jsonCanonico(conteudo));
 }
 
 export function assinarDocumentoUrna<T extends ZeresimaSecao | BoletimUrna>(conteudo: T, chavePrivadaUrna: string): DocumentoUrna<T> {
@@ -115,7 +115,7 @@ export type DeclaracaoTeste = {
 };
 
 export function hashDeclaracaoTeste(eleicao: string, secao: string, rastreador: string, opcao: number, semente: string): string {
-  return sha256Hex("TAI-VOTE/declaracao-teste/v2|" + jsonCanonico({ eleicao, secao, rastreador, opcao, semente }));
+  return sha256Hex("T-VOTE/declaracao-teste/v2|" + jsonCanonico({ eleicao, secao, rastreador, opcao, semente }));
 }
 
 export function verificarDeclaracaoTeste(d: DeclaracaoTeste, chaveUrna: string): boolean {

@@ -63,7 +63,7 @@ export const CHAVES_CEDULA_PUBLICADA = [
 
 /** Pedido de selo: a urna assina com a chave da credencial, provando ter uma credencial válida. */
 export function mensagemPedidoSelo(hashEleicao: string, rastreador: string): Uint8Array {
-  return utf8ToBytes(`TAI-VOTE/pedido-selo/v1|${hashEleicao}|${rastreador}`);
+  return utf8ToBytes(`T-VOTE/pedido-selo/v1|${hashEleicao}|${rastreador}`);
 }
 
 export function assinarPedidoSelo(hashEleicao: string, rastreador: string, chavePrivadaCredencial: string): string {
@@ -115,7 +115,7 @@ export function contextoSoma(hashEleicao: string, chaveCredencial: string): stri
 export const BYTES_SEMENTE = 16;
 
 export function aleatoriedadeDaSemente(semente: string, hashEleicao: string, i: number): bigint {
-  const r = hashParaEscalar("TAI-VOTE/aleatoriedade/v1", [semente, hashEleicao, String(i)]);
+  const r = hashParaEscalar("T-VOTE/aleatoriedade/v1", [semente, hashEleicao, String(i)]);
   if (r === 0n) throw new Error("semente inválida");
   return r;
 }
@@ -129,17 +129,17 @@ export function cifrarComSemente(ctx: Pick<ContextoCedula, "chavePublica" | "has
 /** Rastreador: hash das cifras. É o "número de protocolo" que o eleitor procura no quadro. */
 export function calcularRastreador(hashEleicao: string, cifras: Cifra[]): string {
   return sha256Hex(
-    jsonCanonico({ dominio: "TAI-VOTE/rastreador/v1", eleicao: hashEleicao, cifras: cifras.map(({ a, b }) => ({ a, b })) }),
+    jsonCanonico({ dominio: "T-VOTE/rastreador/v1", eleicao: hashEleicao, cifras: cifras.map(({ a, b }) => ({ a, b })) }),
   );
 }
 
 /** Nullificador: identifica a credencial (impede voto duplo) sem identificar o eleitor. */
 export function calcularNullificador(chaveCredencial: string): string {
-  return sha256Hex(`TAI-VOTE/nullificador/v1|${chaveCredencial}`);
+  return sha256Hex(`T-VOTE/nullificador/v1|${chaveCredencial}`);
 }
 
 export function mensagemCedula(corpo: CorpoCedula): Uint8Array {
-  return utf8ToBytes("TAI-VOTE/cedula/v1|" + jsonCanonico(corpo));
+  return utf8ToBytes("T-VOTE/cedula/v1|" + jsonCanonico(corpo));
 }
 
 export type CedulaPreparada = {

@@ -18,9 +18,9 @@ import {
   pontoHex,
 } from "./grupo";
 
-const DOM_SCHNORR = "TAI-VOTE/prova/schnorr/v1";
-const DOM_CP = "TAI-VOTE/prova/chaum-pedersen/v1";
-const DOM_01 = "TAI-VOTE/prova/zero-ou-um/v1";
+const DOM_SCHNORR = "T-VOTE/prova/schnorr/v1";
+const DOM_CP = "T-VOTE/prova/chaum-pedersen/v1";
+const DOM_01 = "T-VOTE/prova/zero-ou-um/v1";
 
 // ---------------------------------------------------------------- Schnorr
 

@@ -34,7 +34,7 @@ function normalizarCodigo(codigo: unknown): string {
     .toUpperCase();
 }
 
-const hashCodigo = (codigo: string) => sha256Hex(`TAI-VOTE/habilitacao/v1|${codigo}`);
+const hashCodigo = (codigo: string) => sha256Hex(`T-VOTE/habilitacao/v1|${codigo}`);
 
 export function cadastrarEleitor(dados: { nome?: unknown; documento?: unknown; secao?: unknown }): Eleitor {
   const nome = String(dados.nome ?? "").trim().replace(/\s+/g, " ");

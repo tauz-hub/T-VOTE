@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Libro blanco de T-VOTE</title>
+<meta name="description" content="T-VOTE: una urna electrónica que el votante verifica en casa. Verificación por el votante, el sistema pantalla por pantalla, protocolo criptográfico, pruebas de intrusión y fuentes.">
+<link rel="alternate" hreflang="pt-BR" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="alternate" hreflang="en" href="https://tauz-hub.github.io/TAI-VOTE/en/">
+<link rel="alternate" hreflang="es" href="https://tauz-hub.github.io/TAI-VOTE/es/">
+<link rel="alternate" hreflang="de" href="https://tauz-hub.github.io/TAI-VOTE/de/">
+<link rel="alternate" hreflang="ru" href="https://tauz-hub.github.io/TAI-VOTE/ru/">
+<link rel="alternate" hreflang="zh-CN" href="https://tauz-hub.github.io/TAI-VOTE/zh/">
+<link rel="alternate" hreflang="x-default" href="https://tauz-hub.github.io/TAI-VOTE/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<link rel="stylesheet" href="../assets/whitepaper.css">
+</head>
+<body>
+<nav class="idiomas" aria-label="Idioma">
+  <span class="globo" aria-hidden="true">🌐</span>
+  <a href="../index.html" lang="pt-BR" hreflang="pt-BR">Português</a>
+  <a href="../en/index.html" lang="en" hreflang="en">English</a>
+  <a href="../es/index.html" lang="es" hreflang="es" aria-current="page">Español</a>
+  <a href="../de/index.html" lang="de" hreflang="de">Deutsch</a>
+  <a href="../ru/index.html" lang="ru" hreflang="ru">Русский</a>
+  <a href="../zh/index.html" lang="zh-CN" hreflang="zh-CN">中文</a>
+</nav>
+<div class="pagina">
+  <nav class="sumario" aria-label="Índice">
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#projeto">Código y descarga</a></li>
+      <li><a href="#resumo">Resumen</a></li>
+      <li class="parte">Parte I · Para cualquier persona</li>
+      <li><a href="#ideia">1. La idea</a></li>
+      <li><a href="#dia">2. El día de la elección</a></li>
+      <li><a href="#casa">3. En casa: las tres verificaciones</a></li>
+      <li><a href="#sigilo-simples">4. Por qué nadie descubre su voto</a></li>
+      <li><a href="#fraude-simples">5. Si alguien hace trampa</a></li>
+      <li><a href="#perguntas">6. Preguntas frecuentes</a></li>
+      <li class="parte">Parte II · El sistema en pantallas</li>
+      <li><a href="#t-mapa">A. Mapa de las pestañas</a></li>
+      <li><a href="#t-preparo">B. Antes de la elección</a></li>
+      <li><a href="#t-secao">C. La mesa abre</a></li>
+      <li><a href="#t-cabine">D. En la cabina</a></li>
+      <li><a href="#t-fim">E. Fin del día</a></li>
+      <li><a href="#t-casa">F. En casa</a></li>
+      <li><a href="#t-apuracao">G. Escrutinio y auditoría</a></li>
+      <li><a href="#t-laboratorio">H. Urnas fraudulentas</a></li>
+      <li class="parte">Parte III · Por dentro</li>
+      <li><a href="#arquitetura">7. Arquitectura</a></li>
+      <li><a href="#cripto">8. Criptografía</a></li>
+      <li><a href="#verificador">9. Qué verifica el votante</a></li>
+      <li><a href="#e2e">10. Verificabilidad de extremo a extremo</a></li>
+      <li><a href="#auditoria">11. Auditoría universal</a></li>
+      <li><a href="#ameacas">12. Amenazas y pruebas de intrusión</a></li>
+      <li><a href="#sigilo">13. Secreto y la lección de 2012</a></li>
+      <li><a href="#limites">14. Límites y trabajo futuro</a></li>
+      <li><a href="#qrcode">15. Implantación sin impresora: código QR</a></li>
+      <li><a href="#reproduzir">16. Cómo reproducirlo</a></li>
+      <li><a href="#fontes">Fuentes</a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <div class="coluna">
+      <div class="rotulo">Libro blanco · versión 1 · octubre de 2026</div>
+      <h1>T-VOTE: una urna electrónica que el votante verifica en casa</h1>
+      <p class="lead">
+        Cómo votar en una urna que funciona como la brasileña actual — mesa sin internet, miembro de mesa, acta de cero votos por la mañana,
+        acta de resultados pegada en la puerta de la escuela — y, después, comprobar en su propia computadora que su voto fue registrado y
+        contado tal como usted votó, sin tener que confiar en la urna, en el servidor ni en quien organiza la elección.
+      </p>
+      <div class="meta">
+        <span>Prototipo académico de código abierto</span>
+        <span>Protocolo v4 · mesa sin conexión</span>
+        <span>Implementación de referencia: TypeScript (Next.js + SQLite)</span>
+      </div>
+
+      <section class="projeto" id="projeto" aria-labelledby="projeto-titulo">
+        <h2 id="projeto-titulo">Código abierto: descargue, ejecute y verifique</h2>
+        <p>Todo el sistema descrito aquí está publicado. Cualquier persona puede leer el código, ejecutar la elección de demostración en su propia computadora y repetir las verificaciones.</p>
+        <div class="botoes">
+          <a class="principal" href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">Repositorio en GitHub</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/archive/refs/heads/master.zip" target="_blank" rel="noopener">Descargar el proyecto (.zip)</a>
+          <a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/public/validador.html" target="_blank" rel="noopener">Validador sin conexión (en GitHub)</a>
+          <a href="https://tauz-hub.github.io/TAI-VOTE/es/" target="_blank" rel="noopener">Este documento en línea</a>
+        </div>
+        <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev        # se abre en http://127.0.0.1:3000</pre>
+        <ul class="lista-docs">
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE#readme" target="_blank" rel="noopener">README: guía de uso y recorrido de la demostración</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/PROTOCOLO.md" target="_blank" rel="noopener">Especificación del protocolo (v4)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/docs/RELATORIO-INVASAO.md" target="_blank" rel="noopener">Informe de las pruebas de intrusión</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/tree/master/lib/crypto" target="_blank" rel="noopener">Código de la criptografía (<code>lib/crypto</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/blob/master/lib/auditoria.ts" target="_blank" rel="noopener">Auditor y validador del votante (<code>lib/auditoria.ts</code>)</a></li>
+          <li><a href="https://github.com/tauz-hub/TAI-VOTE/issues" target="_blank" rel="noopener">Informar de un problema o una falla</a></li>
+        </ul>
+        <p class="aviso-idioma" style="margin:.8rem 0 0">La interfaz, el código y la especificación del prototipo están en portugués; las capturas de la Parte II se muestran tal cual.</p>
+      </section>
+
+      <div class="aviso alerta">
+        <p>
+          <strong>Este es un prototipo de investigación, no un sistema certificado.</strong> Sirve para estudiar y demostrar un diseño de
+          votación verificable. No ha sido auditado por terceros y no debe usarse en elecciones reales. Los candidatos de los ejemplos de este
+          documento son ficticios; el prototipo puede cargar fotos públicas de campaña solo para que la demostración sea realista, y ningún
+          ejemplo favorece a candidato alguno (en las pruebas de fraude, el candidato beneficiado se sortea).
+        </p>
+      </div>
+
+      <h2 id="resumo">Resumen</h2>
+      <p>
+        T-VOTE es un diseño de votación electrónica <strong>verificable de extremo a extremo</strong> (en inglés, <em>end-to-end
+        verifiable</em>, o E2E-V). Mantiene el flujo que el votante brasileño ya conoce y añade tres verificaciones que cualquier persona puede
+        hacer en casa, con un programa de código abierto y una copia pública de la elección:
+      </p>
+      <ul>
+        <li><strong>Mi voto:</strong> el código impreso en el comprobante lleva a su voto cifrado en la lista pública de su mesa, con las mismas
+          dos figuras que mostró la urna. Esto prueba que el voto fue <em>registrado</em> y entró en el <em>conteo</em>, sin revelar por quién votó.</li>
+        <li><strong>Mi prueba:</strong> si pulsó TESTAR (probar) en la urna, el comprobante trae la clave de esa papeleta de prueba. En casa, la
+          computadora rehace la cuenta y muestra qué candidato había dentro. Si la urna mintió, el papel firmado por ella es una prueba.</li>
+        <li><strong>El acta de mi mesa:</strong> el acta de resultados pegada en la puerta de la escuela tiene un código; el acta publicada debe
+          tener el mismo código y los mismos números, y los números deben coincidir con el escrutinio criptográfico.</li>
+      </ul>
+      <p>
+        Por debajo hay primitivas criptográficas consolidadas: cifrado ElGamal homomórfico sobre el grupo ristretto255, pruebas de conocimiento
+        cero, firmas ciegas para credenciales anónimas, firmas Ed25519 y una cadena de bloques firmada. El escrutinio lo hacen tres custodios
+        de clave (trustees) que solo pueden descifrar la <em>suma</em> de los votos de cada mesa, nunca un voto individual. Este documento
+        explica el sistema primero en lenguaje común, después muestra cada pantalla del prototipo y por último entra en el detalle técnico;
+        termina con las pruebas de intrusión hechas contra él y con todas las fuentes.
+      </p>
+
+      <!-- ================================================================== PARTE I -->
+      <div class="parte-titulo">
+        <div class="rotulo">Parte I</div>
+        <h2>Para cualquier persona</h2>
+        <p>Sin matemáticas: lo que usted hace en la urna, lo que se lleva a casa y lo que puede verificar.</p>
+      </div>
+
+      <h2 id="ideia">1. La idea en pocas palabras</h2>
+      <p>
+        Hoy, cuando usted vota, tiene que confiar en que la urna grabó el número que tecleó y en que la suma de su mesa se hizo correctamente.
+        La urna actual tiene muchos controles para merecer esa confianza, pero el votante, por sí solo, no tiene cómo verificar su propio voto.
+      </p>
+      <p>
+        Con T-VOTE, la urna sigue en un rincón de la sala, sin internet, y usted sigue pulsando los mismos botones. La diferencia es que
+        <strong>se compromete</strong> con lo que grabó antes de saber qué va a hacer usted, y después deja rastros que usted verifica en casa.
+        Si hace trampa, la trampa aparece. Si el organismo que suma los votos hace trampa, también aparece. Y aun así nadie — ni usted —
+        puede demostrar a otra persona por quién votó. Eso es lo que impide la compra de votos.
+      </p>
+
+      <h2 id="dia">2. El día de la elección</h2>
+      <p>Todo ocurre en la mesa, como hoy. La urna y el terminal del miembro de mesa solo hablan entre sí; ninguno está conectado a internet.</p>
+      <ol class="passos">
+        <li>
+          <div>
+            <h4>El miembro de mesa verifica su documento y habilita la urna</h4>
+            <p>Como hoy. La urna recibe solo un «puede votar»: nunca conoce su nombre.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Usted teclea el número y ve la foto</h4>
+            <p>La pantalla muestra el nombre, el partido y la foto del candidato. La propia urna verifica la foto contra una huella digital publicada antes de la elección, para que nadie pueda cambiarla.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Pulsa CONFIRMA y aparecen dos figuras y un código</h4>
+            <p>Por ejemplo: 🍄 SETA y 🦴 HUESO, y el código <span class="mono">010 0123 J7K6T</span>. Cada figura tiene un dibujo encima de la palabra para quien no sabe leer. Recuerde las figuras; el código sale impreso.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Ahora elige una tecla</h4>
+            <p><strong>CONFIRMA</strong> (confirmar) graba el voto. <strong>TESTAR</strong> (probar) abre esa papeleta para que vea lo que grabó la urna (se anula y usted vota de nuevo, sin volver a teclear). <strong>CORRIGE</strong> (corregir) vuelve para elegir otro.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Sale un solo papel</h4>
+            <p>El comprobante tiene el código del voto, un «código de control» de 8 caracteres y el nombre de las dos figuras. Si usted probó la urna, el mismo papel trae la prueba: el candidato que la urna dice haber encontrado, el código de la prueba y la clave de esa papeleta de prueba.</p>
+            <p style="margin-top:.4rem">En una primera fase, sin impresora, el comprobante puede entregarse como un <strong>código QR en la pantalla del terminal del miembro de mesa</strong>: el votante sale de la cabina y fotografía el código con el móvil (<a href="#qrcode">sección 15</a>).</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="lado-a-lado">
+        <div>
+          <div class="urna" role="img" aria-label="Pantalla de la urna tras confirmar el voto, con dos figuras, el código y las teclas CONFIRMA, TESTAR y CORRIGE">
+            <div class="tela">
+              <div class="t">Revise su voto</div>
+              <div style="margin-top:.3rem">Número: <b>70</b> · Nombre: <b>Candidata Ejemplo</b> · Partido: <b>PARTIDO X</b></div>
+              <div style="text-align:center;margin-top:.6rem;font-family:var(--f-display);font-weight:600;font-size:.8rem">Recuerde estas 2 figuras:</div>
+              <div class="figuras">
+                <div class="figura"><span>🍄</span>SETA</div>
+                <div class="figura"><span>🦴</span>HUESO</div>
+              </div>
+              <div class="codigo-urna">
+                <div>010<small>ZONA</small></div><div>0123<small>MESA</small></div><div>J7K6T<small>CÓDIGO</small></div>
+              </div>
+              <div style="text-align:center;font-size:.75rem;margin-top:.3rem">control <b>BNGJ 69AH</b></div>
+              <div style="border-top:1px solid var(--linha);margin-top:.6rem;padding-top:.4rem;font-size:.72rem">
+                Pulse la tecla:<br><b>CONFIRMA</b> para VOTAR<br><b>TESTAR</b> para probar la urna (esta papeleta se anula)<br><b>CORRIGE</b> para elegir otro
+              </div>
+            </div>
+            <div class="teclas"><span class="k-branco">BRANCO</span><span class="k-corrige">CORRIGE</span><span class="k-confirma">CONFIRMA</span><span class="k-testar">TESTAR</span></div>
+          </div>
+          <div class="legenda">La pantalla de la urna no es táctil: todo se hace con el teclado. TESTAR es la única tecla nueva.</div>
+        </div>
+        <div>
+          <div class="papel" role="img" aria-label="Ejemplo de comprobante impreso con el código del voto y la parte de la prueba">
+            <div class="c b">COMPROBANTE DE VOTACIÓN</div>
+            <div class="c">ZONA 010 · MESA 0123</div>
+            <hr>
+            <div class="c b">CÓDIGO DE SU VOTO</div>
+            <div class="c grande">010 0123 HAAX2</div>
+            <div class="c">CONTROL: <b>ZCJV DS7A</b></div>
+            <div class="c">FIGURAS: <b>GIRASOL · COMETA</b></div>
+            <div class="c b" style="margin-top:.3rem">Este código NO muestra por quién votó.</div>
+            <hr>
+            <div class="c b">PRUEBA DE LA URNA — ANULADA, NO ES VOTO</div>
+            <div class="c">La urna declara que la papeleta probada contenía:</div>
+            <div class="c b">70 — Candidata Ejemplo</div>
+            <div class="c">CÓDIGO DE LA PRUEBA: <b>010 0123 J7K6T</b></div>
+            <div class="c">CLAVE DE LA PRUEBA:</div>
+            <div class="c b">5PVV ZHZ0 7DNJ ZWN1 SKWE QYC3 MM</div>
+            <div class="miudo" style="margin-top:.3rem">Declaración firmada por la urna: 284a4769a4febd488f44ff9e150b7dda…</div>
+            <hr>
+            <div class="miudo">Hash completo: 66434bc097a1bc51ca669e01b0464bbc… · Firma de la urna: 9ccf0c2b83ca8b10…</div>
+          </div>
+          <div class="legenda">Ejemplo ilustrativo. Un solo papel por votante: sin nombre, sin hora y sin decir por quién votó.</div>
+        </div>
+      </div>
+
+      <div class="aviso info">
+        <p>
+          <strong>¿Por qué probar?</strong> Cuando usted pulsa TESTAR, la urna ya mostró el código y las figuras de esa papeleta: se
+          comprometió antes de saber si usted iba a votar o a probar. Si suele grabar un candidato distinto del que muestra, cada votante que
+          prueba es una oportunidad de atraparla. Puede probar incluso tecleando el número de alguien por quien no va a votar.
+        </p>
+      </div>
+
+      <h3>Al final del día</h3>
+      <p>
+        El miembro de mesa cierra la mesa y la urna imprime el <strong>acta de resultados (BU, <em>boletim de urna</em>)</strong>, como hoy, con
+        los votos de cada candidato. Una copia va a la puerta de la escuela. La novedad es el <strong>código del BU</strong> (por ejemplo
+        <span class="mono">0d94 dbf4 9855 15b1</span>), que identifica exactamente esa acta. Después, el archivo de la mesa (el «medio») se lleva
+        al organismo electoral, que lo verifica todo y lo publica en una cadena de bloques que cualquiera puede descargar.
+      </p>
+
+      <h2 id="casa">3. En casa: las tres verificaciones</h2>
+      <p>
+        Una vez publicada la mesa, usted puede verificar con el sitio web de la elección, con un único archivo que funciona sin internet o con
+        un programa de línea de comandos. Los tres usan el mismo código fuente abierto y hacen toda la cuenta en su computadora.
+      </p>
+      <div class="tres">
+        <div>
+          <h4>Mi voto</h4>
+          <p>Teclee el código del comprobante. Deben aparecer las mismas 2 figuras que vio en la urna y el mismo código de control del papel.</p>
+          <p class="usa">Prueba: su voto está en la lista pública de su mesa, es válido y fue sumado.</p>
+        </div>
+        <div>
+          <h4>Mi prueba</h4>
+          <p>Pegue la parte «PRUEBA DE LA URNA» del comprobante. La computadora vuelve a cifrar cada candidato con la clave del papel y encuentra el que estaba dentro.</p>
+          <p class="usa">Prueba: la urna dijo la verdad, o mintió y su firma en el papel lo demuestra.</p>
+        </div>
+        <div>
+          <h4>El BU de la mesa</h4>
+          <p>Teclee zona y mesa. El código del BU y los números publicados deben ser iguales a los del papel de la puerta de la escuela.</p>
+          <p class="usa">Prueba: nadie cambió su mesa después de que salió de la escuela.</p>
+        </div>
+      </div>
+      <p>
+        Ejemplo real, de la verificación de dos pruebas hechas en un ensayo del sistema: la primera prueba, en la que la urna declaró el número
+        80, se rehízo en casa y dio 80; la segunda, declarada 27, dio 27; ambas declaraciones tenían firma válida de la urna. Resultado: «la urna
+        de la mesa 001-0001 pasó sus 2 pruebas».
+      </p>
+
+      <h2 id="sigilo-simples">4. Por qué nadie descubre su voto por el papel</h2>
+      <ul>
+        <li><strong>El código y las figuras no vienen del voto.</strong> Salen de una firma de la urna sobre un cifrado distinto en cada papeleta.
+          Dos votantes que votan por el mismo candidato reciben códigos sin ninguna relación entre sí. Puede decir en público «mis figuras fueron
+          🌻 GIRASOL y ☄️ COMETA» sin revelar nada.</li>
+        <li><strong>El voto depositado nunca se abre.</strong> Cada papeleta tiene su propia clave; la clave del voto depositado se destruye en la urna
+          en ese mismo instante. Lo único público es el texto cifrado.</li>
+        <li><strong>Solo se abre la suma.</strong> Tres custodios de clave, cada uno con un pedazo, descifran juntos solo el total de cada mesa.
+          Ninguno, por sí solo, abre nada.</li>
+        <li><strong>La prueba no es el voto.</strong> La papeleta de prueba se anula. Mostrar la prueba no demuestra el voto, porque puede probar un
+          candidato y votar por otro.</li>
+        <li><strong>Sin hora y sin orden.</strong> Nada guarda el orden en que llegaron los votos ni la hora de cada uno. Eso fue exactamente lo que
+          permitió, en una prueba pública de 2012, reconstruir el orden de los votos de la urna brasileña de entonces.</li>
+      </ul>
+
+      <h2 id="fraude-simples">5. Qué pasa si alguien hace trampa</h2>
+      <p>El sistema fue atacado a propósito, de muchas formas. Esta es la tabla de quién detecta cada trampa:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Trampa</th><th>Quién la detecta</th></tr></thead>
+          <tbody>
+            <tr><td>La urna graba un candidato distinto del que muestra y miente en la prueba</td><td>El votante que probó, en casa, con la clave del papel</td></tr>
+            <tr><td>La urna muestra su código pero graba otra papeleta</td><td>El votante, en «Mi voto»: su código no existe en la mesa</td></tr>
+            <tr><td>La urna imprime una clave falsa o hace desaparecer la papeleta de prueba</td><td>El votante que probó: la clave no abre la papeleta, o la prueba no está publicada</td></tr>
+            <tr><td>Alguien altera votos en la base de datos</td><td>Cualquier auditor: las firmas dejan de coincidir</td></tr>
+            <tr><td>El organismo electoral quita un voto o cambia el resultado</td><td>Cualquier auditor: la firma de la urna o las pruebas del escrutinio dejan de coincidir</td></tr>
+            <tr><td>Alguien de dentro, con las claves extraídas de la propia urna, rehace una mesa entera</td><td>Los votantes de esa mesa (los códigos desaparecen) y el BU pegado en la puerta de la escuela</td></tr>
+            <tr><td>Alguien hace desaparecer una mesa entera</td><td>El BU en papel y los votantes de la mesa</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso ok">
+        <p><strong>La lección:</strong> las matemáticas, el papel y el votante se complementan. Ninguno de los tres, por sí solo, lo detecta todo; juntos cubren los fraudes probados.</p>
+      </div>
+
+      <h2 id="perguntas">6. Preguntas frecuentes</h2>
+      <div class="faq">
+        <details>
+          <summary>¿No podría la urna mostrar simplemente «verificación OK» mintiendo?</summary>
+          <p>Podría, y por eso la verificación que vale es la que se hace <em>fuera</em> de la urna. Una urna adulterada puede mentir en su propia pantalla, pero no puede hacer que la cuenta de su computadora dé otro resultado: se comprometió con la papeleta antes de saber si usted iba a probar, y la clave que imprimió solo abre esa papeleta.</p>
+        </details>
+        <details>
+          <summary>¿Necesito entender criptografía para verificar?</summary>
+          <p>No. Teclea el código, mira si las figuras son las mismas y, si probó, pega el texto de la prueba. La respuesta llega como «su voto está ahí», «la urna fue honesta» o «fraude».</p>
+        </details>
+        <details>
+          <summary>¿Alguien puede obligarme a mostrar el comprobante para demostrar mi voto?</summary>
+          <p>Puede pedirlo, pero el comprobante no demuestra nada: el código no indica el candidato y la prueba es de una papeleta anulada. Quien intenta comprar votos no obtiene ninguna garantía.</p>
+        </details>
+        <details>
+          <summary>¿Y si pierdo el comprobante?</summary>
+          <p>Su voto sigue contándose normalmente. Solo pierde la posibilidad de verificarlo. La suma de la mesa sigue siendo auditable por cualquiera.</p>
+        </details>
+        <details>
+          <summary>¿La cadena de bloques es una criptomoneda?</summary>
+          <p>No. Es un registro público en el que cada página apunta a la anterior y está firmada por el organismo electoral. No hay minería ni moneda: es solo una forma de que cualquiera compruebe que nadie cambió lo publicado.</p>
+        </details>
+        <details>
+          <summary>¿Y si la mesa no tiene impresora?</summary>
+          <p>El comprobante puede entregarse como un código QR en la pantalla del terminal del miembro de mesa, después del voto. El votante, ya fuera de la cabina, fotografía el código con el móvil. El contenido es el mismo del papel y viene firmado por la urna, así que el terminal no puede alterarlo sin ser descubierto. Quien no tenga móvil puede pedir la versión impresa.</p>
+        </details>
+        <details>
+          <summary>¿Probar la urna retrasa la fila?</summary>
+          <p>Unos segundos. La papeleta de prueba se abre al momento, y para votar de verdad basta con pulsar CONFIRMA de nuevo, sin volver a teclear el número.</p>
+        </details>
+      </div>
+
+      <!-- ================================================================== PARTE II (pantallas) -->
+      <div class="parte-titulo" id="telas">
+        <div class="rotulo">Parte II</div>
+        <h2>El sistema, pantalla por pantalla</h2>
+        <p>Capturas reales del prototipo, hechas en una elección de demostración con candidatos y partidos ficticios y fotos en silueta. La interfaz está en portugués.</p>
+      </div>
+
+      <p>
+        Las pantallas siguen el orden de un día de elección: el organismo electoral prepara la elección, la mesa abre sin internet, el votante
+        vota y prueba la urna, la mesa cierra y transmite, y después cualquiera verifica en casa. Al final, el laboratorio muestra urnas con
+        software adulterado siendo descubiertas. Haga clic en una imagen para verla a tamaño real.
+      </p>
+
+      <h2 id="t-mapa">A. Mapa de las pestañas</h2>
+      <p>El prototipo funciona en una sola computadora, pero cada pestaña representa un actor distinto. En la vida real, cada una estaría en un aparato separado.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Pestaña (dirección)</th><th>Quién la usa</th><th>Para qué</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Início</strong> (inicio) <code>/</code></td><td>Todos</td><td>Visión general del flujo y accesos directos.</td></tr>
+            <tr><td><strong>Cadastro</strong> (padrón) <code>/cadastro</code></td><td>Registro electoral</td><td>Padrón de votantes (genera votantes ficticios para pruebas).</td></tr>
+            <tr><td><strong>Mesário</strong> (miembro de mesa) <code>/mesario</code> · <code>/terminal</code></td><td>Miembro de mesa</td><td>Terminal de la mesa: carga, apertura (acta de cero votos), habilitación del votante, cierre (BU) y medio. <code>/terminal</code> abre solo el terminal, en su propia ventana.</td></tr>
+            <tr><td><strong>Urna</strong> <code>/urna</code> · <code>/cabine</code></td><td>Votante</td><td>La urna, manejada solo con el teclado (números, BRANCO, CORRIGE, CONFIRMA y TESTAR). <code>/cabine</code> abre solo la urna, para ponerla junto al terminal.</td></tr>
+            <tr><td><strong>Verificar voto</strong> <code>/verificar</code></td><td>Votante, en casa</td><td>Verificar el voto por el código, el BU de la mesa y, en la pestaña avanzada, recibos y declaraciones.</td></tr>
+            <tr><td><strong>Conferir teste</strong> (verificar prueba) <code>/teste</code></td><td>Votante, en casa</td><td>Pegar la parte «PRUEBA DE LA URNA» del comprobante y recibir el veredicto: urna honesta, fraude o no concluyente.</td></tr>
+            <tr><td><strong>Trustees</strong> <code>/apuracao</code></td><td>Custodios de clave</td><td>Generar la parte de cada uno de la clave de la elección y, al final, descifrar las sumas por mesa.</td></tr>
+            <tr><td><strong>Auditoria</strong> (auditoría) <code>/auditoria</code></td><td>Cualquier persona</td><td>Descargar la cadena pública y rehacer las 22 verificaciones en el navegador.</td></tr>
+            <tr><td><strong>Admin</strong> <code>/admin</code></td><td>Organismo electoral</td><td>Pestañas <em>Elección</em>, <em>Bases de datos</em>, <em>Simulación</em> y <em>Laboratorio de ataques</em>.</td></tr>
+            <tr><td><strong>Segurança</strong> (seguridad) <code>/seguranca</code></td><td>Todos</td><td>Modelo de amenazas y lecciones de las pruebas públicas de seguridad de 2012 y 2017.</td></tr>
+            <tr><td><strong>Validador sin conexión</strong> <code>/validador.html</code></td><td>Votantes y auditores</td><td>Un único archivo HTML que hace las mismas verificaciones sin internet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="tela"><a href="../img/00-inicio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/00-inicio.webp" alt="Página de inicio de T-VOTE con el menú de pestañas y el resumen del flujo" loading="lazy"></div></a>
+        <figcaption>Página de inicio: el menú superior lleva a cada actor del sistema.</figcaption></figure>
+
+      <h2 id="t-preparo">B. Antes de la elección</h2>
+      <p>
+        El organismo electoral crea la elección con los candidatos. La foto de cada uno queda sellada por su hash en el bloque génesis, y la urna
+        rechaza una foto cambiada. Los tres custodios generan cada uno su parte de la clave en su propio navegador. Con las tres publicadas, la
+        elección se abre y las urnas ya pueden recibir la carga.
+      </p>
+      <figure class="tela"><a href="../img/26-admin-eleicao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/26-admin-eleicao.webp" alt="Pestaña Admin, Elección: estadísticas, botones para abrir y cerrar y la lista de candidatos" loading="lazy"></div></a>
+        <figcaption>Admin → Elección: crear, abrir y cerrar la recepción. Los números superiores muestran custodios, credenciales, mesas y bloques.</figcaption></figure>
+      <figure class="tela"><a href="../img/29-cadastro.webp" target="_blank" rel="noopener"><img src="../img/29-cadastro.webp" alt="Página de registro de votantes" loading="lazy"></a>
+        <figcaption>Padrón: la lista de votantes. Sabe quién acudió, nunca por quién votó, y no guarda el orden de llegada.</figcaption></figure>
+
+      <h2 id="t-secao">C. La mesa abre, sin internet</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/02-urna-instalacao.webp" target="_blank" rel="noopener"><img src="../img/02-urna-instalacao.webp" alt="Urna en modo de instalación, con zona 010 y mesa 0123 tecleadas" loading="lazy"></a>
+          <figcaption>1. El equipo técnico instala la urna con su propio teclado: zona y mesa.</figcaption></figure>
+        <figure class="tela"><a href="../img/03-urna-carga.webp" target="_blank" rel="noopener"><img src="../img/03-urna-carga.webp" alt="Pantalla de carga de la urna pidiendo CONFIRMA" loading="lazy"></a>
+          <figcaption>2. Carga: la urna recibe la elección y genera dentro de sí su propia clave. Solo sale la parte pública.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/05-mesario-zeresima.webp" target="_blank" rel="noopener"><img src="../img/05-mesario-zeresima.webp" alt="Terminal del miembro de mesa con la mesa abierta y el acta de cero votos impresa" loading="lazy"></a>
+        <figcaption>3. Terminal del miembro de mesa: al abrir la mesa, la urna imprime el <strong>acta de cero votos</strong> (<em>zerésima</em>), con las claves de la urna y de la mesa, para que los fiscales la fotografíen.</figcaption></figure>
+      <figure class="tela"><a href="../img/06-mesario-liberar.webp" target="_blank" rel="noopener"><img src="../img/06-mesario-liberar.webp" alt="Miembro de mesa buscando a un votante ficticio y el botón para habilitar la urna" loading="lazy"></a>
+        <figcaption>4. El miembro de mesa busca al votante, verifica el documento y habilita la urna. La urna recibe solo un «puede votar», nunca el nombre.</figcaption></figure>
+
+      <h2 id="t-cabine">D. En la cabina</h2>
+      <div class="par">
+        <figure class="tela"><a href="../img/07-urna-votar.webp" target="_blank" rel="noopener"><img src="../img/07-urna-votar.webp" alt="Urna lista para teclear el número" loading="lazy"></a>
+          <figcaption>5. La urna habilitada espera el número.</figcaption></figure>
+        <figure class="tela"><a href="../img/08-urna-candidato.webp" target="_blank" rel="noopener"><img src="../img/08-urna-candidato.webp" alt="Urna mostrando al candidato 25 con foto, nombre y partido" loading="lazy"></a>
+          <figcaption>6. Tecleó 25: aparecen la foto, el nombre y el partido.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/09-urna-confira.webp" target="_blank" rel="noopener"><img src="../img/09-urna-confira.webp" alt="Pantalla Revise su voto con dos figuras, el código y el código de control" loading="lazy"></a>
+          <figcaption>7. CONFIRMA: la urna sella la papeleta y se compromete. Muestra 2 figuras, el código y el código de control <em>antes</em> de saber si el votante va a votar o a probar.</figcaption></figure>
+        <figure class="tela"><a href="../img/10-urna-teste.webp" target="_blank" rel="noopener"><img src="../img/10-urna-teste.webp" alt="Pantalla de prueba de la urna mostrando el candidato que contenía la papeleta" loading="lazy"></a>
+          <figcaption>8. TESTAR: la papeleta se abre y se anula, y la urna muestra lo que dice haber cifrado. El código y la clave van al comprobante.</figcaption></figure>
+      </div>
+      <div class="par">
+        <figure class="tela"><a href="../img/11-urna-de-novo.webp" target="_blank" rel="noopener"><img src="../img/11-urna-de-novo.webp" alt="Pantalla Su voto de nuevo, con figuras y código nuevos" loading="lazy"></a>
+          <figcaption>9. CONFIRMA de nuevo, sin volver a teclear: una papeleta nueva, con figuras y código nuevos.</figcaption></figure>
+        <figure class="tela"><a href="../img/12-urna-fim.webp" target="_blank" rel="noopener"><img src="../img/12-urna-fim.webp" alt="Pantalla FIN con las figuras del voto" loading="lazy"></a>
+          <figcaption>10. CONFIRMA: voto depositado. La clave de la papeleta se destruye al instante.</figcaption></figure>
+      </div>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/14-comprovante.webp" target="_blank" rel="noopener"><img src="../img/14-comprovante.webp" alt="Comprobante impreso con el código del voto y la parte de la prueba de la urna" loading="lazy"></a>
+          <figcaption>11. Un solo papel: el código del voto, el código de control y las figuras, y justo debajo la prueba, con el candidato declarado, el código, la clave y la firma de la urna.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>Qué hay en el papel</h4>
+          <ul>
+            <li><strong>Código de su voto</strong>, <strong>código de control</strong> y <strong>figuras</strong>: para encontrar su papeleta cifrada en el BU publicado.</li>
+            <li><strong>Prueba de la urna</strong>: lo que dijo la urna, el código y la <strong>clave</strong> de la papeleta probada, y la <strong>declaración firmada</strong> por la urna.</li>
+            <li>Sin nombre, sin hora y sin decir por quién votó.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="t-fim">E. Fin del día</h2>
+      <div class="par estreito">
+        <figure class="tela papel-foto"><a href="../img/16-bu-papel.webp" target="_blank" rel="noopener"><img src="../img/16-bu-papel.webp" alt="Acta de resultados impresa con votos por candidato y el código del BU" loading="lazy"></a>
+          <figcaption>12. El BU impreso va a la puerta de la escuela. El código del BU identifica exactamente ese documento.</figcaption></figure>
+        <div class="nota-lado">
+          <h4>Como el papel de hoy, con dos extras</h4>
+          <ul>
+            <li>Votos por candidato, en blanco, nulos y participación (la participación viene del contador de la mesa).</li>
+            <li><strong>Papeletas de prueba</strong>: abiertas y no contadas.</li>
+            <li><strong>Código del BU</strong>: el primer tramo del hash del BU firmado. El BU publicado debe tener el mismo código.</li>
+          </ul>
+        </div>
+      </div>
+      <figure class="tela"><a href="../img/17-mesario-transmitida.webp" target="_blank" rel="noopener"><img src="../img/17-mesario-transmitida.webp" alt="Terminal del miembro de mesa después de transmitir el medio al organismo electoral" loading="lazy"></a>
+        <figcaption>13. El medio (acta de cero votos + BU + papeletas cifradas) va al organismo electoral, que verifica la firma de la urna antes de publicarlo en la cadena.</figcaption></figure>
+
+      <h2 id="t-casa">F. En casa</h2>
+      <figure class="tela"><a href="../img/21-verificar-voto.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/21-verificar-voto.webp" alt="Verificar voto: el código tecleado muestra las mismas figuras y el mismo código de control" loading="lazy"></div></a>
+        <figcaption>14. Verificar voto: el código del comprobante lleva a las mismas figuras y al mismo código de control. El voto está en el BU y fue contado.</figcaption></figure>
+      <div class="par">
+        <figure class="tela"><a href="../img/22a-teste-texto-colado.webp" target="_blank" rel="noopener"><img src="../img/22a-teste-texto-colado.webp" alt="Verificar prueba: el texto del comprobante pegado en el cuadro" loading="lazy"></a>
+          <figcaption>15. Verificar prueba: el votante pega el texto de la prueba. Los campos se rellenan solos.</figcaption></figure>
+        <figure class="tela"><a href="../img/23-teste-resultado.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/23-teste-resultado.webp" alt="Resultado: la urna de la mesa pasó la prueba" loading="lazy"></div></a>
+          <figcaption>16. La computadora vuelve a cifrar con la clave del papel. La urna dijo 25, la cuenta dio 25 y la firma es válida: urna honesta.</figcaption></figure>
+      </div>
+      <figure class="tela"><a href="../img/24-verificar-bu.webp" target="_blank" rel="noopener"><img src="../img/24-verificar-bu.webp" alt="Acta de la mesa publicada con el código del BU y la comparación entre el BU impreso y el escrutinio criptográfico" loading="lazy"></a>
+        <figcaption>17. Acta de la mesa: el código y los números son los mismos del papel de la puerta, y el BU impreso coincide con el escrutinio criptográfico.</figcaption></figure>
+
+      <h2 id="t-apuracao">G. Escrutinio y auditoría pública</h2>
+      <figure class="tela"><a href="../img/20-apuracao.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/20-apuracao.webp" alt="Página de los custodios con los descifrados y el resultado" loading="lazy"></div></a>
+        <figcaption>18. Custodios: cada uno audita el tablón, recalcula las sumas y solo entonces descifra su parte. No se abre ningún voto individual.</figcaption></figure>
+      <figure class="tela"><a href="../img/25-auditoria.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/25-auditoria.webp" alt="Auditoría: 22 verificaciones aprobadas, resultado recalculado y cadena de bloques" loading="lazy"></div></a>
+        <figcaption>19. Auditoría: el navegador descarga solo la cadena pública y rehace las 22 verificaciones. Aquí, 22 aprobadas y ninguna fallida. Desplace la imagen para verlas todas.</figcaption></figure>
+      <figure class="tela"><a href="../img/25b-cadeia.webp" target="_blank" rel="noopener"><img src="../img/25b-cadeia.webp" alt="Cadena de bloques pública, del génesis al resultado" loading="lazy"></a>
+        <figcaption>20. La cadena pública, del génesis al resultado: cada bloque apunta al anterior y está firmado.</figcaption></figure>
+      <figure class="tela"><a href="../img/27-admin-bancos.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/27-admin-bancos.webp" alt="Admin, Bases de datos: el contenido de las cuatro bases separadas" loading="lazy"></div></a>
+        <figcaption>21. Admin → Bases de datos: el administrador lo lee todo y, aun así, nada vincula al votante con el voto.</figcaption></figure>
+
+      <h2 id="t-laboratorio">H. Laboratorio: urnas fraudulentas</h2>
+      <p>
+        En <em>Admin → Laboratorio de ataques</em>, un botón instala siete urnas con software adulterado (el candidato favorecido se sortea),
+        otro simula un votante que prueba en cada una y transmite las mesas, y «Verificar en casa» lleva el comprobante de ese votante a la
+        pantalla de verificación.
+      </p>
+      <figure class="tela"><a href="../img/30-laboratorio.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/30-laboratorio.webp" alt="Laboratorio con las siete urnas de ejemplo transmitidas" loading="lazy"></div></a>
+        <figcaption>22. Las siete urnas de ejemplo, ya transmitidas. Todas pasan la auditoría matemática, y cada una es descubierta en casa a su manera.</figcaption></figure>
+      <figure class="tela"><a href="../img/31-teste-fraude.webp" target="_blank" rel="noopener"><div class="rolagem"><img src="../img/31-teste-fraude.webp" alt="Verificar prueba con veredicto FRAUDE: la urna dijo 25 y la cuenta dio 61" loading="lazy"></div></a>
+        <figcaption>23. La urna que desvía votos: en el papel dijo 25, y la computadora del votante reprodujo 61. La declaración firmada se convierte en prueba.</figcaption></figure>
+      <figure class="tela"><a href="../img/32-verificar-voto-sumiu.webp" target="_blank" rel="noopener"><img src="../img/32-verificar-voto-sumiu.webp" alt="Verificar voto: código no encontrado en el medio de la mesa" loading="lazy"></a>
+        <figcaption>24. La urna que muestra un código y graba otra papeleta: en Verificar voto, el código del votante no está en el medio de la mesa.</figcaption></figure>
+
+      <!-- ================================================================== PARTE III -->
+      <div class="parte-titulo">
+        <div class="rotulo">Parte III</div>
+        <h2>Por dentro</h2>
+        <p>Arquitectura, criptografía, garantías, pruebas de intrusión y limitaciones. Para técnicos, auditores e investigadores.</p>
+      </div>
+
+      <h2 id="arquitetura">7. Arquitectura</h2>
+      <h3>7.1 Mesa sin conexión y tablón público</h3>
+      <p>
+        El sistema separa la <strong>mesa electoral</strong>, que funciona sin red todo el día, del <strong>tablón público nacional</strong>,
+        mantenido por el organismo electoral. Se encuentran solo en dos momentos:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Momento</th><th>Qué ocurre</th><th>Registro público</th></tr></thead>
+          <tbody>
+            <tr><td>Antes de la elección: <strong>carga</strong></td><td>La urna genera dentro de sí su propio par de claves Ed25519; el terminal de la mesa genera la clave RSA de las credenciales. Solo salen las claves públicas.</td><td>Bloque <code>CARGA</code></td></tr>
+            <tr><td>Después del cierre: <strong>medio</strong></td><td>El acta de cero votos y el acta de resultados, firmadas por la urna, con todas las papeletas cifradas de la mesa. El tablón lo verifica todo contra la carga antes de publicar.</td><td>Bloque <code>SECAO</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="mermaid">
+flowchart LR
+  subgraph S["Mesa electoral (sin red)"]
+    M["Terminal del miembro de mesa<br/>padrón · clave de la mesa"] -- habilita --> U["Urna<br/>clave propia · memoria"]
+    U -- "acta de cero / BU" --> P["Papeles impresos<br/>BU en la puerta de la escuela"]
+  end
+  Q["Tablón público<br/>cadena de bloques firmada"]
+  Q -- "carga (antes)" --> U
+  U -- "medio (después)" --> Q
+  Q --> T["3 custodios<br/>descifran sumas por mesa"]
+  Q --> E["Votantes y auditores<br/>verifican en casa, sin conexión"]
+      </pre>
+
+      <h3>7.2 Separación de datos</h3>
+      <p>Cuatro bases de datos físicamente separadas. No existe clave foránea que vincule votante y papeleta.</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Base</th><th>Función</th><th>Sabe</th><th>No sabe</th></tr></thead>
+          <tbody>
+            <tr><td><code>registro.db</code></td><td>Padrón de la mesa</td><td>Quién es votante y quién acudió</td><td>Nada sobre el voto; ni siquiera el orden de llegada</td></tr>
+            <tr><td><code>autoridade.db</code></td><td>Terminal de la mesa</td><td>La clave RSA de la mesa y cuántas credenciales firmó</td><td>Qué credencial pertenece a quién</td></tr>
+            <tr><td><code>urnas.db</code></td><td>Memoria de la urna</td><td>Clave de la urna, papeletas cifradas, contador por opción</td><td>Identidad, hora, orden de llegada, clave de las papeletas depositadas</td></tr>
+            <tr><td><code>boletim.db</code></td><td>Tablón público</td><td>Cargas y medios de las mesas</td><td>Identidad; nada de la votación antes de que llegue el medio</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Fases</h3>
+      <div class="formula">GENESE → CHAVE_TRUSTEE ×3 → ABERTURA → (CARGA | SECAO)* → ENCERRAMENTO → DECRIPTACAO_PARCIAL ×3 → RESULTADO</div>
+      <p>
+        Cada bloque contiene el hash del anterior y está firmado con la clave Ed25519 del tablón, publicada en el génesis. El génesis también
+        publica las opciones (con el SHA-256 de cada foto) y el hash del software que se ejecuta en la mesa.
+      </p>
+
+      <h2 id="cripto">8. Criptografía</h2>
+      <h3>8.1 Primitivas</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Función</th><th>Elección</th></tr></thead>
+          <tbody>
+            <tr><td>Grupo</td><td>ristretto255 (RFC 9496), orden primo ≈ 2<sup>252</sup>, unos 128 bits de seguridad</td></tr>
+            <tr><td>Cifrado del voto</td><td>ElGamal exponencial, aditivamente homomórfico</td></tr>
+            <tr><td>Pruebas</td><td>Disyunción 0-o-1 (Cramer-Damgård-Schoenmakers), Chaum-Pedersen, Schnorr; Fiat-Shamir fuerte con SHA-512</td></tr>
+            <tr><td>Credencial anónima</td><td>Firma ciega RSA-2048 con hash de dominio completo (Chaum)</td></tr>
+            <tr><td>Firmas</td><td>Ed25519 (RFC 8032) para papeleta, urna y tablón</td></tr>
+            <tr><td>Hashes</td><td>SHA-256 (identificadores) y SHA-512 (desafíos)</td></tr>
+            <tr><td>Aleatoriedad</td><td>CSPRNG del sistema operativo; los generadores no criptográficos están prohibidos por una regla de análisis estático</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 La papeleta</h3>
+      <p>Con <em>k</em> opciones (candidatos, en blanco y nulo), la papeleta cifra un vector con 1 en la opción elegida y 0 en las demás. Para cada opción <em>i</em>:</p>
+      <div class="formula">a_i = g^(r_i)        b_i = g^(m_i) · h^(r_i)        m_i ∈ {0, 1},   Σ m_i = 1</div>
+      <p>
+        <em>h</em> es la clave pública conjunta de los tres custodios. Cada par (a<sub>i</sub>, b<sub>i</sub>) lleva una prueba de que cifra 0 o
+        1, y la papeleta lleva una prueba de que la suma cifra exactamente 1, sin revelar qué opción es. El <strong>rastreador</strong> de la
+        papeleta es el SHA-256 de todos los cifrados.
+      </p>
+      <h4>La clave de la papeleta</h4>
+      <p>Cada papeleta tiene una semilla de 128 bits del CSPRNG de la urna, y toda la aleatoriedad sale de ella:</p>
+      <div class="formula">r_i = H("T-VOTE/aleatoriedade/v1", [semilla, hash_elección, i])  mod L</div>
+      <p>
+        En la papeleta depositada, la semilla se destruye en el momento del depósito. En la papeleta de prueba, se revela, se publica en el BU y
+        se imprime en el comprobante: con ella, cualquier computadora rehace los cifrados de cada opción posible y descubre cuál fue cifrada.
+      </p>
+
+      <h3>8.3 Credencial anónima</h3>
+      <p>
+        Habilitada por el miembro de mesa, la urna genera un par Ed25519 efímero y pide al terminal de la mesa una firma <em>ciega</em> sobre la
+        clave pública. La mesa firma sin ver lo que firma y solo suma 1 a su contador, que se imprime en el BU como participación. La papeleta
+        se firma con esa credencial, y el <strong>anulador</strong> (<em>nullifier</em>, SHA-256 de la clave de la credencial) impide que la misma
+        credencial vote dos veces. Ni la mesa ni el padrón pueden vincular una credencial con un votante.
+      </p>
+
+      <h3>8.4 Sello, código, figuras y código de control</h3>
+      <p>En cuanto la papeleta queda cerrada, la urna la sella con su propia clave. El sello es determinista (Ed25519):</p>
+      <div class="formula">sello   = Ed25519(clave_urna, SHA-256("T-VOTE/selo/v1|" ‖ {elección, rastreador, mesa}))
+v       = SHA-256("T-VOTE/verificacao/v1|" ‖ sello)
+
+figuras = FIGURAS[v[0]], FIGURAS[v[1]]                     16 bits (256 figuras)
+código  = zona ‖ mesa ‖ base32(25 bits de v[2..6])          25 bits aleatorios
+control = base32(40 bits de v[6..11])                       40 bits</div>
+      <p>
+        El código usa base32 de Crockford (sin I, L, O ni U); al leer, la O pasa a 0 y la I/L a 1. Es único en la mesa, y la mesa en el prefijo
+        lo hace único en la elección. Las 256 figuras se eligieron para que sean dibujables, sin pares que difieran en una letra y sin contenido
+        político, religioso ni de armas.
+      </p>
+      <div class="aviso alerta">
+        <p>
+          <strong>Por qué existe el código de control.</strong> Las 2 figuras solas tienen 16 bits: en un ensayo, una urna adulterada encontró,
+          en menos de mil cifrados, dos papeletas (una por candidato) con las mismas figuras, y podría abrir una en la prueba y depositar la otra.
+          Con código y figuras (41 bits), el mismo par exigiría unos 2<sup>20</sup> cifrados, aún al alcance de una urna preparada. El código de
+          control, impreso antes de la decisión, eleva el compromiso a 81 bits: el mismo ataque pasa a exigir unos 2<sup>40</sup> cifrados en el
+          momento, lo cual es inviable.
+        </p>
+      </div>
+
+      <h3>8.5 Prueba de la urna (desafío de Benaloh)</h3>
+      <p>
+        Tras ver el compromiso, el votante puede pulsar TESTAR. La urna revela la semilla, guarda la papeleta abierta para el BU y
+        <strong>firma una declaración</strong> con el candidato que dice haber encontrado y la clave impresa:
+      </p>
+      <div class="formula">declaración = Ed25519(clave_urna, SHA-256("T-VOTE/declaracao-teste/v2|" ‖ {elección, mesa, rastreador, opción, semilla}))</div>
+      <p>
+        En casa, el validador vuelve a cifrar cada opción con la semilla del papel y busca la única que reproduce exactamente los cifrados
+        sellados bajo ese código. Si no es la declarada, la urna mintió, y la firma lo convierte en una prueba transferible. Si alguien altera el
+        papel, la firma deja de coincidir: un papel falsificado no incrimina a una urna honesta.
+      </p>
+
+      <h3>8.6 Acta de cero votos y acta de resultados</h3>
+      <p>Ambas son documentos JSON canónicos firmados por la urna:</p>
+      <ul>
+        <li><strong>Acta de cero votos:</strong> elección, mesa, clave de la urna, clave de la mesa, hash del software, número de papeletas en memoria (cero) y hora de apertura.</li>
+        <li><strong>BU:</strong> apunta al hash del acta de cero votos y trae la participación (contador de la mesa), todas las papeletas y papeletas de prueba en orden de rastreador, el conteo en claro por opción (lo que se imprime) y el agregado homomórfico de los cifrados.</li>
+      </ul>
+      <p>El <strong>código del BU</strong> impreso en el papel son los 16 primeros caracteres hexadecimales del hash del documento.</p>
+
+      <h3>8.7 Escrutinio por mesa</h3>
+      <p>La clave de la elección es el producto de las claves de los tres custodios. Para cada mesa <em>s</em> y opción <em>j</em>, con agregado (A<sub>sj</sub>, B<sub>sj</sub>):</p>
+      <div class="formula">D_sj,t = A_sj^(x_t)                          (con prueba Chaum-Pedersen; el contexto incluye la mesa)
+g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por búsqueda en [0, nº de papeletas]</div>
+      <p>
+        Antes de descifrar, cada custodio audita el paquete y recalcula el agregado; se niega a descifrar cualquier cosa que no sea la suma que
+        él mismo recalculó. Descifrar mesa por mesa permite comparar cada BU impreso con el escrutinio criptográfico.
+      </p>
+
+      <h2 id="verificador">9. Qué verifica el validador del votante</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Entrada</th><th>Verificaciones</th></tr></thead>
+          <tbody>
+            <tr><td>Código del voto</td><td>Papeleta presente en el medio de la mesa · cadena íntegra y firmada · medio firmado por la urna de la carga · sello, código y figuras derivados del sello · credencial ciega válida de la mesa · firma de la papeleta · pruebas de conocimiento cero · anulador único · incluida en el agregado · descifrado de la mesa con pruebas</td></tr>
+            <tr><td>Código + clave de la prueba (+ declaración)</td><td>Mesa transmitida · papeleta de prueba en el BU · la semilla reproduce exactamente una opción · esa opción es la declarada · firma de la urna sobre la declaración · rastreador y sello coinciden</td></tr>
+            <tr><td>Zona y mesa</td><td>BU publicado firmado por la urna · suma de papeletas = agregado · conteo impreso = descifrado · código del BU para comparar con el papel</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Veredictos de la prueba: <span class="chip ok">urna honesta</span> <span class="chip falha">fraude</span> <span class="chip alerta">no concluyente</span> (por ejemplo, cuando la mesa aún no ha transmitido o cuando la firma tecleada no coincide con el candidato indicado).</p>
+
+      <h2 id="e2e">10. Verificabilidad de extremo a extremo</h2>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Propiedad</th><th>Mecanismo</th><th>Quién verifica</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Cifrado según lo previsto</strong> (el voto cifrado es el que eligió el votante)</td><td>Compromiso de 81 bits antes de la decisión + prueba con clave impresa y declaración firmada</td><td>El votante que prueba, fuera de la urna</td></tr>
+            <tr><td><strong>Registrado según lo depositado</strong> (la papeleta está en el registro público)</td><td>Código, figuras y código de control grabados en el BU y derivados del sello de la urna; BU firmado por la urna y anclado en el papel de la puerta de la escuela</td><td>Cualquier votante con el comprobante</td></tr>
+            <tr><td><strong>Contado según lo registrado</strong> (el resultado es la suma correcta)</td><td>Agregado homomórfico recalculable, descifrado con pruebas Chaum-Pedersen, BU impreso = descifrado</td><td>Cualquier persona, con el paquete público</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Fuerza de la prueba</h3>
+      <p>
+        Como la urna no sabe quién va a probar, una urna que cambia <em>k</em> votos es descubierta si al menos un votante prueba una de las
+        papeletas cambiadas. Si cada votante prueba con probabilidad <em>p</em>, la probabilidad de descubrirla es 1 − (1 − p)<sup>k</sup>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th class="num">Votos cambiados</th><th class="num">5% prueban</th><th class="num">10% prueban</th><th class="num">20% prueban</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td class="num">5,0%</td><td class="num">10,0%</td><td class="num">20,0%</td></tr>
+            <tr><td class="num">10</td><td class="num">40,1%</td><td class="num">65,1%</td><td class="num">89,3%</td></tr>
+            <tr><td class="num">50</td><td class="num">92,3%</td><td class="num">99,5%</td><td class="num">99,9986%</td></tr>
+            <tr><td class="num">100</td><td class="num">99,4%</td><td class="num">99,9973%</td><td class="num">&gt; 99,9999%</td></tr>
+            <tr><td class="num">300</td><td class="num">&gt; 99,9999%</td><td class="num">&gt; 99,9999%</td><td class="num">&gt; 99,9999%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="auditoria">11. Auditoría universal</h2>
+      <p>El auditor recibe solo el paquete público (la cadena de bloques) y rehace 22 verificaciones:</p>
+      <ol>
+        <li>Integridad de la cadena (hash y encadenamiento de cada bloque)</li>
+        <li>Firma del tablón en cada bloque</li>
+        <li>Manifiesto de la elección (génesis) y versión del protocolo</li>
+        <li>Orden de las fases</li>
+        <li>Claves de los custodios con prueba de Schnorr</li>
+        <li>Acta de cero votos nacional y clave conjunta</li>
+        <li>Carga de las urnas: clave propia, ninguna repetida, software igual al del génesis, ninguna carga después del medio</li>
+        <li>Medios firmados por la urna de la carga, acta de cero votos en cero, un medio por mesa</li>
+        <li>Papeletas sin orden de llegada y sin hora (campos exactos, orden del rastreador)</li>
+        <li>Credenciales anónimas válidas de la mesa</li>
+        <li>Firma de cada papeleta</li>
+        <li>Pruebas de conocimiento cero</li>
+        <li>Rastreadores y anuladores recalculados</li>
+        <li>Código, figuras y código de control derivados del sello; códigos únicos</li>
+        <li>Una credencial, un voto</li>
+        <li>Las papeletas de prueba coinciden con la semilla revelada</li>
+        <li>Papeletas ≤ participación; el conteo del BU suma el número de papeletas</li>
+        <li>Suma homomórfica por mesa</li>
+        <li>El cierre enumera exactamente las mesas recibidas y las que no tienen medio</li>
+        <li>Descifrado parcial de cada custodio, mesa por mesa, con prueba</li>
+        <li>BU impreso = escrutinio criptográfico</li>
+        <li>Resultado publicado = recalculado, por mesa y en total</li>
+      </ol>
+
+      <h2 id="ameacas">12. Modelo de amenazas y pruebas de intrusión</h2>
+      <p>Se consideraron atacantes con poderes crecientes, y cada ataque se ejecutó contra los módulos reales del sistema:</p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Ataque</th><th>Atacante</th><th>Quién lo detectó</th></tr></thead>
+          <tbody>
+            <tr><td>Cambiar un voto directamente en la base</td><td>Acceso a la base, sin claves</td><td><span class="chip ok">auditor</span> y votantes</td></tr>
+            <tr><td>Cambiar un voto y recalcular los hashes</td><td>Acceso a la base, sin claves</td><td><span class="chip ok">auditor</span> (firma del tablón)</td></tr>
+            <tr><td>Eliminar una papeleta en la totalización</td><td>Organismo electoral (clave del tablón)</td><td><span class="chip ok">auditor</span> (firma de la urna) y votantes</td></tr>
+            <tr><td>Alterar el resultado publicado</td><td>Organismo electoral</td><td><span class="chip ok">auditor</span></td></tr>
+            <tr><td>BU impreso con números falsos</td><td>Infiltrado con la clave de la urna</td><td><span class="chip ok">auditor</span> (BU ≠ escrutinio) y papel</td></tr>
+            <tr><td>Guardar el orden de llegada con hora</td><td>Infiltrado con la clave de la urna</td><td><span class="chip ok">auditor</span> (secreto)</td></tr>
+            <tr><td>Papeleta extra con credencial legítima</td><td>Infiltrado con claves de la mesa y de la urna</td><td><span class="chip ok">auditor</span> (participación) y papel</td></tr>
+            <tr><td>Cambiar figuras y códigos grabados</td><td>Infiltrado con la clave de la urna</td><td><span class="chip ok">auditor</span>, votantes y papel</td></tr>
+            <tr><td>Reescribir una mesa entera</td><td>Infiltrado con claves del tablón, de la urna y de la mesa</td><td><span class="chip alerta">el auditor no lo ve</span> · votantes (los códigos desaparecen) y BU en papel</td></tr>
+            <tr><td>Hacer desaparecer una mesa entera</td><td>Organismo electoral</td><td><span class="chip alerta">el auditor solo avisa</span> · BU en papel y votantes</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Urnas con software adulterado</h3>
+      <p>
+        Siete urnas de laboratorio simulan programas cambiados antes de la carga. Todas muestran al votante lo que tecleó, todas dicen que el
+        software coincide, y el BU de todas pasa la auditoría matemática, porque la urna cuenta en el BU lo que realmente cifró. En cada caso,
+        el fraude fue descubierto en casa:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Software adulterado</th><th>Resultado en casa</th></tr></thead>
+          <tbody>
+            <tr><td>Desvía todos los votos y miente en la prueba</td><td>El papel decía 29; la clave reprodujo 21 → <span class="chip falha">fraude</span>, con firma válida</td></tr>
+            <tr><td>Desvía la mitad de los votos</td><td>2 de 3 pruebas detectaron el desvío → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Desvía solo los votos de un candidato</td><td>Se probó al candidato víctima; la clave reprodujo otro → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Convierte votos en nulos</td><td>La papeleta de prueba era nula → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Imprime una clave falsa en la prueba</td><td>La clave no abre la papeleta sellada → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Hace desaparecer la papeleta de prueba</td><td>La prueba no está en el BU publicado → <span class="chip falha">fraude</span></td></tr>
+            <tr><td>Muestra su código y graba otra papeleta (honesta en la prueba)</td><td>El código del voto no existe en el BU → <span class="chip falha">fraude</span> (detectado en «Mi voto»)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Las matemáticas no ven la intención.</strong> Una urna que cifra el candidato equivocado produce una papeleta perfectamente
+          válida. Solo el votante sabe lo que tecleó; por eso la prueba, verificada fuera de la urna, es indispensable, y por eso el sistema
+          combina la auditoría matemática con el papel y con el votante.
+        </p>
+      </div>
+
+      <h2 id="sigilo">13. Secreto y la lección de la TPS 2012</h2>
+      <p>
+        En la Prueba Pública de Seguridad (TPS) de 2012 de la urna brasileña, unos investigadores mostraron que el orden de los votos grabados
+        por la urna de entonces podía reconstruirse, porque el barajado usaba un generador no criptográfico sembrado con la hora. T-VOTE responde
+        en varias capas:
+      </p>
+      <ul>
+        <li>No hay barajado que sembrar: el BU trae las papeletas en el orden del rastreador, que es el hash de cifrados aleatorios.</li>
+        <li>La memoria de la urna es una tabla sin identificador secuencial, indexada por (urna, rastreador): el orden guardado es el del hash, no el de llegada.</li>
+        <li>Ningún registro por voto con hora; el journal de SQLite en modo DELETE y <code>secure_delete</code> borran lo que pudiera quedar.</li>
+        <li>El padrón no graba el orden de llegada, y la mesa firma a ciegas.</li>
+        <li>La clave de cada papeleta depositada no existe después del depósito.</li>
+      </ul>
+      <p>
+        En una prueba estadística con 160 papeletas por candidato, la primera figura salió «impar» en el 49% de las papeletas de un candidato y en
+        el 50% de las del otro, como se espera de valores independientes del voto.
+      </p>
+
+      <h2 id="limites">14. Límites y trabajo futuro</h2>
+      <p>Decir lo que no está resuelto forma parte de la seguridad.</p>
+      <ul>
+        <li><strong>Secreto frente a una urna adulterada.</strong> La urna ve el voto, como la actual. Adulterada, puede elegir la aleatoriedad para
+          que las figuras «codifiquen» al candidato: un canal subliminal demostrado en el laboratorio (20 de 20 votos filtrados con, como mucho,
+          unas decenas de cifrados por voto). La integridad no depende de confiar en la urna; el secreto frente a ella, sí. Trabajo futuro:
+          aleatoriedad de un segundo aparato independiente, con recifrado antes del sello.</li>
+        <li><strong>Un infiltrado con las claves de la urna y de la mesa</strong> puede fabricar una mesa matemáticamente perfecta. Quienes lo
+          detectan son los votantes y el BU en papel; por eso el papel y las fotos de los fiscales siguen siendo esenciales.</li>
+        <li><strong>Ataque de colisión entre votantes</strong> (<em>clash</em>): una urna adulterada podría mostrar a dos votantes la misma
+          papeleta. Cada uno, por separado, encuentra «su» código; solo se descubre comparando comprobantes.</li>
+        <li><strong>La prueba es probabilística</strong> y depende de cuántos votantes prueban.</li>
+        <li><strong>Tres de tres custodios.</strong> En producción: umbral <em>t</em>-de-<em>n</em> con generación distribuida de claves.</li>
+        <li><strong>RSA-FDH</strong> en las credenciales. En producción: firmas ciegas estandarizadas (RFC 9474).</li>
+        <li><strong>Claves en software.</strong> En producción: módulos de hardware (HSM/TPM), arranque medido y compilaciones reproducibles.</li>
+        <li><strong>La coacción presencial</strong> (alguien dentro de la cabina, una foto de la pantalla) está fuera del alcance de la criptografía.</li>
+        <li><strong>Código no auditado por terceros.</strong></li>
+      </ul>
+
+      <h2 id="qrcode">15. Implantación sin impresora: comprobante por código QR</h2>
+      <p>
+        Una impresora térmica en cada urna (y el papel, el mantenimiento y la logística) es el elemento más caro de este diseño. Para empezar
+        sin ese coste, el comprobante puede entregarse en formato digital, <strong>en el terminal del miembro de mesa, después de votar</strong>:
+      </p>
+      <ol>
+        <li>El votante vota (y, si quiere, prueba) en la urna, como se describió. La urna muestra las figuras, el código y el código de control en su propia pantalla, como siempre.</li>
+        <li>Cuando el votante confirma, la urna envía el comprobante al terminal del miembro de mesa por el mismo canal local que ya usa para la habilitación, sin internet.</li>
+        <li>El votante sale de la cabina y el terminal muestra un <strong>código QR</strong> con el comprobante, en una zona de la pantalla orientada hacia él. Lo fotografía con el móvil, y la pantalla se limpia en cuanto se habilita al siguiente votante.</li>
+        <li>En casa, la página de verificación o el validador sin conexión lee el código QR y hace las mismas verificaciones que con el papel: voto, prueba y BU.</li>
+      </ol>
+      <h3>Qué contiene el código QR</h3>
+      <p>
+        Exactamente lo que trae el papel: código del voto, código de control, nombres de las figuras y la firma de la urna sobre el recibo. Para
+        cada prueba, el candidato declarado, el código, la clave de la papeleta de prueba y la declaración firmada. Con una o dos papeletas de
+        prueba son unos cientos de caracteres, que caben en un código QR de tamaño medio, fácil de leer en una pantalla. Si el código es una
+        dirección de la página de verificación, los datos deben ir después del <code>#</code> (el fragmento de la URL), que el navegador no
+        envía al servidor:
+      </p>
+      <pre>https://&lt;página de verificación&gt;/verificar#v=1&amp;c=0100123WGFTT&amp;k=9RD2RJJP&amp;s=…&amp;t=…</pre>
+      <h3>Por qué en el terminal del miembro de mesa y no en la cabina</h3>
+      <ul>
+        <li><strong>La ley prohíbe el móvil en la cabina.</strong> La Ley brasileña 9.504/1997, art. 91-A, párrafo único, prohíbe llevar teléfono móvil y cámara fotográfica a la cabina de votación. Con el código QR en el terminal, el votante solo usa el móvil después de salir.</li>
+        <li><strong>El terminal ya existe.</strong> No hay hardware nuevo, solo software. El coste de implantación es casi nulo.</li>
+        <li><strong>El papel sigue siendo posible.</strong> Ambas formas pueden convivir: código QR por defecto y papel para quien lo pida o no tenga móvil. Eso permite una transición gradual, mesa por mesa.</li>
+      </ul>
+      <h3>Qué cambia en la seguridad</h3>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Punto</th><th>Análisis</th></tr></thead>
+          <tbody>
+            <tr><td>¿Podría el terminal del miembro de mesa mostrar un código QR falso?</td><td>No sin ser descubierto. El recibo y la declaración de la prueba están firmados por la urna, con la clave publicada en la carga, y el validador comprueba esas firmas. Un código alterado o cambiado no coincide: las figuras no son las que la urna mostró en su pantalla, o la firma falla.</td></tr>
+            <tr><td>¿El miembro de mesa ve el comprobante?</td><td>Puede verlo, y eso no revela el voto: el código y las figuras no dependen del candidato. La parte de la prueba muestra el candidato <em>probado</em>, que es de una papeleta anulada. Por discreción, el código QR aparece en una zona orientada al votante y desaparece con la siguiente habilitación.</td></tr>
+            <tr><td>¿Y si el terminal no muestra el código QR?</td><td>El votante solo pierde la verificación posterior. El voto ya se depositó y se contó. Una negativa sistemática a entregar comprobantes es visible y los fiscales pueden registrarla.</td></tr>
+            <tr><td>Ancla frente a una urna adulterada</td><td>Sigue siendo lo que la urna mostró en su propia pantalla, antes de la decisión: las 2 figuras, el código y el código de control. El votante comprueba que el código QR trae los mismos valores. Esto mantiene el compromiso de 81 bits de la sección 8.4.</td></tr>
+            <tr><td>Venta de votos</td><td>Igual que el papel: el código QR no demuestra por quién votó la persona.</td></tr>
+            <tr><td>Inclusión</td><td>No todos los votantes tienen un móvil con cámara. Por eso la impresión bajo demanda debe seguir disponible, aunque sea con pocas impresoras por local de votación.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso info">
+        <p>
+          <strong>Aún no está en el prototipo.</strong> Hoy el prototipo imprime el comprobante en papel (simulado en pantalla). El código QR en
+          el terminal del miembro de mesa es la propuesta para la primera fase de implantación. La criptografía no cambia: solo cambia el medio
+          de entrega del comprobante.
+        </p>
+      </div>
+
+      <h2 id="reproduzir">16. Cómo reproducirlo</h2>
+      <p>El prototipo funciona en una sola computadora, sin acceso a internet durante la ejecución. Código: <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</p>
+      <pre>git clone https://github.com/tauz-hub/TAI-VOTE.git
+cd TAI-VOTE
+npm install
+npm run dev               # http://127.0.0.1:3000
+npm run teste             # protocolo en memoria: auditor, prueba rehecha en casa y 14 ataques
+npm run teste:invasao     # elección completa con los módulos reales + informe de intrusión
+npm run validador         # genera el validador sin conexión (un único archivo HTML)
+npm run auditar -- pacote.json
+npm run verificar -- pacote.json &lt;código&gt; ["clave de la prueba"]
+npm run verificar -- pacote.json --bu 010-0123</pre>
+      <h3>Recorrido de la demostración</h3>
+      <ol>
+        <li><strong>Admin → Elección:</strong> cree la elección (los candidatos se pueden editar).</li>
+        <li><strong>Trustees:</strong> genere las tres claves; después, en Admin, <em>Abrir elección</em>.</li>
+        <li><strong>Padrón:</strong> genere votantes ficticios.</li>
+        <li><strong>Miembro de mesa:</strong> abra el terminal y la urna en ventanas separadas. En la urna, instale con el teclado (zona y mesa) y pulse CONFIRMA para la carga. En el terminal, abra la mesa.</li>
+        <li><strong>Vote:</strong> habilite a un votante, teclee un número, pulse TESTAR y después CONFIRMA; guarde el comprobante.</li>
+        <li><strong>Cierre:</strong> cierre la mesa (BU) y transmita el medio; en Admin, cierre la recepción; en Trustees, descifre.</li>
+        <li><strong>En casa:</strong> Verificar voto (código), Verificar prueba (pegue el comprobante), Acta de la mesa y Auditoría.</li>
+        <li><strong>Fraudes:</strong> Admin → Laboratorio de ataques → <em>Crear las 7 urnas de ejemplo</em> → <em>Simular todo y transmitir</em> → <em>Verificar en casa</em>.</li>
+      </ol>
+      <p>
+        Para no depender del archivo del validador que descargó, genérelo de nuevo a partir del código fuente y compare el SHA-256: la compilación
+        es determinista. La especificación completa — formatos, dominios de hash, verificaciones y API — acompaña al código, y una implementación
+        independiente (en Python, por ejemplo) debe aprobar los paquetes del prototipo y rechazar las mismas adulteraciones.
+      </p>
+
+      <h2 id="fontes">Fuentes</h2>
+      <div class="refs">
+        <div class="grupo">Fallas reales en sistemas de votación</div>
+        <ol>
+          <li>Aranha, D. F.; Karam, M. M.; Miranda, A.; Scarel, F. <em>Vulnerabilidades no software da urna eletrônica brasileira</em> [Vulnerabilidades en el software de la urna electrónica brasileña]. Informe técnico de la Prueba Pública de Seguridad, 2012. Versión en inglés: «Software vulnerabilities in the Brazilian voting machine», en <em>Design, Development, and Use of Secure Electronic Voting Systems</em>, IGI Global, 2014.</li>
+          <li>Aranha, D. F.; Barbosa, P. Y. S.; Cardoso, T. N. C.; Araújo, C. L.; Matias, P. «The return of software vulnerabilities in the Brazilian voting machine». <em>Computers &amp; Security</em>, vol. 86, 2019.</li>
+          <li>Tribunal Superior Eleitoral (Tribunal Superior Electoral de Brasil). Pruebas Públicas de Seguridad del Sistema Electrónico de Votación: documentación e informes. justicaeleitoral.jus.br.</li>
+          <li>Hursti, H. <em>Critical Security Issues with Diebold Optical Scan Design.</em> Black Box Voting Project, 2005.</li>
+          <li>Wolchok, S.; Wustrow, E.; Isabel, D.; Halderman, J. A. «Attacking the Washington, D.C. Internet Voting System». <em>Financial Cryptography and Data Security</em>, 2012.</li>
+          <li>Gaudry, P.; Golovnev, A. «Breaking the Encryption Scheme of the Moscow Internet Voting System». <em>Financial Cryptography and Data Security</em>, 2020.</li>
+          <li>Lewis, S. J.; Pereira, O.; Teague, V. «Ceci n'est pas une preuve: the use of trapdoor commitments in Bayer-Groth proofs and the implications for the verifiability of the Scytl-SwissPost Internet voting system», 2019.</li>
+          <li>Bernhard, D.; Pereira, O.; Warinschi, B. «How Not to Prove Yourself: Pitfalls of the Fiat-Shamir Heuristic and Applications to Helios». <em>ASIACRYPT</em>, 2012.</li>
+        </ol>
+
+        <div class="grupo">Votación verificable de extremo a extremo</div>
+        <ol start="9">
+          <li>Benaloh, J. «Simple Verifiable Elections». <em>USENIX/ACCURATE Electronic Voting Technology Workshop (EVT)</em>, 2006.</li>
+          <li>Benaloh, J. «Ballot Casting Assurance via Voter-Initiated Poll Station Auditing». <em>EVT</em>, 2007.</li>
+          <li>Adida, B. «Helios: Web-based Open-Audit Voting». <em>USENIX Security Symposium</em>, 2008.</li>
+          <li>Bell, S.; Benaloh, J.; Byrne, M. D.; DeBeauvoir, D.; Eakin, B.; Fisher, G.; Kortum, P.; McBurnett, N.; Montoya, J.; Parker, M.; Pereira, O.; Stark, P. B.; Wallach, D. S.; Winn, M. «STAR-Vote: A Secure, Transparent, Auditable, and Reliable Voting System». <em>USENIX Journal of Election Technology and Systems (JETS)</em>, 2013.</li>
+          <li>Benaloh, J.; Naehrig, M. <em>ElectionGuard Design Specification</em>, versión 2.0. Microsoft, 2023. electionguard.vote.</li>
+          <li>Cramer, R.; Gennaro, R.; Schoenmakers, B. «A Secure and Optimally Efficient Multi-Authority Election Scheme». <em>EUROCRYPT</em>, 1997.</li>
+          <li>Küsters, R.; Truderung, T.; Vogt, A. «Clash Attacks on the Verifiability of E-Voting Systems». <em>IEEE Symposium on Security and Privacy</em>, 2012.</li>
+          <li>Rivest, R. L. «On the notion of 'software independence' in voting systems». <em>Philosophical Transactions of the Royal Society A</em>, vol. 366, 2008.</li>
+          <li>Stark, P. B.; Wagner, D. «Evidence-Based Elections». <em>IEEE Security &amp; Privacy</em>, vol. 10, n.º 5, 2012.</li>
+          <li>Bernhard, M.; Benaloh, J.; Halderman, J. A.; Rivest, R. L.; Ryan, P. Y. A.; Stark, P. B.; Teague, V.; Vora, P. L.; Wallach, D. S. «Public Evidence from Secret Ballots». <em>E-Vote-ID</em>, 2017.</li>
+          <li>National Institute of Standards and Technology. <em>Voluntary Voting System Guidelines (VVSG) 2.0</em>, 2021.</li>
+        </ol>
+
+        <div class="grupo">Primitivas criptográficas</div>
+        <ol start="20">
+          <li>ElGamal, T. «A Public Key Cryptosystem and a Signature Scheme Based on Discrete Logarithms». <em>IEEE Transactions on Information Theory</em>, vol. 31, n.º 4, 1985.</li>
+          <li>Chaum, D. «Blind Signatures for Untraceable Payments». <em>CRYPTO '82</em>, 1983.</li>
+          <li>Chaum, D.; Pedersen, T. P. «Wallet Databases with Observers». <em>CRYPTO '92</em>, 1993.</li>
+          <li>Cramer, R.; Damgård, I.; Schoenmakers, B. «Proofs of Partial Knowledge and Simplified Design of Witness Hiding Protocols». <em>CRYPTO '94</em>, 1994.</li>
+          <li>Schnorr, C. P. «Efficient Signature Generation by Smart Cards». <em>Journal of Cryptology</em>, vol. 4, 1991.</li>
+          <li>Fiat, A.; Shamir, A. «How to Prove Yourself: Practical Solutions to Identification and Signature Problems». <em>CRYPTO '86</em>, 1987.</li>
+          <li>Pedersen, T. P. «A Threshold Cryptosystem without a Trusted Party». <em>EUROCRYPT '91</em>, 1991.</li>
+          <li>IETF RFC 8032 — <em>Edwards-Curve Digital Signature Algorithm (EdDSA)</em>, 2017.</li>
+          <li>IETF RFC 9496 — <em>The ristretto255 and decaf448 Groups</em>, 2023.</li>
+          <li>IETF RFC 9474 — <em>RSA Blind Signatures</em>, 2023.</li>
+          <li>NIST FIPS 180-4 — <em>Secure Hash Standard (SHS)</em>, 2015.</li>
+          <li>Crockford, D. <em>Base 32</em> (alfabeto sin caracteres ambiguos). crockford.com/base32.html.</li>
+        </ol>
+
+        <div class="grupo">Legislación y normas</div>
+        <ol start="32">
+          <li>Brasil. Ley n.º 9.504, de 30 de septiembre de 1997 (Ley de Elecciones), art. 91-A, párrafo único, añadido por la Ley n.º 12.034/2009: prohibición de llevar teléfono móvil, cámara fotográfica y filmadora a la cabina de votación. planalto.gov.br.</li>
+          <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
+        </ol>
+
+        <div class="grupo">Software y datos usados en el prototipo</div>
+        <ol start="34">
+          <li>Miller, P. <em>noble-curves</em> y <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas y hashes en JavaScript. github.com/paulmillr.</li>
+          <li>Tribunal Superior Eleitoral. Portal de Datos Abiertos: fotos de campaña de los candidatos (licencia CC BY). dadosabertos.tse.jus.br.</li>
+          <li>Proyecto T-VOTE. Código fuente, especificación del protocolo (<code>docs/PROTOCOLO.md</code>) e informe de las pruebas de intrusión (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/TAI-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/TAI-VOTE</a>.</li>
+        </ol>
+      </div>
+    </div>
+  </article>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const escuro = document.documentElement.dataset.theme === "dark" || (document.documentElement.dataset.theme !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+  mermaid.initialize({ startOnLoad: true, theme: escuro ? "dark" : "neutral", fontFamily: "IBM Plex Sans, sans-serif" });
+</script>
+</body>
+</html>

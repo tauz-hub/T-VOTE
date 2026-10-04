@@ -88,7 +88,7 @@ const INDICE = new Map(FIGURAS.map((f, i) => [normalizarPalavra(f.palavra), i]))
 
 /** Tudo o que o eleitor confere sai deste hash do selo: bytes 0–1 → figuras, bytes 2–5 → parte aleatória do código. */
 function hashVerificacao(selo: string): string {
-  return sha256Hex(`TAI-VOTE/verificacao/v1|${selo}`);
+  return sha256Hex(`T-VOTE/verificacao/v1|${selo}`);
 }
 
 /** As 2 figuras derivadas do selo do quadro. */

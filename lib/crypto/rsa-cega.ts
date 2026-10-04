@@ -55,7 +55,7 @@ export function inversoModular(a: bigint, m: bigint): bigint {
 export function hashDominioCompleto(mensagem: string, n: bigint): bigint {
   const blocos = Math.ceil((n.toString(16).length * 4 + 128) / 256);
   let hex = "";
-  for (let i = 0; i < blocos; i++) hex += sha256Hex(`TAI-VOTE/fdh/v1|${i}|${mensagem}`);
+  for (let i = 0; i < blocos; i++) hex += sha256Hex(`T-VOTE/fdh/v1|${i}|${mensagem}`);
   return BigInt("0x" + hex) % n;
 }
 
@@ -111,5 +111,5 @@ export function verificarAssinaturaRSA(mensagem: string, assinaturaHex: string, 
 
 /** Mensagem que a autoridade assina às cegas: a chave pública efêmera da credencial. */
 export function mensagemCredencial(eleicaoId: string, chaveCredencial: string): string {
-  return `TAI-VOTE/credencial/v1|${eleicaoId}|${chaveCredencial}`;
+  return `T-VOTE/credencial/v1|${eleicaoId}|${chaveCredencial}`;
 }

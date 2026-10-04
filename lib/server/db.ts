@@ -22,8 +22,8 @@ import path from "node:path";
 
 export type NomeBanco = "registro" | "autoridade" | "urnas" | "boletim";
 
-// TAI_VOTE_DADOS permite rodar testes (ou outra seção) com dados separados
-export const DIRETORIO_DADOS = process.env.TAI_VOTE_DADOS ?? path.join(process.cwd(), "data");
+// T_VOTE_DADOS permite rodar testes (ou outra seção) com dados separados
+export const DIRETORIO_DADOS = process.env.T_VOTE_DADOS ?? path.join(process.cwd(), "data");
 
 export const DESCRICAO_BANCOS: Record<NomeBanco, string> = {
   registro: "Banco A — Caderno da seção: identidade e comparecimento. Nunca vê votos.",
@@ -148,8 +148,8 @@ const ESQUEMAS: Record<NomeBanco, string> = {
 };
 
 const cache = globalThis as unknown as {
-  __taiVoteDbs?: Partial<Record<NomeBanco, Database.Database>>;
-  __taiVoteEsquemas?: Partial<Record<NomeBanco, string>>;
+  __tVoteDbs?: Partial<Record<NomeBanco, Database.Database>>;
+  __tVoteEsquemas?: Partial<Record<NomeBanco, string>>;
 };
 
 export function caminhoBanco(nome: NomeBanco): string {
@@ -157,15 +157,15 @@ export function caminhoBanco(nome: NomeBanco): string {
 }
 
 export function db(nome: NomeBanco): Database.Database {
-  cache.__taiVoteDbs ??= {};
-  cache.__taiVoteEsquemas ??= {};
-  const existente = cache.__taiVoteDbs[nome];
+  cache.__tVoteDbs ??= {};
+  cache.__tVoteEsquemas ??= {};
+  const existente = cache.__tVoteDbs[nome];
   if (existente?.open) {
     // o código mudou com o servidor no ar (recarga automática): aplica o esquema novo
-    if (cache.__taiVoteEsquemas[nome] !== ESQUEMAS[nome]) {
+    if (cache.__tVoteEsquemas[nome] !== ESQUEMAS[nome]) {
       migrar(nome, existente);
       existente.exec(ESQUEMAS[nome]);
-      cache.__taiVoteEsquemas[nome] = ESQUEMAS[nome];
+      cache.__tVoteEsquemas[nome] = ESQUEMAS[nome];
     }
     return existente;
   }
@@ -176,8 +176,8 @@ export function db(nome: NomeBanco): Database.Database {
   conexao.pragma("foreign_keys = ON");
   migrar(nome, conexao);
   conexao.exec(ESQUEMAS[nome]);
-  cache.__taiVoteDbs[nome] = conexao;
-  cache.__taiVoteEsquemas[nome] = ESQUEMAS[nome];
+  cache.__tVoteDbs[nome] = conexao;
+  cache.__tVoteEsquemas[nome] = ESQUEMAS[nome];
   return conexao;
 }
 

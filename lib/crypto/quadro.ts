@@ -104,7 +104,7 @@ export type Bloco<T extends TipoBloco = TipoBloco> = CabecalhoBloco<T> & { hash:
 
 export function hashBloco(b: CabecalhoBloco): string {
   return sha256Hex(
-    "TAI-VOTE/bloco/v1|" +
+    "T-VOTE/bloco/v1|" +
       jsonCanonico({
         numero: b.numero,
         tipo: b.tipo,
@@ -155,7 +155,7 @@ export function calcularHashEleicao(
 ): string {
   return sha256Hex(
     jsonCanonico({
-      dominio: "TAI-VOTE/eleicao/v1",
+      dominio: "T-VOTE/eleicao/v1",
       genese: hashGenese,
       trustees: [...trustees]
         .sort((x, y) => x.trustee - y.trustee)
@@ -184,7 +184,7 @@ export type TipoRecibo = "RECIBO_CEDULA" | "RECIBO_DESAFIO";
 export type Recibo = { tipo: TipoRecibo; eleicao: string; secao: string; rastreador: string; assinatura: string };
 
 export function hashRecibo(tipo: TipoRecibo, eleicao: string, secao: string, rastreador: string): string {
-  return sha256Hex("TAI-VOTE/recibo/v2|" + jsonCanonico({ tipo, eleicao, secao, rastreador }));
+  return sha256Hex("T-VOTE/recibo/v2|" + jsonCanonico({ tipo, eleicao, secao, rastreador }));
 }
 
 export function verificarRecibo(r: Recibo, chaveUrna: string): boolean {
@@ -199,7 +199,7 @@ export function verificarRecibo(r: Recibo, chaveUrna: string): boolean {
  * publicada na carga.
  */
 export function hashSelo(eleicao: string, rastreador: string, secao: string): string {
-  return sha256Hex("TAI-VOTE/selo/v1|" + jsonCanonico({ eleicao, rastreador, secao }));
+  return sha256Hex("T-VOTE/selo/v1|" + jsonCanonico({ eleicao, rastreador, secao }));
 }
 
 export function verificarSelo(eleicao: string, rastreador: string, secao: string, selo: string, chaveUrna: string): boolean {

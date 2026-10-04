@@ -6,8 +6,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-const pasta = mkdtempSync(path.join(tmpdir(), "tai-vote-urna-"));
-process.env.TAI_VOTE_DADOS = pasta;
+const pasta = mkdtempSync(path.join(tmpdir(), "t-vote-urna-"));
+process.env.T_VOTE_DADOS = pasta;
 
 let falhas = 0;
 function esperar(condicao: boolean, msg: string) {
@@ -16,7 +16,7 @@ function esperar(condicao: boolean, msg: string) {
 }
 
 async function main() {
-  // importa depois de definir TAI_VOTE_DADOS
+  // importa depois de definir T_VOTE_DADOS
   const { cadastrarEleitor, obterEleitor } = await import("../lib/server/registro");
   const urnas = await import("../lib/server/urnas");
 
