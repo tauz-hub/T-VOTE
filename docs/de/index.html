@@ -56,7 +56,7 @@
       <li><a href="#e2e">10. Ende-zu-Ende-Verifizierbarkeit</a></li>
       <li><a href="#auditoria">11. Universelle Prüfung</a></li>
       <li><a href="#ameacas">12. Bedrohungen und Penetrationstests</a></li>
-      <li><a href="#sigilo">13. Wahlgeheimnis und die Lehre von 2012</a></li>
+      <li><a href="#sigilo">13. Wahlgeheimnis, Zwang und die Lehre von 2012</a></li>
       <li><a href="#limites">14. Grenzen und künftige Arbeit</a></li>
       <li><a href="#qrcode">15. Einführung ohne Drucker: QR-Code</a></li>
       <li><a href="#reproduzir">16. Nachvollziehen</a></li>
@@ -297,6 +297,7 @@ npm run dev        # öffnet unter http://127.0.0.1:3000</pre>
           einen Kandidaten testen und einen anderen wählen.</li>
         <li><strong>Keine Uhrzeit und keine Reihenfolge.</strong> Nichts speichert die Reihenfolge, in der die Stimmen eingingen, oder deren Uhrzeit.
           Genau das erlaubte es bei einem öffentlichen Test 2012, die Reihenfolge der Stimmen im damaligen brasilianischen Gerät zu rekonstruieren.</li>
+        <li><strong>Gegen Wahlzwang.</strong> Da nicht einmal der Wähler selbst beweisen kann, wen er gewählt hat, hat niemand, der Stimmen kaufen oder erzwingen will, etwas einzufordern. Siehe <a href="#coercao">Abschnitt 13.2</a>.</li>
       </ul>
 
       <h2 id="fraude-simples">5. Was passiert, wenn jemand betrügt</h2>
@@ -320,6 +321,7 @@ npm run dev        # öffnet unter http://127.0.0.1:3000</pre>
       </div>
 
       <h2 id="perguntas">6. Häufige Fragen</h2>
+      <p>Einige dieser Fragen stammen aus der öffentlichen Diskussion dieses Whitepapers. Es sind berechtigte Einwände: Jede hat hier eine kurze Antwort und einen technischen Abschnitt in Teil III.</p>
       <div class="faq">
         <details>
           <summary>Könnte das Gerät nicht einfach lügend „Prüfung OK“ anzeigen?</summary>
@@ -338,8 +340,20 @@ npm run dev        # öffnet unter http://127.0.0.1:3000</pre>
           <p>Ihre Stimme wird ganz normal gezählt. Sie verlieren nur die Möglichkeit, sie zu prüfen. Die Summe des Wahllokals bleibt für alle prüfbar.</p>
         </details>
         <details>
-          <summary>Ist die Blockkette eine Kryptowährung?</summary>
-          <p>Nein. Sie ist ein öffentliches Register, in dem jede Seite auf die vorherige verweist und von der Wahlbehörde signiert ist. Es gibt kein Mining und keine Währung: Es ist nur ein Weg, wie jeder prüfen kann, dass niemand das Veröffentlichte verändert hat.</p>
+          <summary>Ist das eine Blockchain? Wie funktioniert das, wenn das Gerät kein Internet hat?</summary>
+          <p>Es nutzt einen Teil der Blockchain-Technologie: die Struktur aus per Hash verketteten, digital signierten Blöcken, die jeder herunterladen und nachrechnen kann. Den anderen Teil nutzt es nicht: Es gibt kein Mining, keine Kryptowährung und kein Netz von Rechnern, die um das Schreibrecht konkurrieren — nur die Wahlbehörde schreibt. Das Gerät bleibt den ganzen Tag offline, wie heute; am Ende erzeugt es eine signierte Datei, die zur Wahlbehörde gebracht wird, und erst dann wird sie in der Kette veröffentlicht. Das Gerät spricht nie mit der Kette. Details in <a href="#cadeia">Abschnitt 7.4</a>.</p>
+        </details>
+        <details>
+          <summary>Heute mischt das Gerät die Stimmen, damit niemand die Reihenfolge kennt. Wie finde ich meine Stimme, ohne das aufzuheben?</summary>
+          <p>Sie finden nicht Ihre Stimme im Klartext, sondern Ihren <em>verschlüsselten</em> Stimmzettel. Jeder Stimmzettel wird mit frischem Zufall verschlüsselt und in der Reihenfolge des Hashs des Geheimtexts gespeichert, ohne Uhrzeit. Der Code auf dem Beleg verweist auf den Geheimtext, und die Prüfung beweist, dass er aufgenommen und mitgezählt wurde — ohne ihn zu öffnen. Es gibt nichts zu mischen, weil keine Stimme im Klartext gespeichert wird. Details in <a href="#embaralhar">Abschnitt 13.1</a>.</p>
+        </details>
+        <details>
+          <summary>Und Wahlzwang? Wenn ich meine Stimme prüfen kann, kann mich dann nicht jemand zwingen zu beweisen, wen ich gewählt habe?</summary>
+          <p>Das ist die wichtigste Anforderung, und der Entwurf geht von ihr aus. Der Beleg beweist die Stimme nicht: Der Code hängt nicht vom Kandidaten ab, und nicht einmal Sie können den abgegebenen Stimmzettel öffnen, weil sein Schlüssel im Gerät vernichtet wurde. Der einzige Stimmzettel, der geöffnet werden kann, ist der von TESTAR, und der ist ungültig — man kann den vom Erpresser verlangten Kandidaten testen und jemand anderen wählen. Wer Stimmen kauft oder erzwingt, erhält keinerlei Garantie. Die verbleibenden Grenzen stehen in <a href="#coercao">Abschnitt 13.2</a>.</p>
+        </details>
+        <details>
+          <summary>Wie soll das 160 Millionen Wähler bewältigen, ohne die Energie eines ganzen Landes zu verbrauchen?</summary>
+          <p>Der Energieverbrauch von Blockchains kommt vom Mining, das es hier nicht gibt: Nur die Wahlbehörde schreibt, und jeder Block ist signiert. Im Prototyp gemessen belegt ein Stimmzettel etwa 12 KB und braucht etwa 0,1 Sekunden für die Prüfung auf einem gewöhnlichen Prozessorkern. Der Wähler prüft nur sein eigenes Wahllokal; die vollständige Prüfung des ganzen Landes passt auf einige hundert Kerne für etwa einen Tag, mit einem Verbrauch in der Größenordnung von einigen zehn kWh. Zahlen und Grenzen in <a href="#escala">Abschnitt 7.5</a>.</p>
         </details>
         <details>
           <summary>Und wenn das Wahllokal keinen Drucker hat?</summary>
@@ -548,6 +562,81 @@ flowchart LR
         Jeder Block enthält den Hash des vorherigen und ist mit dem Ed25519-Schlüssel der Tafel signiert, der im Genesis-Block veröffentlicht
         wird. Genesis veröffentlicht auch die Optionen (mit dem SHA-256 jedes Fotos) und den Hash der im Wahllokal laufenden Software.
       </p>
+
+
+      <h3 id="cadeia">7.4 Was die Blockkette ist — und was nicht</h3>
+      <p>
+        Eine berechtigte Frage: <em>Wie baut man eine Blockchain in ein Wahlgerät ohne Internet ein?</em> Die Antwort: Das Gerät nutzt die
+        Kette während der Wahl nicht. Es arbeitet offline und übergibt am Ende des Tages eine signierte Datei (das Medium, Abschnitt 7.1). Erst
+        danach veröffentlicht die Wahlbehörde diese Datei in der Kette.
+      </p>
+      <p>
+        T-VOTE nutzt einen Teil der Blockchain-Technologie: die <strong>Datenstruktur</strong>. Die Einträge liegen in Blöcken, jeder Block
+        speichert den Hash des vorherigen und ist signiert, nichts kann verändert oder entfernt werden, ohne Verkettung und Signaturen zu
+        brechen, und jeder kann die Kette herunterladen und alles nachrechnen. Den anderen Teil, den <strong>dezentralen Konsens</strong>,
+        nutzt es nicht:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Merkmal</th><th>Kryptowährungs-Blockchain</th><th>Kette von T-VOTE</th></tr></thead>
+          <tbody>
+            <tr><td>Per Hash verkettete Blöcke</td><td>Ja</td><td>Ja</td></tr>
+            <tr><td>Digitale Signaturen</td><td>Ja</td><td>Ja (Tafel, Gerät und jeder Stimmzettel)</td></tr>
+            <tr><td>Jeder kann herunterladen und prüfen</td><td>Ja</td><td>Ja</td></tr>
+            <tr><td>Wer schreibt</td><td>Jeder Knoten, per Mining oder Stake</td><td>Nur die Wahlbehörde, mit dem Schlüssel der Tafel</td></tr>
+            <tr><td>Mining / Konsens</td><td>Proof of Work oder Proof of Stake</td><td>Keins</td></tr>
+            <tr><td>Währung oder Token</td><td>Ja</td><td>Nein</td></tr>
+            <tr><td>Netz während der Wahl</td><td>Ständig</td><td>Keins: das Gerät ist offline</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Technisch ist es eine nur wachsende <em>öffentliche Anschlagtafel</em> (public bulletin board), dieselbe Idee wie die
+        Certificate-Transparency-Logs für HTTPS-Zertifikate. Die Sicherheit entsteht nicht dadurch, dass sich viele Rechner einigen, sondern
+        durch die Signaturen (die Wahlbehörde kann ein Wahllokal nicht ohne den Schlüssel des Geräts verändern) und durch die öffentliche
+        Prüfung. Zeigte die Wahlbehörde verschiedenen Personen verschiedene Ketten, fiele das auf, sobald Prüfer den Hash des letzten Blocks
+        untereinander und mit den Papier-BUs vergleichen; in einem echten System sollte dieser Endhash an mehreren unabhängigen Stellen
+        veröffentlicht werden.
+      </p>
+      <p>
+        Die Kryptografie der Stimme — ElGamal, Zero-Knowledge-Beweise, blinde Signaturen (Abschnitt 8) — stammt nicht aus der Blockchain,
+        sondern aus der Literatur zu verifizierbaren Wahlen. Hashes und digitale Signaturen sind beiden gemeinsam.
+      </p>
+
+      <h3 id="escala">7.5 Skalierung: 160 Millionen Wähler</h3>
+      <p>
+        Eine weitere berechtigte Frage: <em>Wie lassen sich 160 Millionen Einträge bewältigen, ohne die Energie eines Landes zu
+        verbrauchen?</em> Der Verbrauch von Kryptowährungs-Blockchains kommt vom Mining, das es hier nicht gibt. Die echten Kosten sind das
+        Speichern und Prüfen der Stimmzettel. Im Prototyp gemessen (<code>scripts/medir-escala.ts</code>), für ein Wahllokal mit 300 Wählern
+        und 14 Optionen (12 Kandidaten, leer und ungültig), auf einem gewöhnlichen Desktop-Rechner, mit der nicht optimierten
+        JavaScript-Implementierung:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Messgröße</th><th class="num">Wert</th></tr></thead>
+          <tbody>
+            <tr><td>Ein Stimmzettel (Geheimtexte, Beweise, Nachweis, Signatur und Siegel, als JSON)</td><td class="num">≈ 11,7 KB</td></tr>
+            <tr><td>Block eines Wahllokals mit 300 Wählern</td><td class="num">≈ 3,5 MB</td></tr>
+            <tr><td>Vollständige Prüfung eines Stimmzettels</td><td class="num">≈ 0,1 s pro Kern</td></tr>
+            <tr><td>Vollständige Prüfung eines Wahllokals mit 300 Wählern</td><td class="num">≈ 31 s pro Kern</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Hochrechnung für 160 Millionen Stimmzettel, ein Amt mit 14 Optionen:</p>
+      <ul>
+        <li><strong>Speicher:</strong> etwa 1,9 TB — passt auf eine gewöhnliche Festplatte. Ein kompaktes Binärformat würde das verringern.</li>
+        <li><strong>Vollständige Prüfung des Landes:</strong> etwa 4.600 Kernstunden; mit 200 Kernen ungefähr ein Tag. Bei angenommenen 10 W pro Kern rund 47 kWh — etwa der Monatsverbrauch eines Kühlschranks.</li>
+        <li><strong>Prüfung durch den Wähler:</strong> lädt nur das eigene Wahllokal (wenige MB) und prüft es in Sekunden.</li>
+      </ul>
+      <div class="aviso alerta">
+        <p>
+          <strong>Echte Grenze: Ämter mit vielen Kandidaten.</strong> Der Prototyp verschlüsselt eine Position pro Option. Das funktioniert gut
+          für Ämter mit wenigen Kandidaten wie Präsident oder Gouverneur, aber nicht für Abgeordnete, von denen es in einem Bundesstaat Hunderte
+          geben kann: Der Stimmzettel bräuchte Hunderte KB pro Amt. Eine allgemeine Wahl hat zudem mehrere Ämter in derselben Abstimmung, und
+          jedes erhöht Größe und Zeit. Dafür bräuchte es eine andere Technik, etwa das verifizierbare Mischen (Mix-Net), das andere
+          verifizierbare Wahlsysteme nutzen, statt der homomorphen Summe pro Option.
+        </p>
+      </div>
 
       <h2 id="cripto">8. Kryptografie</h2>
       <h3>8.1 Bausteine</h3>
@@ -762,7 +851,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj durch Suche in [0, Z
         </p>
       </div>
 
-      <h2 id="sigilo">13. Wahlgeheimnis und die Lehre aus dem TPS 2012</h2>
+      <h2 id="sigilo">13. Wahlgeheimnis, Zwang und die Lehre aus dem TPS 2012</h2>
       <p>
         Beim öffentlichen Sicherheitstest (TPS) 2012 des brasilianischen Wahlgeräts zeigten Forschende, dass sich die Reihenfolge der vom
         damaligen Gerät gespeicherten Stimmen rekonstruieren ließ, weil das Mischen einen nicht-kryptografischen Generator nutzte, der mit der
@@ -778,6 +867,56 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj durch Suche in [0, Z
       <p>
         In einem statistischen Test mit 160 Stimmzetteln pro Kandidat war das erste Bild bei 49 % der Stimmzettel des einen Kandidaten und
         50 % des anderen „ungerade“ — wie bei von der Stimme unabhängigen Werten zu erwarten.
+      </p>
+
+
+      <h3 id="embaralhar">13.1 Mischen statt verschlüsseln?</h3>
+      <p>
+        Eine berechtigte Frage: <em>Wenn das Gerät die Stimmen gerade deshalb mischt, damit sie niemand zurückverfolgen kann, wie lässt sich
+        meine Stimme danach dem Gerät zuordnen?</em> Das heutige Gerät speichert die Stimmen im Klartext in seinem digitalen Stimmregister
+        (RDV) und mischt sie, damit die Speicherreihenfolge nicht die Reihenfolge der Warteschlange verrät. Der TPS 2012 zeigte das Risiko:
+        Ist das Mischen vorhersagbar, lässt sich die Reihenfolge rekonstruieren und, abgeglichen mit der Ankunftsreihenfolge der Wähler,
+        Stimmen aufdecken.
+      </p>
+      <p>T-VOTE speichert keine Stimme im Klartext und ist daher nicht auf Mischen angewiesen:</p>
+      <ul>
+        <li>Jeder Stimmzettel wird mit frischem Zufall verschlüsselt; zwei Stimmzettel für denselben Kandidaten sind nicht unterscheidbar.</li>
+        <li>Die Speicherreihenfolge ist die des Trackers (Hash des Geheimtexts): zufällig und ohne Bezug zur Ankunft.</li>
+        <li>Der Wähler findet <em>seinen Geheimtext</em> über den Code auf dem Beleg. Das beweist, dass er aufgenommen und mitgezählt wurde, nicht, was er enthält.</li>
+        <li>Entschlüsselt wird nur die Summe jedes Wahllokals (Abschnitt 8.7).</li>
+      </ul>
+      <p>
+        Eine Folge, die man festhalten sollte: In einem Wahllokal, in dem alle denselben Kandidaten gewählt haben, verrät das Ergebnis die
+        Stimme aller — das ist aber schon heute so, weil das BU jedes Wahllokals öffentlich ist.
+      </p>
+
+      <h3 id="coercao">13.2 Zwang und Stimmenkauf</h3>
+      <p>
+        Das ist die wichtigste Kritik an jedem verifizierbaren System, und zu Recht: Wenn sich eine Stimme beweisen lässt, können Wähler in
+        gewalttätigen Regionen gezwungen werden, sie zu beweisen. Die geforderte Eigenschaft heißt <em>Quittungsfreiheit</em>
+        (receipt-freeness): Der Wähler kann seine Stimme niemandem beweisen, selbst wenn er will.
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Was der Erpresser verlangt</th><th>Warum es nicht funktioniert</th></tr></thead>
+          <tbody>
+            <tr><td>Den Beleg sehen</td><td>Code und Bilder stammen aus einem zufälligen Geheimtext und hängen nicht vom Kandidaten ab.</td></tr>
+            <tr><td>Dass der Wähler zu Hause seine eigene Stimme öffnet</td><td>Unmöglich: Der Schlüssel des abgegebenen Stimmzettels wird im Moment der Stimmabgabe im Gerät vernichtet, und die Trustees entschlüsseln nur Summen.</td></tr>
+            <tr><td>Dass der Wähler den Kandidaten des Erpressers testet und den Test zeigt</td><td>Der Test betrifft einen ungültigen Stimmzettel. Der Wähler kann diesen Kandidaten testen und jemand anderen wählen.</td></tr>
+            <tr><td>Den QR-Code des Terminals sehen (Abschnitt 15)</td><td>Er enthält genau dasselbe wie das Papier.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Was gleich bleibt wie im heutigen System oder noch offen ist:</p>
+      <ul>
+        <li><strong>Foto oder Video des Bildschirms in der Kabine:</strong> außerhalb der Reichweite der Kryptografie, wie heute; das Gesetz verbietet Handys in der Kabine.</li>
+        <li><strong>Ein manipuliertes Gerät, das die Stimme über die Bilder verrät</strong> (verdeckter Kanal, Abschnitt 14): Der Wähler kann das nicht kontrollieren; die Abhilfe ist künftige Arbeit.</li>
+        <li><strong>Zwang, nicht zu wählen</strong>, und sehr kleine Wahllokale: wie im heutigen System.</li>
+      </ul>
+      <p>
+        Kurz: T-VOTE macht Stimmenkauf und Wahlzwang nicht leichter als heute — was der Wähler mit nach Hause nimmt, ist für niemanden ein
+        Beweis. Findet jemand einen Weg, wie ein Wähler mit dem, was er mitnimmt, seine eigene Stimme beweisen kann, ist das eine schwere
+        Schwachstelle und sollte gemeldet werden.
       </p>
 
       <h2 id="limites">14. Grenzen und künftige Arbeit</h2>
@@ -797,6 +936,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj durch Suche in [0, Z
         <li><strong>Schlüssel in Software.</strong> Im Produktivbetrieb: Hardwaremodule (HSM/TPM), Measured Boot und reproduzierbare Builds.</li>
         <li><strong>Zwang vor Ort</strong> (jemand in der Kabine, ein Foto des Bildschirms) liegt außerhalb der Reichweite der Kryptografie.</li>
         <li><strong>Code nicht von Dritten geprüft.</strong></li>
+        <li><strong>Ämter mit vielen Kandidaten</strong> (Abgeordnete): Ein Stimmzettel mit einem Geheimtext pro Option wird groß; nötig wäre verifizierbares Mischen (Mix-Net). Siehe <a href="#escala">Abschnitt 7.5</a>.</li>
       </ul>
 
       <h2 id="qrcode">15. Einführung ohne Drucker: Beleg per QR-Code</h2>
@@ -927,8 +1067,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
         </ol>
 
-        <div class="grupo">Im Prototyp verwendete Software und Daten</div>
+        <div class="grupo">Zwang, öffentliche Anschlagtafeln und Skalierung</div>
         <ol start="34">
+          <li>Benaloh, J.; Tuinstra, D. „Receipt-Free Secret-Ballot Elections“. <em>ACM Symposium on Theory of Computing (STOC)</em>, 1994.</li>
+          <li>Juels, A.; Catalano, D.; Jakobsson, M. „Coercion-Resistant Electronic Elections“. <em>ACM Workshop on Privacy in the Electronic Society (WPES)</em>, 2005.</li>
+          <li>Chaum, D. „Untraceable Electronic Mail, Return Addresses, and Digital Pseudonyms“. <em>Communications of the ACM</em>, Bd. 24, Nr. 2, 1981 (Ursprung der Mix-Nets).</li>
+          <li>IETF RFC 6962 — <em>Certificate Transparency</em>, 2013.</li>
+          <li>Nakamoto, S. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>, 2008 (Blockchain mit Proof of Work, zum Vergleich).</li>
+        </ol>
+
+        <div class="grupo">Im Prototyp verwendete Software und Daten</div>
+        <ol start="39">
           <li>Miller, P. <em>noble-curves</em> und <em>noble-hashes</em>: geprüfte Bibliotheken für elliptische Kurven und Hashes in JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Open-Data-Portal: Wahlkampffotos der Kandidaten (Lizenz CC BY). dadosabertos.tse.jus.br.</li>
           <li>Projekt T-VOTE. Quellcode, Protokollspezifikation (<code>docs/PROTOCOLO.md</code>) und Bericht der Penetrationstests (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>

@@ -56,7 +56,7 @@
       <li><a href="#e2e">10. End-to-end verifiability</a></li>
       <li><a href="#auditoria">11. Universal audit</a></li>
       <li><a href="#ameacas">12. Threats and penetration tests</a></li>
-      <li><a href="#sigilo">13. Secrecy and the 2012 lesson</a></li>
+      <li><a href="#sigilo">13. Secrecy, coercion and the 2012 lesson</a></li>
       <li><a href="#limites">14. Limits and future work</a></li>
       <li><a href="#qrcode">15. Deployment without printers: QR code</a></li>
       <li><a href="#reproduzir">16. How to reproduce</a></li>
@@ -296,6 +296,7 @@ npm run dev        # opens at http://127.0.0.1:3000</pre>
           one candidate and vote for another.</li>
         <li><strong>No time and no order.</strong> Nothing keeps the order in which votes arrived or the time of each one. That is exactly what
           allowed researchers, in a 2012 public test, to reconstruct the order of votes on the Brazilian machine of that time.</li>
+        <li><strong>Against coerced voting.</strong> Since not even the voter can prove who they voted for, anyone trying to buy or coerce votes has nothing to demand. See <a href="#coercao">section 13.2</a>.</li>
       </ul>
 
       <h2 id="fraude-simples">5. What happens if someone cheats</h2>
@@ -319,6 +320,7 @@ npm run dev        # opens at http://127.0.0.1:3000</pre>
       </div>
 
       <h2 id="perguntas">6. Frequently asked questions</h2>
+      <p>Some of these questions came from the public discussion of this white paper. They are legitimate concerns: each has a short answer here and a technical section in Part III.</p>
       <div class="faq">
         <details>
           <summary>Couldn't the machine simply show "verification OK" while lying?</summary>
@@ -337,8 +339,20 @@ npm run dev        # opens at http://127.0.0.1:3000</pre>
           <p>Your vote is still counted normally. You only lose the ability to check it. The polling station's total remains auditable by anyone.</p>
         </details>
         <details>
-          <summary>Is the chain of blocks a cryptocurrency?</summary>
-          <p>No. It is a public record in which each page points to the previous one and is signed by the election authority. There is no mining and no currency: it is just a way for anyone to check that nobody changed what was published.</p>
+          <summary>Is this a blockchain? How does it work if the machine has no internet?</summary>
+          <p>It uses part of blockchain technology: the structure of hash-linked, digitally signed blocks that anyone can download and recompute. It does not use the other part: there is no mining, no cryptocurrency and no network of computers competing to write — only the election authority writes. The machine stays offline all day, as today; at the end it produces a signed file that is taken to the election authority, and only then is it published on the chain. The machine never talks to the chain. Details in <a href="#cadeia">section 7.4</a>.</p>
+        </details>
+        <details>
+          <summary>Today the machine shuffles the votes so nobody knows the order. How do I find my vote without undoing that?</summary>
+          <p>You do not find your vote in plain text: you find your <em>encrypted</em> ballot. Each ballot is encrypted with fresh randomness and stored in the order of the ciphertext hash, with no timestamp. The receipt code points to the ciphertext, and the check proves it was included and added up — without opening it. There is nothing to shuffle because no plaintext vote is stored. Details in <a href="#embaralhar">section 13.1</a>.</p>
+        </details>
+        <details>
+          <summary>What about coerced voting? If I can check my vote, can't someone force me to prove who I voted for?</summary>
+          <p>That is the most important requirement, and the design starts from it. The receipt does not prove the vote: the code does not depend on the candidate, and not even you can open the cast ballot, because its key was destroyed in the machine. The only ballot that can be opened is the TESTAR one, which is cancelled — you can test the candidate the coercer demanded and vote for someone else. Vote buyers and coercers get no guarantee at all. The remaining limits are in <a href="#coercao">section 13.2</a>.</p>
+        </details>
+        <details>
+          <summary>How can this handle 160 million voters without using a country's worth of energy?</summary>
+          <p>The energy use of blockchains comes from mining, which does not exist here: only the election authority writes, and every block is signed. Measured in the prototype, a ballot takes about 12 KB and about 0.1 seconds to audit on one ordinary CPU core. A voter checks only their own polling station; a full national audit fits in a few hundred cores for about a day, using on the order of tens of kWh. Numbers and limits in <a href="#escala">section 7.5</a>.</p>
         </details>
         <details>
           <summary>What if the polling station has no printer?</summary>
@@ -547,6 +561,78 @@ flowchart LR
         Each block contains the hash of the previous one and is signed with the board's Ed25519 key, published in the genesis block. The
         genesis also publishes the options (with the SHA-256 of each photo) and the hash of the software running at the polling station.
       </p>
+
+
+      <h3 id="cadeia">7.4 What the chain of blocks is — and is not</h3>
+      <p>
+        A legitimate question: <em>how do you put a blockchain in a voting machine with no internet?</em> The answer is that the machine does
+        not use the chain during voting. It works offline and, at the end of the day, hands over a signed file (the media, section 7.1). Only
+        afterwards does the election authority publish that file on the chain.
+      </p>
+      <p>
+        T-VOTE uses part of blockchain technology: the <strong>data structure</strong>. Records are kept in blocks, each block stores the hash
+        of the previous one and is signed, nothing can be altered or removed without breaking the links and the signatures, and anyone can
+        download the chain and recompute everything. It does not use the other part, <strong>decentralized consensus</strong>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Feature</th><th>Cryptocurrency blockchain</th><th>T-VOTE chain</th></tr></thead>
+          <tbody>
+            <tr><td>Hash-linked blocks</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Digital signatures</td><td>Yes</td><td>Yes (board, machine and every ballot)</td></tr>
+            <tr><td>Anyone can download and verify</td><td>Yes</td><td>Yes</td></tr>
+            <tr><td>Who writes</td><td>Any node, by mining or stake</td><td>Only the election authority, with the board key</td></tr>
+            <tr><td>Mining / consensus</td><td>Proof of work or proof of stake</td><td>None</td></tr>
+            <tr><td>Currency or token</td><td>Yes</td><td>No</td></tr>
+            <tr><td>Network during voting</td><td>Continuous</td><td>None: the machine is offline</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Technically, it is an append-only <em>public bulletin board</em>, the same idea as the Certificate Transparency logs used for HTTPS
+        certificates. Security does not come from many computers agreeing, but from the signatures (the election authority cannot alter a
+        polling station without the machine's key) and from public verification. If the election authority showed different chains to
+        different people, it would show up when auditors compare the hash of the last block with each other and with the paper BUs; in a real
+        system, that final hash should be published in several independent places.
+      </p>
+      <p>
+        The vote cryptography — ElGamal, zero-knowledge proofs, blind signatures (section 8) — does not come from blockchain but from the
+        verifiable-voting literature. Hashes and digital signatures are common to both.
+      </p>
+
+      <h3 id="escala">7.5 Scale: 160 million voters</h3>
+      <p>
+        Another legitimate question: <em>how can 160 million records be supported without using a country's worth of energy?</em> The energy
+        use of cryptocurrency blockchains comes from mining, which does not exist here. The real cost is storing and verifying the ballots.
+        Measured in the prototype (<code>scripts/medir-escala.ts</code>), on a polling station of 300 voters with 14 options (12 candidates,
+        blank and null), on an ordinary desktop computer, with the unoptimized JavaScript implementation:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Measure</th><th class="num">Value</th></tr></thead>
+          <tbody>
+            <tr><td>One ballot (ciphertexts, proofs, credential, signature and seal, as JSON)</td><td class="num">≈ 11.7 KB</td></tr>
+            <tr><td>Block of a 300-voter polling station</td><td class="num">≈ 3.5 MB</td></tr>
+            <tr><td>Full audit of one ballot</td><td class="num">≈ 0.1 s per core</td></tr>
+            <tr><td>Full audit of a 300-voter polling station</td><td class="num">≈ 31 s per core</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Projection for 160 million ballots, one office with 14 options:</p>
+      <ul>
+        <li><strong>Storage:</strong> about 1.9 TB — it fits on an ordinary disk. A compact binary format would reduce this.</li>
+        <li><strong>Full national audit:</strong> about 4,600 core-hours; with 200 cores, roughly one day. Assuming 10 W per core, around 47 kWh — about what a refrigerator uses in a month.</li>
+        <li><strong>Voter check:</strong> download only your own polling station (a few MB) and check it in seconds.</li>
+      </ul>
+      <div class="aviso alerta">
+        <p>
+          <strong>A real limit: offices with many candidates.</strong> The prototype encrypts one position per option. That works well for
+          offices with few candidates, such as president or governor, but not for congressional deputies, who can number in the hundreds in
+          one state: the ballot would take hundreds of KB per office. A general election also has several offices in the same vote, and each
+          adds size and time. That would require another technique, such as verifiable shuffling (mix-nets), used in other verifiable voting
+          systems, instead of the per-option homomorphic sum.
+        </p>
+      </div>
 
       <h2 id="cripto">8. Cryptography</h2>
       <h3>8.1 Primitives</h3>
@@ -757,7 +843,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj by search in [0, num
         </p>
       </div>
 
-      <h2 id="sigilo">13. Secrecy and the lesson of TPS 2012</h2>
+      <h2 id="sigilo">13. Secrecy, coercion and the lesson of TPS 2012</h2>
       <p>
         In the 2012 Public Security Test (TPS) of the Brazilian voting machine, researchers showed that the order of the votes recorded by the
         machine of that time could be reconstructed, because the shuffling used a non-cryptographic generator seeded with the time. T-VOTE
@@ -773,6 +859,54 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj by search in [0, num
       <p>
         In a statistical test with 160 ballots per candidate, the first picture came out "odd" in 49% of one candidate's ballots and 50% of the
         other's, as expected from values independent of the vote.
+      </p>
+
+
+      <h3 id="embaralhar">13.1 Shuffling versus encrypting</h3>
+      <p>
+        A legitimate question: <em>if the machine shuffles the votes precisely so that nobody can trace them, how can my vote be linked to the
+        machine afterwards?</em> The current machine stores votes in plain text in its Digital Vote Record (RDV) and shuffles them so that the
+        storage order does not reveal the order of the queue. TPS 2012 showed the risk: if the shuffle is predictable, the order can be
+        reconstructed and, crossed with the voters' arrival order, reveal votes.
+      </p>
+      <p>T-VOTE stores no plaintext vote, so it does not depend on shuffling:</p>
+      <ul>
+        <li>Each ballot is encrypted with fresh randomness; two ballots for the same candidate are indistinguishable.</li>
+        <li>The storage order is the tracker order (hash of the ciphertext): random and unrelated to arrival.</li>
+        <li>The voter finds <em>their ciphertext</em> by the receipt code. That proves it was included and added up, not what it contains.</li>
+        <li>Only each polling station's sum is decrypted (section 8.7).</li>
+      </ul>
+      <p>
+        A consequence worth recording: in a polling station where everyone voted for the same candidate, the result reveals everyone's vote —
+        but that already happens today, because each polling station's BU is public.
+      </p>
+
+      <h3 id="coercao">13.2 Coercion and vote buying</h3>
+      <p>
+        This is the most important criticism of any verifiable system, and rightly so: in violent regions, if a vote can be proven, voters can
+        be forced to prove it. The required property is called <em>receipt-freeness</em>: the voter cannot prove their own vote to anyone,
+        even if they want to.
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>What the coercer demands</th><th>Why it does not work</th></tr></thead>
+          <tbody>
+            <tr><td>To see the receipt</td><td>The code and pictures come from a random ciphertext and do not depend on the candidate.</td></tr>
+            <tr><td>That the voter open their own vote at home</td><td>Impossible: the key of the cast ballot is destroyed in the machine at the moment of voting, and the trustees only decrypt sums.</td></tr>
+            <tr><td>That the voter test the coercer's candidate and show the test</td><td>The test is of a cancelled ballot. The voter can test the coercer's candidate and vote for someone else.</td></tr>
+            <tr><td>To see the terminal's QR code (section 15)</td><td>It contains exactly the same as the paper.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>What stays the same as the current system, or remains open:</p>
+      <ul>
+        <li><strong>A photo or video of the screen inside the booth:</strong> beyond the reach of cryptography, as today; the law forbids phones in the booth.</li>
+        <li><strong>A rigged machine leaking the vote through the pictures</strong> (subliminal channel, section 14): the voter cannot control this; mitigation is future work.</li>
+        <li><strong>Coercion not to vote</strong> and very small polling stations: the same as the current system.</li>
+      </ul>
+      <p>
+        In short, T-VOTE does not make coerced voting easier than it is today: what the voter takes home is not proof for anyone. If someone
+        finds a way for a voter to prove their own vote with what they take home, that is a serious flaw and should be reported.
       </p>
 
       <h2 id="limites">14. Limits and future work</h2>
@@ -792,6 +926,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj by search in [0, num
         <li><strong>Keys in software.</strong> In production: hardware modules (HSM/TPM), measured boot and reproducible builds.</li>
         <li><strong>In-person coercion</strong> (someone inside the booth, a photo of the screen) is beyond the reach of cryptography.</li>
         <li><strong>Code not audited by third parties.</strong></li>
+        <li><strong>Offices with many candidates</strong> (deputies): a ballot with one ciphertext per option gets large; verifiable shuffling (mix-nets) would be needed. See <a href="#escala">section 7.5</a>.</li>
       </ul>
 
       <h2 id="qrcode">15. Deployment without printers: receipt by QR code</h2>
@@ -922,8 +1057,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
         </ol>
 
-        <div class="grupo">Software and data used in the prototype</div>
+        <div class="grupo">Coercion, public bulletin boards and scale</div>
         <ol start="34">
+          <li>Benaloh, J.; Tuinstra, D. "Receipt-Free Secret-Ballot Elections". <em>ACM Symposium on Theory of Computing (STOC)</em>, 1994.</li>
+          <li>Juels, A.; Catalano, D.; Jakobsson, M. "Coercion-Resistant Electronic Elections". <em>ACM Workshop on Privacy in the Electronic Society (WPES)</em>, 2005.</li>
+          <li>Chaum, D. "Untraceable Electronic Mail, Return Addresses, and Digital Pseudonyms". <em>Communications of the ACM</em>, vol. 24, no. 2, 1981 (origin of mix-nets).</li>
+          <li>IETF RFC 6962 — <em>Certificate Transparency</em>, 2013.</li>
+          <li>Nakamoto, S. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>, 2008 (proof-of-work blockchain, for comparison).</li>
+        </ol>
+
+        <div class="grupo">Software and data used in the prototype</div>
+        <ol start="39">
           <li>Miller, P. <em>noble-curves</em> and <em>noble-hashes</em>: audited elliptic-curve and hash libraries in JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Open Data Portal: candidates' campaign photos (CC BY licence). dadosabertos.tse.jus.br.</li>
           <li>T-VOTE project. Source code, protocol specification (<code>docs/PROTOCOLO.md</code>) and penetration test report (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>

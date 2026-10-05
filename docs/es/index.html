@@ -56,7 +56,7 @@
       <li><a href="#e2e">10. Verificabilidad de extremo a extremo</a></li>
       <li><a href="#auditoria">11. Auditoría universal</a></li>
       <li><a href="#ameacas">12. Amenazas y pruebas de intrusión</a></li>
-      <li><a href="#sigilo">13. Secreto y la lección de 2012</a></li>
+      <li><a href="#sigilo">13. Secreto, coacción y la lección de 2012</a></li>
       <li><a href="#limites">14. Límites y trabajo futuro</a></li>
       <li><a href="#qrcode">15. Implantación sin impresora: código QR</a></li>
       <li><a href="#reproduzir">16. Cómo reproducirlo</a></li>
@@ -296,6 +296,7 @@ npm run dev        # se abre en http://127.0.0.1:3000</pre>
           candidato y votar por otro.</li>
         <li><strong>Sin hora y sin orden.</strong> Nada guarda el orden en que llegaron los votos ni la hora de cada uno. Eso fue exactamente lo que
           permitió, en una prueba pública de 2012, reconstruir el orden de los votos de la urna brasileña de entonces.</li>
+        <li><strong>Contra el voto bajo coacción.</strong> Como ni el propio votante puede probar por quién votó, quien intenta comprar o coaccionar votos no tiene nada que exigir. Vea la <a href="#coercao">sección 13.2</a>.</li>
       </ul>
 
       <h2 id="fraude-simples">5. Qué pasa si alguien hace trampa</h2>
@@ -319,6 +320,7 @@ npm run dev        # se abre en http://127.0.0.1:3000</pre>
       </div>
 
       <h2 id="perguntas">6. Preguntas frecuentes</h2>
+      <p>Algunas de estas preguntas surgieron en la discusión pública de este libro blanco. Son dudas legítimas: cada una tiene aquí una respuesta breve y una sección técnica en la Parte III.</p>
       <div class="faq">
         <details>
           <summary>¿No podría la urna mostrar simplemente «verificación OK» mintiendo?</summary>
@@ -337,8 +339,20 @@ npm run dev        # se abre en http://127.0.0.1:3000</pre>
           <p>Su voto sigue contándose normalmente. Solo pierde la posibilidad de verificarlo. La suma de la mesa sigue siendo auditable por cualquiera.</p>
         </details>
         <details>
-          <summary>¿La cadena de bloques es una criptomoneda?</summary>
-          <p>No. Es un registro público en el que cada página apunta a la anterior y está firmada por el organismo electoral. No hay minería ni moneda: es solo una forma de que cualquiera compruebe que nadie cambió lo publicado.</p>
+          <summary>¿Esto es una blockchain? ¿Cómo funciona si la urna no tiene internet?</summary>
+          <p>Usa parte de la tecnología de una blockchain: la estructura de bloques encadenados por hash y firmados digitalmente, que cualquiera puede descargar y recalcular. No usa la otra parte: no hay minería, ni criptomoneda, ni red de computadoras compitiendo por escribir; solo escribe el organismo electoral. La urna sigue sin conexión todo el día, como hoy; al final genera un archivo firmado que se lleva al organismo electoral, y solo entonces se publica en la cadena. La urna nunca habla con la cadena. Detalles en la <a href="#cadeia">sección 7.4</a>.</p>
+        </details>
+        <details>
+          <summary>Hoy la urna baraja los votos para que nadie sepa el orden. ¿Cómo encuentro mi voto sin deshacer eso?</summary>
+          <p>Usted no encuentra su voto en claro: encuentra su papeleta <em>cifrada</em>. Cada papeleta se cifra con aleatoriedad nueva y se guarda en el orden del hash del cifrado, sin hora. El código del comprobante apunta al cifrado, y la verificación prueba que fue incluido y sumado, sin abrirlo. No hay nada que barajar porque no se guarda ningún voto en claro. Detalles en la <a href="#embaralhar">sección 13.1</a>.</p>
+        </details>
+        <details>
+          <summary>¿Y el voto bajo coacción? Si puedo verificar mi voto, ¿no podrían obligarme a probar por quién voté?</summary>
+          <p>Es el requisito más importante, y el diseño parte de él. El comprobante no prueba el voto: el código no depende del candidato, y ni siquiera usted puede abrir la papeleta depositada, porque su clave se destruyó en la urna. La única papeleta que se puede abrir es la de TESTAR, que se anula: puede probar el candidato que exige el coaccionador y votar por otro. Quien compra o coacciona votos no obtiene ninguna garantía. Los límites que siguen existiendo están en la <a href="#coercao">sección 13.2</a>.</p>
+        </details>
+        <details>
+          <summary>¿Cómo soporta 160 millones de votantes sin gastar la energía de un país?</summary>
+          <p>El gasto de energía de las blockchains viene de la minería, que aquí no existe: solo escribe el organismo electoral y cada bloque está firmado. Medido en el prototipo, una papeleta ocupa unos 12 KB y tarda unos 0,1 segundos en auditarse en un núcleo de procesador común. El votante verifica solo su propia mesa; la auditoría completa del país cabe en unos cientos de núcleos durante un día, con un consumo del orden de decenas de kWh. Cifras y límites en la <a href="#escala">sección 7.5</a>.</p>
         </details>
         <details>
           <summary>¿Y si la mesa no tiene impresora?</summary>
@@ -547,6 +561,78 @@ flowchart LR
         Cada bloque contiene el hash del anterior y está firmado con la clave Ed25519 del tablón, publicada en el génesis. El génesis también
         publica las opciones (con el SHA-256 de cada foto) y el hash del software que se ejecuta en la mesa.
       </p>
+
+
+      <h3 id="cadeia">7.4 Qué es — y qué no es — la cadena de bloques</h3>
+      <p>
+        Pregunta legítima: <em>¿cómo incluir una blockchain en una urna sin internet?</em> La respuesta es que la urna no usa la cadena durante
+        la votación. Trabaja sin conexión y, al final del día, entrega un archivo firmado (el medio, sección 7.1). Solo después el organismo
+        electoral publica ese archivo en la cadena.
+      </p>
+      <p>
+        T-VOTE usa parte de la tecnología de una blockchain: la <strong>estructura de datos</strong>. Los registros se guardan en bloques, cada
+        bloque guarda el hash del anterior y está firmado, nada puede alterarse ni eliminarse sin romper el encadenamiento y las firmas, y
+        cualquiera puede descargar la cadena y recalcularlo todo. No usa la otra parte, la del <strong>consenso descentralizado</strong>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Característica</th><th>Blockchain de criptomoneda</th><th>Cadena de T-VOTE</th></tr></thead>
+          <tbody>
+            <tr><td>Bloques encadenados por hash</td><td>Sí</td><td>Sí</td></tr>
+            <tr><td>Firmas digitales</td><td>Sí</td><td>Sí (del tablón, de la urna y de cada papeleta)</td></tr>
+            <tr><td>Cualquiera descarga y verifica</td><td>Sí</td><td>Sí</td></tr>
+            <tr><td>Quién escribe</td><td>Cualquier nodo, por minería o participación</td><td>Solo el organismo electoral, con la clave del tablón</td></tr>
+            <tr><td>Minería / consenso</td><td>Prueba de trabajo o de participación</td><td>No hay</td></tr>
+            <tr><td>Moneda o token</td><td>Sí</td><td>No</td></tr>
+            <tr><td>Red durante la votación</td><td>Continua</td><td>Ninguna: la urna no tiene conexión</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        En términos técnicos, es un <em>tablón de anuncios público</em> (public bulletin board) que solo crece, la misma idea que los registros
+        de Certificate Transparency de los certificados HTTPS. La seguridad no viene de que muchas computadoras se pongan de acuerdo, sino de
+        las firmas (el organismo electoral no puede alterar una mesa sin la clave de la urna) y de la verificación pública. Si el organismo
+        electoral mostrara cadenas distintas a personas distintas, se notaría al comparar el hash del último bloque entre auditores y con los
+        BU en papel; en un sistema real, ese hash final debería publicarse en varios lugares independientes.
+      </p>
+      <p>
+        La criptografía del voto — ElGamal, pruebas de conocimiento cero, firmas ciegas (sección 8) — no viene de la blockchain, sino de la
+        literatura de votación verificable. Los hashes y las firmas digitales son comunes a ambas.
+      </p>
+
+      <h3 id="escala">7.5 Escala: 160 millones de votantes</h3>
+      <p>
+        Otra pregunta legítima: <em>¿cómo soportar 160 millones de registros sin gastar la energía de un país?</em> El consumo de las
+        blockchains de criptomonedas viene de la minería, que aquí no existe. El coste real es guardar y verificar las papeletas. Medido en el
+        prototipo (<code>scripts/medir-escala.ts</code>), en una mesa de 300 votantes con 14 opciones (12 candidatos, en blanco y nulo), en
+        una computadora de escritorio común, con la implementación en JavaScript sin optimizar:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Medida</th><th class="num">Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Una papeleta (cifrados, pruebas, credencial, firma y sello, en JSON)</td><td class="num">≈ 11,7 KB</td></tr>
+            <tr><td>Bloque de una mesa de 300 votantes</td><td class="num">≈ 3,5 MB</td></tr>
+            <tr><td>Auditoría completa de una papeleta</td><td class="num">≈ 0,1 s por núcleo</td></tr>
+            <tr><td>Auditoría completa de una mesa de 300 votantes</td><td class="num">≈ 31 s por núcleo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Proyección para 160 millones de papeletas, un cargo con 14 opciones:</p>
+      <ul>
+        <li><strong>Almacenamiento:</strong> unos 1,9 TB; cabe en un disco común. Un formato binario compacto lo reduciría.</li>
+        <li><strong>Auditoría completa del país:</strong> unas 4.600 horas-núcleo; con 200 núcleos, aproximadamente un día. Suponiendo 10 W por núcleo, unos 47 kWh, del orden de lo que consume un frigorífico en un mes.</li>
+        <li><strong>Verificación del votante:</strong> descarga solo su propia mesa (pocos MB) y la verifica en segundos.</li>
+      </ul>
+      <div class="aviso alerta">
+        <p>
+          <strong>Límite real: cargos con muchos candidatos.</strong> El prototipo cifra una posición por opción. Eso funciona bien para cargos
+          con pocos candidatos, como presidente o gobernador, pero no para diputados, que pueden ser cientos en un estado: la papeleta ocuparía
+          cientos de KB por cargo. Una elección general además tiene varios cargos en la misma votación, y cada uno suma tamaño y tiempo. Para
+          eso haría falta otra técnica, como el barajado verificable (mix-net), usado en otros sistemas de votación verificable, en lugar de la
+          suma homomórfica por opción.
+        </p>
+      </div>
 
       <h2 id="cripto">8. Criptografía</h2>
       <h3>8.1 Primitivas</h3>
@@ -757,7 +843,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por búsqueda en [0,
         </p>
       </div>
 
-      <h2 id="sigilo">13. Secreto y la lección de la TPS 2012</h2>
+      <h2 id="sigilo">13. Secreto, coacción y la lección de la TPS 2012</h2>
       <p>
         En la Prueba Pública de Seguridad (TPS) de 2012 de la urna brasileña, unos investigadores mostraron que el orden de los votos grabados
         por la urna de entonces podía reconstruirse, porque el barajado usaba un generador no criptográfico sembrado con la hora. T-VOTE responde
@@ -773,6 +859,55 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por búsqueda en [0,
       <p>
         En una prueba estadística con 160 papeletas por candidato, la primera figura salió «impar» en el 49% de las papeletas de un candidato y en
         el 50% de las del otro, como se espera de valores independientes del voto.
+      </p>
+
+
+      <h3 id="embaralhar">13.1 Barajar frente a cifrar</h3>
+      <p>
+        Pregunta legítima: <em>si la urna baraja los votos precisamente para que nadie los rastree, ¿cómo asociar mi voto a la urna después?</em>
+        La urna actual guarda los votos en claro en el Registro Digital del Voto (RDV) y los baraja para que el orden de grabación no revele el
+        orden de la fila. La TPS 2012 mostró el riesgo: si el barajado es previsible, el orden puede reconstruirse y, cruzado con el orden de
+        llegada de los votantes, revelar votos.
+      </p>
+      <p>T-VOTE no guarda votos en claro, así que no depende del barajado:</p>
+      <ul>
+        <li>Cada papeleta se cifra con aleatoriedad nueva; dos papeletas por el mismo candidato son indistinguibles.</li>
+        <li>El orden de almacenamiento es el del rastreador (hash del cifrado): aleatorio y sin relación con la llegada.</li>
+        <li>El votante localiza <em>su cifrado</em> por el código del comprobante. Eso prueba que fue incluido y sumado, no lo que contiene.</li>
+        <li>Solo se descifra la suma de cada mesa (sección 8.7).</li>
+      </ul>
+      <p>
+        Una consecuencia que conviene registrar: en una mesa donde todos votaron por el mismo candidato, el resultado revela el voto de todos;
+        pero eso ya ocurre hoy, porque el BU de cada mesa es público.
+      </p>
+
+      <h3 id="coercao">13.2 Coacción y compra de votos</h3>
+      <p>
+        Es la crítica más importante a cualquier sistema verificable, y con razón: en regiones violentas, si el voto se puede demostrar, los
+        votantes pueden ser obligados a demostrarlo. La propiedad exigida se llama <em>ausencia de recibo</em> (receipt-freeness): el votante no
+        puede demostrar su propio voto a nadie, ni aunque quiera.
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Lo que exige el coaccionador</th><th>Por qué no funciona</th></tr></thead>
+          <tbody>
+            <tr><td>Ver el comprobante</td><td>El código y las figuras vienen de un cifrado aleatorio y no dependen del candidato.</td></tr>
+            <tr><td>Que el votante abra su propio voto en casa</td><td>Imposible: la clave de la papeleta depositada se destruye en la urna en el momento del voto, y los custodios solo descifran sumas.</td></tr>
+            <tr><td>Que el votante pruebe el candidato del coaccionador y muestre la prueba</td><td>La prueba es de una papeleta anulada. El votante puede probar ese candidato y votar por otro.</td></tr>
+            <tr><td>Ver el código QR del terminal (sección 15)</td><td>Contiene exactamente lo mismo que el papel.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Lo que sigue igual que en el sistema actual, o sigue abierto:</p>
+      <ul>
+        <li><strong>Foto o vídeo de la pantalla dentro de la cabina:</strong> fuera del alcance de la criptografía, como hoy; la ley prohíbe el móvil en la cabina.</li>
+        <li><strong>Una urna adulterada que filtre el voto por las figuras</strong> (canal subliminal, sección 14): el votante no lo controla; la mitigación es trabajo futuro.</li>
+        <li><strong>Coacción para no votar</strong> y mesas muy pequeñas: igual que en el sistema actual.</li>
+      </ul>
+      <p>
+        En resumen, T-VOTE no hace la compra o coacción de votos más fácil que hoy: lo que el votante se lleva a casa no sirve de prueba para
+        nadie. Si alguien encuentra una forma de que el votante demuestre su propio voto con lo que se lleva a casa, es una falla grave y debe
+        informarse.
       </p>
 
       <h2 id="limites">14. Límites y trabajo futuro</h2>
@@ -792,6 +927,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por búsqueda en [0,
         <li><strong>Claves en software.</strong> En producción: módulos de hardware (HSM/TPM), arranque medido y compilaciones reproducibles.</li>
         <li><strong>La coacción presencial</strong> (alguien dentro de la cabina, una foto de la pantalla) está fuera del alcance de la criptografía.</li>
         <li><strong>Código no auditado por terceros.</strong></li>
+        <li><strong>Cargos con muchos candidatos</strong> (diputados): la papeleta con un cifrado por opción se vuelve grande; haría falta barajado verificable (mix-net). Vea la <a href="#escala">sección 7.5</a>.</li>
       </ul>
 
       <h2 id="qrcode">15. Implantación sin impresora: comprobante por código QR</h2>
@@ -923,8 +1059,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
         </ol>
 
-        <div class="grupo">Software y datos usados en el prototipo</div>
+        <div class="grupo">Coacción, tablones públicos y escala</div>
         <ol start="34">
+          <li>Benaloh, J.; Tuinstra, D. «Receipt-Free Secret-Ballot Elections». <em>ACM Symposium on Theory of Computing (STOC)</em>, 1994.</li>
+          <li>Juels, A.; Catalano, D.; Jakobsson, M. «Coercion-Resistant Electronic Elections». <em>ACM Workshop on Privacy in the Electronic Society (WPES)</em>, 2005.</li>
+          <li>Chaum, D. «Untraceable Electronic Mail, Return Addresses, and Digital Pseudonyms». <em>Communications of the ACM</em>, vol. 24, n.º 2, 1981 (origen de las mix-nets).</li>
+          <li>IETF RFC 6962 — <em>Certificate Transparency</em>, 2013.</li>
+          <li>Nakamoto, S. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>, 2008 (blockchain con prueba de trabajo, para comparación).</li>
+        </ol>
+
+        <div class="grupo">Software y datos usados en el prototipo</div>
+        <ol start="39">
           <li>Miller, P. <em>noble-curves</em> y <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas y hashes en JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Portal de Datos Abiertos: fotos de campaña de los candidatos (licencia CC BY). dadosabertos.tse.jus.br.</li>
           <li>Proyecto T-VOTE. Código fuente, especificación del protocolo (<code>docs/PROTOCOLO.md</code>) e informe de las pruebas de intrusión (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>

@@ -56,7 +56,7 @@
       <li><a href="#e2e">10. Verificabilidade de ponta a ponta</a></li>
       <li><a href="#auditoria">11. Auditoria universal</a></li>
       <li><a href="#ameacas">12. Ameaças e testes de invasão</a></li>
-      <li><a href="#sigilo">13. Sigilo e a lição do TPS 2012</a></li>
+      <li><a href="#sigilo">13. Sigilo, coerção e a lição de 2012</a></li>
       <li><a href="#limites">14. Limites e trabalho futuro</a></li>
       <li><a href="#qrcode">15. Implantação sem impressora: QR code</a></li>
       <li><a href="#reproduzir">16. Como reproduzir</a></li>
@@ -295,6 +295,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
           candidato e votar em outro.</li>
         <li><strong>Sem horário e sem ordem.</strong> Nada guarda a ordem em que os votos chegaram nem a hora de cada um. Foi exatamente isso que
           permitiu, num teste público de 2012, reconstruir a ordem dos votos da urna brasileira de então.</li>
+        <li><strong>Contra o voto de cabresto.</strong> Como nem o próprio eleitor consegue provar em quem votou, quem tenta comprar ou coagir voto não tem o que cobrar. Veja a <a href="#coercao">seção 13.2</a>.</li>
       </ul>
 
       <h2 id="fraude-simples">5. O que acontece se alguém trapacear</h2>
@@ -318,6 +319,7 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
       </div>
 
       <h2 id="perguntas">6. Perguntas frequentes</h2>
+      <p>Algumas destas perguntas vieram da discussão pública do white paper. São dúvidas legítimas: cada uma tem uma resposta curta aqui e uma seção técnica na Parte III.</p>
       <div class="faq">
         <details>
           <summary>A urna não pode simplesmente mostrar “verificação OK” mentindo?</summary>
@@ -336,8 +338,20 @@ npm run dev        # abre em http://127.0.0.1:3000</pre>
           <p>O seu voto continua contado normalmente. Você só perde a possibilidade de conferi-lo. A soma da seção continua auditável por qualquer pessoa.</p>
         </details>
         <details>
-          <summary>A cadeia de blocos é uma criptomoeda?</summary>
-          <p>Não. É um registro público em que cada página aponta para a anterior e é assinada pelo órgão eleitoral. Não há mineração nem moeda: é só um jeito de qualquer pessoa conferir que ninguém mudou o que foi publicado.</p>
+          <summary>Isso é uma blockchain? Como funciona se a urna não tem internet?</summary>
+          <p>Usa parte da tecnologia de uma blockchain: a estrutura de blocos encadeados por hash e assinados digitalmente, que qualquer pessoa pode baixar e recalcular. Não usa a outra parte: não há mineração, criptomoeda nem rede de computadores disputando quem escreve — só o órgão eleitoral escreve. A urna fica offline o dia inteiro, como hoje; no fim, gera um arquivo assinado que é levado ao órgão eleitoral, e só então ele é publicado na cadeia. A urna nunca fala com a cadeia. Detalhes na <a href="#cadeia">seção 7.4</a>.</p>
+        </details>
+        <details>
+          <summary>Hoje a urna embaralha os votos para ninguém saber a ordem. Como eu acho o meu voto sem desfazer isso?</summary>
+          <p>Você não acha o seu voto em claro: acha a sua cédula <em>cifrada</em>. Cada cédula é cifrada com aleatoriedade nova e fica guardada na ordem do hash da cifra, sem horário. O código do comprovante aponta para a cifra, e a conferência prova que ela foi incluída e somada — sem abri-la. Não há o que embaralhar porque nenhum voto em claro é guardado. Detalhes na <a href="#embaralhar">seção 13.1</a>.</p>
+        </details>
+        <details>
+          <summary>E o voto de cabresto? Se dá para conferir o voto, alguém não pode me obrigar a provar em quem votei?</summary>
+          <p>Esse é o requisito mais importante, e o desenho parte dele. O comprovante não prova o voto: o código não depende do candidato, e nem você consegue abrir a cédula depositada, porque a chave dela foi destruída na urna. A única cédula que pode ser aberta é a do TESTAR, que é anulada — dá para testar o candidato que o coator mandou e votar em outro. Quem compra ou coage voto não recebe garantia nenhuma. Os limites que continuam existindo estão na <a href="#coercao">seção 13.2</a>.</p>
+        </details>
+        <details>
+          <summary>Como isso aguenta 160 milhões de eleitores sem gastar a energia de um país?</summary>
+          <p>O gasto de energia das blockchains vem da mineração, que aqui não existe: só o órgão eleitoral escreve, e cada bloco é assinado. Medido no protótipo, uma cédula ocupa cerca de 12 KB e leva cerca de 0,1 segundo para ser auditada num núcleo de processador comum. O eleitor confere só a própria seção; a auditoria completa do país cabe em algumas centenas de núcleos durante um dia, com consumo da ordem de dezenas de kWh. Números e limites na <a href="#escala">seção 7.5</a>.</p>
         </details>
         <details>
           <summary>E se a seção não tiver impressora?</summary>
@@ -547,6 +561,78 @@ flowchart LR
         opções (com o SHA-256 de cada foto) e o hash do software que roda na seção.
       </p>
 
+
+      <h3 id="cadeia">7.4 O que é — e o que não é — a cadeia de blocos</h3>
+      <p>
+        Pergunta legítima: <em>como incluir uma blockchain numa urna sem internet?</em> A resposta é que a urna não usa a cadeia durante a
+        votação. Ela trabalha offline e, no fim do dia, entrega um arquivo assinado (a mídia, seção 7.1). Só depois o órgão eleitoral publica
+        esse arquivo na cadeia.
+      </p>
+      <p>
+        O T-VOTE usa parte da tecnologia de uma blockchain: a <strong>estrutura de dados</strong>. Os registros ficam em blocos, cada bloco
+        guarda o hash do anterior e é assinado, nada pode ser alterado ou removido sem quebrar o encadeamento e as assinaturas, e qualquer
+        pessoa pode baixar a cadeia e recalcular tudo. Não usa a outra parte, a de <strong>consenso descentralizado</strong>:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Característica</th><th>Blockchain de criptomoeda</th><th>Cadeia do T-VOTE</th></tr></thead>
+          <tbody>
+            <tr><td>Blocos encadeados por hash</td><td>Sim</td><td>Sim</td></tr>
+            <tr><td>Assinaturas digitais</td><td>Sim</td><td>Sim (do quadro, da urna e de cada cédula)</td></tr>
+            <tr><td>Qualquer pessoa baixa e verifica</td><td>Sim</td><td>Sim</td></tr>
+            <tr><td>Quem escreve</td><td>Qualquer nó, por mineração ou participação</td><td>Só o órgão eleitoral, com a chave do quadro</td></tr>
+            <tr><td>Mineração / consenso</td><td>Prova de trabalho ou de participação</td><td>Não há</td></tr>
+            <tr><td>Moeda ou token</td><td>Sim</td><td>Não</td></tr>
+            <tr><td>Rede durante a votação</td><td>Contínua</td><td>Nenhuma: a urna é offline</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Em termos técnicos, é um <em>quadro de avisos público</em> (public bulletin board) que só cresce, a mesma ideia do Certificate
+        Transparency usado nos certificados HTTPS. A segurança não vem de muitos computadores concordarem, e sim das assinaturas (o órgão
+        eleitoral não consegue alterar uma seção sem a chave da urna) e da verificação pública. Se o órgão eleitoral mostrasse cadeias
+        diferentes para pessoas diferentes, isso apareceria comparando o hash do último bloco entre auditores e com os BUs em papel; num
+        sistema real, esse hash final deveria ser publicado em vários lugares independentes.
+      </p>
+      <p>
+        A criptografia do voto — ElGamal, provas de conhecimento zero, assinaturas cegas (seção 8) — não vem de blockchain, e sim da
+        literatura de votação verificável. Hashes e assinaturas digitais são comuns às duas.
+      </p>
+
+      <h3 id="escala">7.5 Escala: 160 milhões de eleitores</h3>
+      <p>
+        Outra pergunta legítima: <em>como suportar 160 milhões de registros sem gastar a energia de um país?</em> O consumo das blockchains
+        de criptomoeda vem da mineração, que aqui não existe. O custo real é guardar e verificar as cédulas. Medido no protótipo
+        (<code>scripts/medir-escala.ts</code>), numa seção de 300 eleitores com 14 opções (12 candidatos, branco e nulo), num computador de
+        mesa comum, com a implementação em JavaScript sem otimizações:
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>Medida</th><th class="num">Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Uma cédula (cifras, provas, credencial, assinatura e selo, em JSON)</td><td class="num">≈ 11,7 KB</td></tr>
+            <tr><td>Bloco de uma seção de 300 eleitores</td><td class="num">≈ 3,5 MB</td></tr>
+            <tr><td>Auditoria completa de uma cédula</td><td class="num">≈ 0,1 s por núcleo</td></tr>
+            <tr><td>Auditoria completa de uma seção de 300 eleitores</td><td class="num">≈ 31 s por núcleo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Projeção para 160 milhões de cédulas, um cargo com 14 opções:</p>
+      <ul>
+        <li><strong>Armazenamento:</strong> cerca de 1,9 TB — cabe num disco comum. Um formato binário compacto reduziria isso.</li>
+        <li><strong>Auditoria completa do país:</strong> cerca de 4.600 horas de núcleo; com 200 núcleos, aproximadamente um dia. Supondo 10 W por núcleo, algo como 47 kWh — da ordem do consumo mensal de uma geladeira.</li>
+        <li><strong>Conferência do eleitor:</strong> baixa só a própria seção (poucos MB) e confere em segundos.</li>
+      </ul>
+      <div class="aviso alerta">
+        <p>
+          <strong>Limite real: cargos com muitos candidatos.</strong> O protótipo cifra uma posição por opção. Isso funciona bem para cargos
+          com poucos candidatos, como presidente ou governador, mas não para deputado, que pode ter centenas de candidatos num estado: a
+          cédula ficaria com centenas de KB por cargo. Uma eleição geral também tem vários cargos na mesma votação, e cada um soma tamanho e
+          tempo. Para isso seria preciso outra técnica, como o embaralhamento verificável (mix-net), usado em outros sistemas de votação
+          verificável, em vez da soma homomórfica por opção.
+        </p>
+      </div>
+
       <h2 id="cripto">8. Criptografia</h2>
       <h3>8.1 Primitivas</h3>
       <div class="tabela">
@@ -755,7 +841,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
         </p>
       </div>
 
-      <h2 id="sigilo">13. Sigilo e a lição do TPS 2012</h2>
+      <h2 id="sigilo">13. Sigilo, coerção e a lição do TPS 2012</h2>
       <p>
         No Teste Público de Segurança de 2012, pesquisadores mostraram que a ordem dos votos gravados pela urna brasileira da época podia ser
         reconstruída, porque o embaralhamento usava um gerador não criptográfico semeado com o horário. O T-VOTE responde em várias camadas:
@@ -770,6 +856,55 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
       <p>
         Num teste estatístico com 160 cédulas por candidato, a primeira figura saiu “ímpar” em 49% das cédulas de um candidato e 50% das
         do outro, como se espera de valores independentes do voto.
+      </p>
+
+
+      <h3 id="embaralhar">13.1 Embaralhar versus cifrar</h3>
+      <p>
+        Pergunta legítima: <em>se a urna embaralha os votos justamente para ninguém rastreá-los, como associar o meu voto à urna depois?</em>
+        A urna atual grava os votos em claro no Registro Digital do Voto (RDV) e os embaralha para que a ordem de gravação não revele a ordem
+        da fila. O TPS 2012 mostrou o risco: se o embaralhamento for previsível, a ordem pode ser reconstruída e, cruzada com a ordem de
+        chegada dos eleitores, revelar votos.
+      </p>
+      <p>O T-VOTE não guarda voto em claro, então não depende de embaralhar:</p>
+      <ul>
+        <li>Cada cédula é cifrada com aleatoriedade nova; duas cédulas para o mesmo candidato são indistinguíveis.</li>
+        <li>A ordem de armazenamento é a do rastreador (hash da cifra): aleatória e sem relação com a chegada.</li>
+        <li>O eleitor localiza a <em>sua cifra</em> pelo código do comprovante. Isso prova que ela foi incluída e somada, não o que ela contém.</li>
+        <li>Só a soma de cada seção é decifrada (seção 8.7).</li>
+      </ul>
+      <p>
+        Uma consequência que vale registrar: numa seção em que todos votaram no mesmo candidato, o resultado revela o voto de todos — mas isso
+        já acontece hoje, porque o BU de cada seção é público.
+      </p>
+
+      <h3 id="coercao">13.2 Coerção e voto de cabresto</h3>
+      <p>
+        É a crítica mais importante a qualquer sistema verificável, e com razão: em regiões violentas, se o voto puder ser comprovado, eleitores
+        podem ser obrigados a comprovar. A propriedade exigida chama-se <em>ausência de recibo</em> (receipt-freeness): o eleitor não consegue
+        provar o próprio voto a ninguém, nem querendo.
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>O que o coator exige</th><th>Por que não funciona</th></tr></thead>
+          <tbody>
+            <tr><td>Ver o comprovante</td><td>O código e as figuras vêm de uma cifra aleatória e não dependem do candidato.</td></tr>
+            <tr><td>Que o eleitor abra o próprio voto em casa</td><td>Impossível: a chave da cédula depositada é destruída na urna no momento do voto, e os trustees só decifram somas.</td></tr>
+            <tr><td>Que o eleitor teste o candidato do coator e mostre o teste</td><td>O teste é de uma cédula anulada. O eleitor pode testar o candidato do coator e votar em outro.</td></tr>
+            <tr><td>Ver o QR code do terminal (seção 15)</td><td>Contém exatamente o mesmo que o papel.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>O que continua igual ao sistema atual, ou em aberto:</p>
+      <ul>
+        <li><strong>Foto ou vídeo da tela dentro da cabine:</strong> fora do alcance da criptografia, como hoje; a lei proíbe celular na cabine.</li>
+        <li><strong>Urna adulterada que vaze o voto pelas figuras</strong> (canal subliminar, seção 14): o eleitor não controla isso; a mitigação é trabalho futuro.</li>
+        <li><strong>Coerção para não votar</strong> e seções muito pequenas: iguais ao sistema atual.</li>
+      </ul>
+      <p>
+        Em resumo, o T-VOTE não torna o voto de cabresto mais fácil do que hoje: o que o eleitor leva para casa não serve como prova para
+        ninguém. Se alguém encontrar um jeito de o eleitor provar o próprio voto com o que ele leva para casa, essa é uma falha grave e deve
+        ser relatada.
       </p>
 
       <h2 id="limites">14. Limites e trabalho futuro</h2>
@@ -789,6 +924,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj por busca no interva
         <li><strong>Chaves em software.</strong> Em produção: módulos de hardware (HSM/TPM), boot medido e builds reprodutíveis.</li>
         <li><strong>Coerção presencial</strong> (alguém dentro da cabine, foto da tela) está fora do alcance da criptografia.</li>
         <li><strong>Código não auditado por terceiros.</strong></li>
+        <li><strong>Cargos com muitos candidatos</strong> (deputados): a cédula com uma cifra por opção fica grande; seria preciso embaralhamento verificável (mix-net). Veja a <a href="#escala">seção 7.5</a>.</li>
       </ul>
 
       <h2 id="qrcode">15. Implantação sem impressora: comprovante por QR code</h2>
@@ -919,8 +1055,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>.</li>
         </ol>
 
-        <div class="grupo">Software e dados usados no protótipo</div>
+        <div class="grupo">Coerção, quadros públicos e escala</div>
         <ol start="34">
+          <li>Benaloh, J.; Tuinstra, D. "Receipt-Free Secret-Ballot Elections". <em>ACM Symposium on Theory of Computing (STOC)</em>, 1994.</li>
+          <li>Juels, A.; Catalano, D.; Jakobsson, M. "Coercion-Resistant Electronic Elections". <em>ACM Workshop on Privacy in the Electronic Society (WPES)</em>, 2005.</li>
+          <li>Chaum, D. "Untraceable Electronic Mail, Return Addresses, and Digital Pseudonyms". <em>Communications of the ACM</em>, v. 24, n. 2, 1981 (origem das mix-nets).</li>
+          <li>IETF RFC 6962 — <em>Certificate Transparency</em>, 2013.</li>
+          <li>Nakamoto, S. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>, 2008 (blockchain com prova de trabalho, para comparação).</li>
+        </ol>
+
+        <div class="grupo">Software e dados usados no protótipo</div>
+        <ol start="39">
           <li>Miller, P. <em>noble-curves</em> e <em>noble-hashes</em>: bibliotecas auditadas de curvas elípticas e hashes em JavaScript. github.com/paulmillr.</li>
           <li>Tribunal Superior Eleitoral. Portal de Dados Abertos: fotos de divulgação de candidatos (licença CC BY). dadosabertos.tse.jus.br.</li>
           <li>Projeto T-VOTE. Código-fonte, especificação do protocolo (<code>docs/PROTOCOLO.md</code>) e relatório dos testes de invasão (<code>docs/RELATORIO-INVASAO.md</code>). <a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>.</li>

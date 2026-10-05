@@ -57,7 +57,7 @@
       <li><a href="#e2e">10. 端到端可验证性</a></li>
       <li><a href="#auditoria">11. 全民审计</a></li>
       <li><a href="#ameacas">12. 威胁与渗透测试</a></li>
-      <li><a href="#sigilo">13. 投票保密与 2012 年的教训</a></li>
+      <li><a href="#sigilo">13. 保密、胁迫与 2012 年的教训</a></li>
       <li><a href="#limites">14. 局限与后续工作</a></li>
       <li><a href="#qrcode">15. 无打印机部署：二维码</a></li>
       <li><a href="#reproduzir">16. 如何复现</a></li>
@@ -265,6 +265,7 @@ npm run dev        # 在 http://127.0.0.1:3000 打开</pre>
         <li><strong>只打开总和。</strong>三位密钥保管人各持一部分，共同解密的只是每个投票站的总数。任何一人单独都打不开任何东西。</li>
         <li><strong>测试不是选票。</strong>测试选票会作废。展示测试并不能证明你的选票，因为你可以测试一位候选人，却投给另一位。</li>
         <li><strong>没有时间，也没有顺序。</strong>系统不保存选票到达的顺序或每张选票的时间。正是这类信息，使研究人员在 2012 年的一次公开测试中重建了当时巴西投票机的选票顺序。</li>
+        <li><strong>对抗胁迫投票。</strong>由于连选民本人都无法证明自己投给了谁，买票或胁迫投票的人也就无从索取证据。见<a href="#coercao">第 13.2 节</a>。</li>
       </ul>
 
       <h2 id="fraude-simples">5. 如果有人作弊会怎样</h2>
@@ -288,6 +289,7 @@ npm run dev        # 在 http://127.0.0.1:3000 打开</pre>
       </div>
 
       <h2 id="perguntas">6. 常见问题</h2>
+      <p>其中一些问题来自本白皮书的公开讨论。这些疑问都很合理：每个问题在这里都有简短回答，并在第三部分有对应的技术章节。</p>
       <div class="faq">
         <details>
           <summary>投票机难道不能干脆撒谎显示“核验通过”吗？</summary>
@@ -306,8 +308,20 @@ npm run dev        # 在 http://127.0.0.1:3000 打开</pre>
           <p>你的选票照常计入。你只是失去了核验它的能力。投票站的总数仍然可以由任何人审计。</p>
         </details>
         <details>
-          <summary>这条区块链是加密货币吗？</summary>
-          <p>不是。它是一个公开登记簿，每一页都指向前一页并由选举机构签名。没有挖矿，也没有货币：它只是让任何人都能确认公布的内容没有被改动的一种方式。</p>
+          <summary>这是区块链吗？投票机不联网，它怎么运作？</summary>
+          <p>它使用了区块链技术的一部分：由哈希链接、带数字签名的区块结构，任何人都可以下载并重新计算。它不使用另一部分：没有挖矿，没有加密货币，也没有争夺写入权的计算机网络——只有选举机构写入。投票机和今天一样整天离线；结束时生成一个签名文件，送到选举机构，之后才发布到链上。投票机从不与链通信。详见<a href="#cadeia">第 7.4 节</a>。</p>
+        </details>
+        <details>
+          <summary>现在的投票机会打乱选票，让人无法知道顺序。我怎么在不破坏这一点的情况下找到自己的选票？</summary>
+          <p>你找到的不是明文选票，而是你的<em>加密</em>选票。每张选票都用新的随机数加密，并按密文哈希的顺序存储，没有时间信息。回执上的代码指向这段密文，核验证明它已被收录并计入总和——而无需打开它。没有任何明文选票被保存，所以无需打乱。详见<a href="#embaralhar">第 13.1 节</a>。</p>
+        </details>
+        <details>
+          <summary>那么被胁迫投票呢？既然我能核验自己的选票，别人不能逼我证明我投给了谁吗？</summary>
+          <p>这是最重要的要求，整个设计正是从这一点出发的。回执不能证明选票：代码与候选人无关，连你自己也打不开已投出的选票，因为它的密钥已在投票机中销毁。唯一能打开的是 TESTAR 的选票，而那张票已作废——你可以测试胁迫者指定的候选人，再投给别人。买票或胁迫投票的人得不到任何保证。仍然存在的局限见<a href="#coercao">第 13.2 节</a>。</p>
+        </details>
+        <details>
+          <summary>怎么支撑 1.6 亿选民，而不耗费一个国家的电力？</summary>
+          <p>区块链的能耗来自挖矿，而这里没有挖矿：只有选举机构写入，每个区块都有签名。在原型中实测，一张选票约占 12 KB，在一个普通处理器核心上审计约需 0.1 秒。选民只核验自己的投票站；全国完整审计用几百个核心约一天即可完成，耗电量在几十千瓦时的量级。数据与局限见<a href="#escala">第 7.5 节</a>。</p>
         </details>
         <details>
           <summary>如果投票站没有打印机呢？</summary>
@@ -509,6 +523,62 @@ flowchart LR
         每个区块包含前一个区块的哈希，并用公告板的 Ed25519 密钥签名，该公钥在创世区块中公布。创世区块还公布各选项（含每张照片的 SHA-256）以及投票站所运行软件的哈希。
       </p>
 
+
+      <h3 id="cadeia">7.4 这条区块链是什么，不是什么</h3>
+      <p>
+        一个合理的问题：<em>没有互联网的投票机，怎么接入区块链？</em>答案是：投票机在投票期间根本不使用这条链。它离线工作，在一天结束时交出一个签名文件（介质，见第 7.1 节）。之后选举机构才把这个文件发布到链上。
+      </p>
+      <p>
+        T-VOTE 使用了区块链技术的一部分：<strong>数据结构</strong>。记录保存在区块中，每个区块保存前一个区块的哈希并带有签名；任何修改或删除都会破坏链接和签名；任何人都可以下载这条链并重新计算一切。它不使用另一部分，即<strong>去中心化共识</strong>：
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>特性</th><th>加密货币区块链</th><th>T-VOTE 的链</th></tr></thead>
+          <tbody>
+            <tr><td>由哈希链接的区块</td><td>是</td><td>是</td></tr>
+            <tr><td>数字签名</td><td>是</td><td>是（公告板、投票机和每张选票）</td></tr>
+            <tr><td>任何人都能下载和核验</td><td>是</td><td>是</td></tr>
+            <tr><td>谁来写入</td><td>任何节点，通过挖矿或权益</td><td>只有选举机构，使用公告板密钥</td></tr>
+            <tr><td>挖矿 / 共识</td><td>工作量证明或权益证明</td><td>没有</td></tr>
+            <tr><td>货币或代币</td><td>有</td><td>没有</td></tr>
+            <tr><td>投票期间的网络</td><td>持续联网</td><td>无：投票机离线</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        从技术上说，这是一个只能追加的<em>公开公告板</em>（public bulletin board），与 HTTPS 证书使用的 Certificate Transparency 日志是同一思路。安全性不是来自众多计算机达成一致，而是来自签名（选举机构没有投票机的密钥就无法篡改投票站数据）和公开核验。如果选举机构向不同的人展示不同的链，审计者之间比对最后一个区块的哈希、并与纸质 BU 比对时就会发现；在真实系统中，这个最终哈希应当在多个独立的地方公布。
+      </p>
+      <p>
+        选票所用的密码学——ElGamal、零知识证明、盲签名（第 8 节）——并非来自区块链，而是来自可验证投票领域的文献。哈希和数字签名是两者共有的。
+      </p>
+
+      <h3 id="escala">7.5 规模：1.6 亿选民</h3>
+      <p>
+        另一个合理的问题：<em>如何支撑 1.6 亿条记录，而不耗费一个国家的电力？</em>加密货币区块链的能耗来自挖矿，而这里没有挖矿。真正的成本是存储和核验选票。在原型中实测（<code>scripts/medir-escala.ts</code>），一个有 300 名选民、14 个选项（12 位候选人、空白票和无效票）的投票站，在普通台式电脑上，使用未经优化的 JavaScript 实现：
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>指标</th><th class="num">数值</th></tr></thead>
+          <tbody>
+            <tr><td>一张选票（密文、证明、凭证、签名和封印，JSON 格式）</td><td class="num">≈ 11.7 KB</td></tr>
+            <tr><td>300 名选民投票站的区块</td><td class="num">≈ 3.5 MB</td></tr>
+            <tr><td>完整审计一张选票</td><td class="num">每核心 ≈ 0.1 秒</td></tr>
+            <tr><td>完整审计一个 300 名选民的投票站</td><td class="num">每核心 ≈ 31 秒</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>按 1.6 亿张选票、一个职位 14 个选项推算：</p>
+      <ul>
+        <li><strong>存储：</strong>约 1.9 TB——一块普通硬盘即可容纳。采用紧凑的二进制格式还能更小。</li>
+        <li><strong>全国完整审计：</strong>约 4,600 核心小时；用 200 个核心大约一天。按每核心 10 瓦估算，约 47 千瓦时——大致相当于一台冰箱一个月的耗电量。</li>
+        <li><strong>选民核验：</strong>只需下载自己的投票站数据（几 MB），几秒即可完成核验。</li>
+      </ul>
+      <div class="aviso alerta">
+        <p>
+          <strong>真实存在的局限：候选人众多的职位。</strong>原型为每个选项加密一个位置。这对候选人较少的职位（如总统或州长）效果很好，但对议员不适用——一个州的议员候选人可能多达数百名，一张选票每个职位就要占用数百 KB。此外，大选在同一次投票中包含多个职位，每个职位都会增加数据量和时间。为此需要另一种技术，例如其他可验证投票系统所用的可验证洗牌（mix-net），而不是按选项进行同态求和。
+        </p>
+      </div>
+
       <h2 id="cripto">8. 密码学</h2>
       <h3>8.1 原语</h3>
       <div class="tabela">
@@ -697,7 +767,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   在 [0, 选票数] 中搜
         </p>
       </div>
 
-      <h2 id="sigilo">13. 投票保密与 2012 年 TPS 的教训</h2>
+      <h2 id="sigilo">13. 投票保密、胁迫与 2012 年 TPS 的教训</h2>
       <p>
         在 2012 年巴西投票机公开安全测试（TPS）中，研究人员证明可以重建当时投票机所记录选票的顺序，因为其洗牌使用了以时间为种子的非密码学随机数生成器。T-VOTE 从多个层面应对：
       </p>
@@ -712,6 +782,47 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   在 [0, 选票数] 中搜
         在一项每位候选人 160 张选票的统计测试中，第一张图片为“奇数”的比例在一位候选人的选票中是 49%，在另一位的选票中是 50%，符合与选票内容无关的取值的预期。
       </p>
 
+
+      <h3 id="embaralhar">13.1 打乱与加密</h3>
+      <p>
+        一个合理的问题：<em>既然投票机打乱选票正是为了让人无法追踪，之后又怎么把我的选票与投票机联系起来？</em>现行投票机把明文选票存在数字选票记录（RDV）中，并打乱顺序，使存储顺序不会泄露排队顺序。2012 年的 TPS 揭示了风险：如果打乱方式可预测，顺序就能被重建，再与选民到达的顺序对照，就能暴露选票。
+      </p>
+      <p>T-VOTE 不保存任何明文选票，因此不依赖打乱：</p>
+      <ul>
+        <li>每张选票都用新的随机数加密；投给同一候选人的两张选票无法区分。</li>
+        <li>存储顺序是追踪码（密文哈希）的顺序：随机，且与到达顺序无关。</li>
+        <li>选民通过回执上的代码找到<em>自己的密文</em>。这证明它已被收录并计入总和，而不证明其内容。</li>
+        <li>只有每个投票站的总和会被解密（第 8.7 节）。</li>
+      </ul>
+      <p>
+        有一个值得记录的后果：如果某个投票站所有人都投给了同一位候选人，结果就会暴露所有人的选票——但这在今天同样存在，因为每个投票站的 BU 都是公开的。
+      </p>
+
+      <h3 id="coercao">13.2 胁迫与买票</h3>
+      <p>
+        这是对任何可验证系统最重要的批评，而且很有道理：在暴力频发的地区，如果选票可以被证明，选民就可能被迫去证明。所需的性质称为<em>无收据性</em>（receipt-freeness）：选民无法向任何人证明自己的选票，即使本人愿意也做不到。
+      </p>
+      <div class="tabela">
+        <table>
+          <thead><tr><th>胁迫者的要求</th><th>为什么行不通</th></tr></thead>
+          <tbody>
+            <tr><td>查看回执</td><td>代码和图片来自随机密文，与候选人无关。</td></tr>
+            <tr><td>让选民在家打开自己的选票</td><td>不可能：已投选票的密钥在投票时即在投票机中销毁，而保管人只解密总和。</td></tr>
+            <tr><td>让选民测试胁迫者指定的候选人并出示测试结果</td><td>测试针对的是一张已作废的选票。选民可以测试该候选人，再投给别人。</td></tr>
+            <tr><td>查看终端上的二维码（第 15 节）</td><td>内容与纸质回执完全相同。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>与现行系统相同或仍未解决的问题：</p>
+      <ul>
+        <li><strong>在投票间内拍摄屏幕照片或视频：</strong>超出密码学的能力范围，与今天相同；法律禁止携带手机进入投票间。</li>
+        <li><strong>被篡改的投票机通过图片泄露选票</strong>（隐蔽信道，第 14 节）：选民无法控制；缓解措施属于后续工作。</li>
+        <li><strong>胁迫不去投票</strong>以及规模很小的投票站：与现行系统相同。</li>
+      </ul>
+      <p>
+        总之，T-VOTE 并没有让买票或胁迫投票比今天更容易：选民带回家的东西对任何人都不构成证据。如果有人找到办法，让选民用带回家的东西证明自己的选票，那就是严重漏洞，应当报告。
+      </p>
+
       <h2 id="limites">14. 局限与后续工作</h2>
       <p>说明尚未解决的问题，本身就是安全的一部分。</p>
       <ul>
@@ -724,6 +835,7 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   在 [0, 选票数] 中搜
         <li><strong>密钥存放在软件中。</strong>生产环境中：硬件模块（HSM/TPM）、度量启动和可复现构建。</li>
         <li><strong>现场胁迫</strong>（有人在投票间内、拍摄屏幕）超出了密码学的能力范围。</li>
         <li><strong>代码未经第三方审计。</strong></li>
+        <li><strong>候选人众多的职位</strong>（议员）：每个选项一个密文的选票会变得很大；需要可验证洗牌（mix-net）。见<a href="#escala">第 7.5 节</a>。</li>
       </ul>
 
       <h2 id="qrcode">15. 无打印机部署：以二维码交付回执</h2>
@@ -846,8 +958,17 @@ npm run verificar -- pacote.json --bu 010-0123</pre>
           <li>ISO/IEC 18004:2015 — <em>Information technology — Automatic identification and data capture techniques — QR Code bar code symbology specification</em>。</li>
         </ol>
 
-        <div class="grupo">原型使用的软件和数据</div>
+        <div class="grupo">胁迫、公开公告板与规模</div>
         <ol start="34">
+          <li>Benaloh, J.; Tuinstra, D. “Receipt-Free Secret-Ballot Elections”. <em>ACM Symposium on Theory of Computing (STOC)</em>，1994。</li>
+          <li>Juels, A.; Catalano, D.; Jakobsson, M. “Coercion-Resistant Electronic Elections”. <em>ACM Workshop on Privacy in the Electronic Society (WPES)</em>，2005。</li>
+          <li>Chaum, D. “Untraceable Electronic Mail, Return Addresses, and Digital Pseudonyms”. <em>Communications of the ACM</em>，第 24 卷第 2 期，1981（mix-net 的起源）。</li>
+          <li>IETF RFC 6962 — <em>Certificate Transparency</em>，2013。</li>
+          <li>Nakamoto, S. <em>Bitcoin: A Peer-to-Peer Electronic Cash System</em>，2008（工作量证明区块链，供对比）。</li>
+        </ol>
+
+        <div class="grupo">原型使用的软件和数据</div>
+        <ol start="39">
           <li>Miller, P. <em>noble-curves</em> 和 <em>noble-hashes</em>：经过审计的 JavaScript 椭圆曲线与哈希库。github.com/paulmillr。</li>
           <li>Tribunal Superior Eleitoral。开放数据门户：候选人竞选照片（CC BY 许可）。dadosabertos.tse.jus.br。</li>
           <li>T-VOTE 项目。源代码、协议规范（<code>docs/PROTOCOLO.md</code>）和渗透测试报告（<code>docs/RELATORIO-INVASAO.md</code>）。<a href="https://github.com/tauz-hub/T-VOTE" target="_blank" rel="noopener">github.com/tauz-hub/T-VOTE</a>。</li>
