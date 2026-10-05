@@ -769,6 +769,10 @@ g^(m_sj) = B_sj / (D_sj,1 · D_sj,2 · D_sj,3)   →   m_sj by search in [0, num
         </table>
       </div>
 
+      <h3 id="beneficio">Benefit: less trust beforehand, more evidence afterwards</h3>
+      <p>Since the integrity of each election can be checked afterwards, by anyone, <strong>part of the effort spent today on ensuring in advance that the software is correct can be reduced</strong>. The clearest case is the integrity test (parallel testing on election day), which exists to detect a machine that records something different from what it shows: in T-VOTE, TESTAR plays that role in every polling station, with real voters and real machines, not in a sample. This can reduce costs.</p>
+      <p>The reduction has a limit: secrecy against a rigged machine, availability on the day, accessibility and the cryptographic implementation itself still require independent testing and auditing (sections 12 and 14). Estimating the savings requires cost data that this work does not have.</p>
+
       <h2 id="auditoria">11. Universal audit</h2>
       <p>The auditor receives only the public package (the chain of blocks) and redoes 22 checks:</p>
       <ol>
